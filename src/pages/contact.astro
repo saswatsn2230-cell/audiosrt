@@ -1,0 +1,150 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Contact AudioSRT — Get in Touch"
+  description="Contact the AudioSRT team. Have a question, feature request, or bug report? We'd love to hear from you."
+>
+  <Header />
+
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="mb-10">
+      <h1 class="text-4xl font-semibold text-apple-dark mb-4">Contact Us</h1>
+      <p class="text-lg text-apple-gray">Have a question, bug report, or feature request? We read every message and respond within 2 business days.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Contact Info -->
+      <div class="md:col-span-1 space-y-6">
+        <div class="bg-white rounded-2xl border border-apple-light-gray p-6">
+          <h2 class="text-sm font-semibold text-apple-dark mb-4 uppercase tracking-wide">Contact Info</h2>
+          <div class="space-y-4">
+            <div class="flex items-start gap-3">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0071E3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 shrink-0" aria-hidden="true">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              <div>
+                <p class="text-xs text-apple-gray mb-0.5">Email</p>
+                <a href="mailto:hello@audiosrt.com" class="text-sm text-apple-blue hover:underline">hello@audiosrt.com</a>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0071E3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 shrink-0" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12,6 12,12 16,14"/>
+              </svg>
+              <div>
+                <p class="text-xs text-apple-gray mb-0.5">Response Time</p>
+                <p class="text-sm text-apple-dark">Within 2 business days</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-blue-50 rounded-2xl border border-blue-100 p-6">
+          <h3 class="text-sm font-semibold text-apple-dark mb-2">Quick Links</h3>
+          <ul class="space-y-2">
+            <li><a href="/blog" class="text-sm text-apple-blue hover:underline">Browse the blog →</a></li>
+            <li><a href="/about" class="text-sm text-apple-blue hover:underline">About AudioSRT →</a></li>
+            <li><a href="/privacy" class="text-sm text-apple-blue hover:underline">Privacy Policy →</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Contact Form -->
+      <div class="md:col-span-2">
+        <form
+          id="contact-form"
+          class="bg-white rounded-2xl border border-apple-light-gray p-8 space-y-5"
+          novalidate
+        >
+          <div>
+            <label for="name" class="block text-sm font-medium text-apple-dark mb-2">Your Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              autocomplete="name"
+              placeholder="Jane Smith"
+              class="w-full px-4 py-3 rounded-xl border border-apple-light-gray bg-apple-bg text-apple-dark text-sm placeholder:text-apple-gray/50 focus:outline-none focus:border-apple-blue transition-colors"
+            />
+          </div>
+
+          <div>
+            <label for="email" class="block text-sm font-medium text-apple-dark mb-2">Email Address</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              autocomplete="email"
+              placeholder="jane@example.com"
+              class="w-full px-4 py-3 rounded-xl border border-apple-light-gray bg-apple-bg text-apple-dark text-sm placeholder:text-apple-gray/50 focus:outline-none focus:border-apple-blue transition-colors"
+            />
+          </div>
+
+          <div>
+            <label for="subject" class="block text-sm font-medium text-apple-dark mb-2">Subject</label>
+            <select
+              id="subject"
+              name="subject"
+              class="w-full px-4 py-3 rounded-xl border border-apple-light-gray bg-apple-bg text-apple-dark text-sm focus:outline-none focus:border-apple-blue transition-colors"
+            >
+              <option value="">Select a topic...</option>
+              <option value="bug">Bug Report</option>
+              <option value="feature">Feature Request</option>
+              <option value="question">General Question</option>
+              <option value="business">Business / Partnership</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="message" class="block text-sm font-medium text-apple-dark mb-2">Message</label>
+            <textarea
+              id="message"
+              name="message"
+              required
+              rows="5"
+              placeholder="Tell us what's on your mind..."
+              class="w-full px-4 py-3 rounded-xl border border-apple-light-gray bg-apple-bg text-apple-dark text-sm placeholder:text-apple-gray/50 focus:outline-none focus:border-apple-blue transition-colors resize-none"
+            ></textarea>
+          </div>
+
+          <div id="form-note" class="hidden bg-green-50 border border-green-200 rounded-xl px-5 py-3">
+            <p class="text-sm text-green-800 font-medium">Message received! We'll get back to you within 2 business days.</p>
+          </div>
+
+          <button
+            type="submit"
+            class="w-full py-3.5 bg-apple-blue text-white font-semibold rounded-xl hover:bg-apple-blue-hover transition-colors"
+          >
+            Send Message →
+          </button>
+
+          <p class="text-xs text-apple-gray text-center">
+            This form is for display purposes. Email us directly at
+            <a href="mailto:hello@audiosrt.com" class="text-apple-blue hover:underline">hello@audiosrt.com</a>
+          </p>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<script>
+  document.getElementById('contact-form')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const note = document.getElementById('form-note');
+    note?.classList.remove('hidden');
+    (e.target as HTMLFormElement).reset();
+    note?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+</script>

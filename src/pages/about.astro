@@ -1,0 +1,96 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="About AudioSRT — Free, Private, Browser-Based Audio Transcription"
+  description="Learn about AudioSRT: why we built a free, privacy-first audio transcription tool that runs entirely in your browser with no uploads and no account required."
+>
+  <Header />
+
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <h1 class="text-4xl font-semibold text-apple-dark mb-6">About AudioSRT</h1>
+
+    <div class="prose-apple">
+      <h2>Our Mission</h2>
+      <p>
+        AudioSRT exists to make professional-quality audio transcription and subtitle generation free, private, and accessible to everyone — without requiring an account, a subscription, or a willingness to hand your audio to a third-party server.
+      </p>
+
+      <h2>Why We Built This</h2>
+      <p>
+        The transcription market has long been dominated by a frustrating model: sign up, upload your audio to our servers, pay monthly, hope your data is safe. For journalists, researchers, content creators, healthcare workers, lawyers, and everyday users, this model creates real problems — privacy risk, ongoing cost, and friction at every step.
+      </p>
+      <p>
+        When OpenAI released Whisper as an open-source AI model, and when the Hugging Face team released Transformers.js — bringing that same AI directly into the browser — we saw an opportunity to do things differently.
+      </p>
+      <p>
+        We built AudioSRT around a single principle: <strong>your audio should never leave your device.</strong> Everything — the AI model, the transcription engine, the subtitle generator, the SRT exporter — runs entirely in your browser, on your own hardware. There is no server receiving your audio. There is nothing to breach, nothing to subpoena, no terms of service that lets us train on your words.
+      </p>
+
+      <h2>Free Forever</h2>
+      <p>
+        AudioSRT is and will remain completely free. There are no paid tiers, no premium features locked behind a paywall, no "free trial" that expires. We sustain the tool through display advertising, which has zero impact on the tool itself — ads appear around the tool area, never inside it.
+      </p>
+      <p>
+        We believe that the ability to transcribe your own audio and create subtitle files for your own content is a fundamental creative need. Putting a paywall in front of it makes no sense when the underlying technology is free and runs on your device.
+      </p>
+
+      <h2>Privacy-First Architecture</h2>
+      <p>
+        Our privacy commitment isn't just a marketing claim — it's baked into the architecture. Here's what that means in practice:
+      </p>
+      <ul>
+        <li>Your audio file is read by your browser using the File API — it goes directly into browser memory</li>
+        <li>The Whisper AI model runs locally via WebAssembly — it processes audio in your browser, on your CPU</li>
+        <li>The Web Audio API decodes your audio — entirely on your device</li>
+        <li>The transcript, the SRT file, the subtitle settings — all generated and stored locally</li>
+        <li>We collect no analytics on what you transcribe, how long your files are, or what your transcripts contain</li>
+      </ul>
+      <p>
+        If you open your browser's developer tools and watch the network tab while using AudioSRT, you'll see network requests for the initial page assets and the Whisper model weights (downloaded once from a CDN, then cached). You will see zero requests containing your audio data.
+      </p>
+
+      <h2>The Technology</h2>
+      <p>
+        AudioSRT is built on:
+      </p>
+      <ul>
+        <li><strong>Astro</strong> — a modern static site framework optimized for performance</li>
+        <li><strong>Tailwind CSS</strong> — utility-first CSS for a clean, responsive design</li>
+        <li><strong>Transformers.js</strong> by Hugging Face — runs OpenAI's Whisper model in the browser via WebAssembly</li>
+        <li><strong>Whisper</strong> by OpenAI — the state-of-the-art open-source speech recognition model</li>
+        <li><strong>Cloudflare Pages</strong> — fast, global static hosting with zero server infrastructure</li>
+      </ul>
+      <p>
+        The entire site is static HTML. There is no backend, no database, no server processing anything. Cloudflare simply serves the HTML, CSS, and JavaScript to your browser — and then your browser does all the work.
+      </p>
+
+      <h2>Who We Are</h2>
+      <p>
+        AudioSRT is an independent project built by a small team who believes in the open web, user privacy, and the power of browser-based AI to democratize tools that used to require expensive infrastructure.
+      </p>
+      <p>
+        We have no investors, no VC backing, no pressure to monetize your data or convert you to a paid tier. The tool works, it's free, and that's the point.
+      </p>
+
+      <h2>Get in Touch</h2>
+      <p>
+        Have a feature request, a bug report, or just want to say hello? We'd love to hear from you. Use the <a href="/contact">contact page</a> to reach us. We read every message.
+      </p>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style is:global>
+  .prose-apple h2 { @apply text-2xl font-semibold text-apple-dark mt-10 mb-4; }
+  .prose-apple p  { @apply text-apple-gray leading-relaxed mb-5; }
+  .prose-apple a  { @apply text-apple-blue hover:underline; }
+  .prose-apple ul { @apply list-disc list-outside ml-5 mb-5 space-y-2; }
+  .prose-apple li { @apply text-apple-gray leading-relaxed; }
+  .prose-apple strong { @apply font-semibold text-apple-dark; }
+</style>

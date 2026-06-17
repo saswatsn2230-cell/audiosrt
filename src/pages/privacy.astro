@@ -1,0 +1,163 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const updated = 'January 1, 2026';
+---
+
+<BaseLayout
+  title="Privacy Policy | AudioSRT"
+  description="AudioSRT's privacy policy. Learn how we handle (or rather, don't handle) your data. Your audio never leaves your device."
+  noindex={false}
+>
+  <Header />
+
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <h1 class="text-4xl font-semibold text-apple-dark mb-3">Privacy Policy</h1>
+    <p class="text-apple-gray mb-10">Last updated: {updated}</p>
+
+    <div class="prose-apple space-y-8">
+
+      <section>
+        <h2>Overview</h2>
+        <p>
+          AudioSRT ("we," "us," or "our") is committed to protecting your privacy. This privacy policy explains what information we collect, how we use it, and what rights you have regarding your data. We have designed AudioSRT with privacy as a core architectural principle, not an afterthought.
+        </p>
+        <p>
+          <strong>The short version:</strong> We do not collect your audio. We do not store your transcripts. Your files never leave your device. The only data processing that occurs on our servers is serving standard web files (HTML, CSS, JavaScript) to your browser.
+        </p>
+      </section>
+
+      <section>
+        <h2>1. Audio and Transcription Data</h2>
+        <p>
+          AudioSRT's transcription functionality runs entirely in your browser using Whisper AI via Transformers.js (WebAssembly). This means:
+        </p>
+        <ul>
+          <li>Audio files you upload are processed locally on your device and are never transmitted to our servers or any third-party servers</li>
+          <li>Transcription text is generated on your device and stored temporarily in your browser's memory</li>
+          <li>SRT files are generated locally and downloaded directly to your device</li>
+          <li>We have no access to your audio content, transcripts, or generated files at any time</li>
+        </ul>
+        <p>
+          The Whisper AI model weights are downloaded from Hugging Face's CDN (cdn.jsdelivr.net) when you first use the transcription feature. This is a one-time download cached by your browser. The model download does not include your audio or any personal data.
+        </p>
+      </section>
+
+      <section>
+        <h2>2. Information We Collect</h2>
+        <h3>Website Analytics</h3>
+        <p>
+          We do not currently use analytics tracking cookies or session recording. If we add analytics in the future, we will update this policy and, where required by law, obtain your consent.
+        </p>
+
+        <h3>Server Logs</h3>
+        <p>
+          Like all websites, our hosting provider (Cloudflare) automatically logs basic access data including IP addresses, browser user agents, and pages requested. These logs are used for security monitoring and infrastructure maintenance. Cloudflare's data retention for these logs follows their standard practices. We do not use these logs to identify individual users.
+        </p>
+
+        <h3>Contact Form</h3>
+        <p>
+          If you contact us via the contact form, we collect your name, email address, and the content of your message. This information is used solely to respond to your inquiry and is not shared with third parties.
+        </p>
+      </section>
+
+      <section>
+        <h2>3. Google AdSense</h2>
+        <p>
+          AudioSRT displays advertisements served by Google AdSense. Google AdSense uses cookies and similar tracking technologies to serve ads based on your browsing behavior and interests. This is the only third-party data collection that occurs when you use AudioSRT.
+        </p>
+        <p>
+          Google's use of advertising cookies is governed by <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener noreferrer">Google's Advertising Policies</a>. You can opt out of personalized advertising through <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer">Google's Ads Settings</a>.
+        </p>
+        <p>
+          Google AdSense cookies do not have access to your audio files or transcripts — these are processed locally and are not accessible to third-party scripts.
+        </p>
+      </section>
+
+      <section>
+        <h2>4. Cookies</h2>
+        <p>
+          We use the following types of cookies:
+        </p>
+        <ul>
+          <li><strong>Essential cookies</strong>: Required for basic website functionality. These cannot be disabled.</li>
+          <li><strong>Advertising cookies</strong>: Set by Google AdSense for personalized advertising. These can be managed through your browser settings or Google's opt-out tools.</li>
+        </ul>
+        <p>
+          We do not set analytics cookies or tracking cookies of our own.
+        </p>
+      </section>
+
+      <section>
+        <h2>5. Data Sharing</h2>
+        <p>
+          We do not sell, trade, or otherwise transfer your personal information to third parties except as described in this policy (Cloudflare hosting, Google AdSense advertising). We do not share your data with data brokers or marketing companies.
+        </p>
+      </section>
+
+      <section>
+        <h2>6. GDPR Rights (EEA/UK Residents)</h2>
+        <p>
+          If you are located in the European Economic Area (EEA) or United Kingdom, you have the following rights regarding any personal data we hold about you:
+        </p>
+        <ul>
+          <li><strong>Right of access</strong>: You can request a copy of any personal data we hold about you</li>
+          <li><strong>Right to rectification</strong>: You can request correction of inaccurate personal data</li>
+          <li><strong>Right to erasure</strong>: You can request deletion of your personal data</li>
+          <li><strong>Right to restriction</strong>: You can request we restrict processing of your data</li>
+          <li><strong>Right to portability</strong>: You can request your data in a machine-readable format</li>
+          <li><strong>Right to object</strong>: You can object to our processing of your data</li>
+        </ul>
+        <p>
+          To exercise these rights, contact us using the details in Section 9. Note that since we collect minimal personal data, most requests can be fulfilled quickly.
+        </p>
+        <p>
+          Our lawful basis for processing personal data is legitimate interests (serving the website) and consent (advertising cookies where required by applicable law).
+        </p>
+      </section>
+
+      <section>
+        <h2>7. CCPA Rights (California Residents)</h2>
+        <p>
+          California residents have rights under the California Consumer Privacy Act (CCPA), including the right to know what personal information we collect, the right to delete it, and the right to opt out of its sale. We do not sell personal information. To exercise your rights, contact us as described in Section 9.
+        </p>
+      </section>
+
+      <section>
+        <h2>8. Children's Privacy</h2>
+        <p>
+          AudioSRT is not directed to children under 13 years of age. We do not knowingly collect personal information from children under 13. If we become aware that we have collected personal information from a child under 13, we will take steps to delete it promptly.
+        </p>
+      </section>
+
+      <section>
+        <h2>9. Contact</h2>
+        <p>
+          For privacy-related inquiries, please contact us via the <a href="/contact">contact page</a>. We will respond to all privacy requests within 30 days.
+        </p>
+      </section>
+
+      <section>
+        <h2>10. Changes to This Policy</h2>
+        <p>
+          We may update this privacy policy from time to time. We will notify users of material changes by updating the "Last updated" date at the top of this page. Continued use of AudioSRT after changes constitutes acceptance of the updated policy.
+        </p>
+      </section>
+
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style is:global>
+  .prose-apple h2 { @apply text-2xl font-semibold text-apple-dark mt-10 mb-4; }
+  .prose-apple h3 { @apply text-lg font-semibold text-apple-dark mt-6 mb-2; }
+  .prose-apple p  { @apply text-apple-gray leading-relaxed mb-4; }
+  .prose-apple a  { @apply text-apple-blue hover:underline; }
+  .prose-apple ul { @apply list-disc list-outside ml-5 mb-5 space-y-2; }
+  .prose-apple li { @apply text-apple-gray leading-relaxed; }
+  .prose-apple strong { @apply font-semibold text-apple-dark; }
+</style>

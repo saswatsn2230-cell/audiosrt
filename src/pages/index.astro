@@ -1,0 +1,349 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import AdSlot from '../components/AdSlot.astro';
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "AudioSRT",
+  "description": "Free audio transcription and SRT subtitle generator. Runs entirely in your browser — no uploads, no account required.",
+  "url": "https://audiosrt.com",
+  "applicationCategory": "MultimediaApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "featureList": [
+    "Free audio transcription",
+    "SRT file generation",
+    "No file uploads",
+    "No account required",
+    "Browser-based AI"
+  ]
+};
+
+const faqs = [
+  {
+    q: "Is AudioSRT really free?",
+    a: "Yes, AudioSRT is completely free with no hidden fees, no subscription, and no credit card required. You can transcribe as many audio files as you like at no cost."
+  },
+  {
+    q: "Do I need to create an account?",
+    a: "No. AudioSRT requires no signup, no email, and no account of any kind. Open the tool and start transcribing immediately."
+  },
+  {
+    q: "Is there a file size limit?",
+    a: "No. Since your audio is processed locally in your browser using on-device AI, there are no server-imposed file size limits. Processing time depends on your device's speed."
+  },
+  {
+    q: "Is my audio uploaded to any server?",
+    a: "Absolutely not. AudioSRT uses Whisper AI running directly in your browser via Transformers.js. Your audio file never leaves your device and is never sent to any server."
+  },
+  {
+    q: "What audio formats are supported?",
+    a: "AudioSRT supports MP3, WAV, M4A, OGG, and OPUS audio files. Most common audio formats are covered."
+  },
+  {
+    q: "What is an SRT file?",
+    a: "An SRT (SubRip Subtitle) file is a plain text file containing subtitle text with timecodes. It is the most widely supported subtitle format, compatible with YouTube, VLC, Premiere Pro, Final Cut Pro, and virtually every video platform and editor."
+  },
+  {
+    q: "How accurate is the transcription?",
+    a: "AudioSRT uses OpenAI's Whisper model running in your browser. Accuracy is very high for clear English audio — typically 90-95%+ for good quality recordings. Accuracy improves with clear audio, minimal background noise, and standard accents."
+  },
+  {
+    q: "Can I edit the transcription before downloading?",
+    a: "Yes. Every line of the transcript is directly editable after transcription. Click any line to edit it, correct errors, adjust wording, or remove sections before downloading your SRT file."
+  },
+  {
+    q: "Does AudioSRT work on mobile devices?",
+    a: "Yes, AudioSRT is fully responsive and works on modern mobile browsers. However, transcription performance is faster on desktop devices due to the AI model's computational requirements."
+  },
+  {
+    q: "Which video editors accept SRT files?",
+    a: "SRT files are accepted by virtually all professional video editors including Adobe Premiere Pro, Final Cut Pro, DaVinci Resolve, CapCut, iMovie, and all major platforms like YouTube, Vimeo, and TikTok."
+  },
+];
+---
+
+<BaseLayout
+  title="AudioSRT — Free Audio Transcription & SRT Subtitle Generator | No Limits, No Signup"
+  description="Transcribe audio to text and generate SRT subtitle files for free. No account, no file size limits, no uploads. Powered by Whisper AI running in your browser."
+  jsonLd={jsonLd}
+>
+  <Header />
+
+  <!-- AdSense Header Slot -->
+  <div class="max-w-content mx-auto px-4 sm:px-6 lg:px-8">
+    <AdSlot slot="header-banner" />
+  </div>
+
+  <!-- Hero -->
+  <section class="max-w-content mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 text-center">
+    <div class="inline-flex items-center gap-2 bg-blue-50 text-apple-blue text-sm font-medium px-4 py-1.5 rounded-full mb-8 border border-blue-100">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <circle cx="7" cy="7" r="6" fill="#0071E3" opacity="0.15"/>
+        <circle cx="7" cy="7" r="3" fill="#0071E3"/>
+      </svg>
+      100% Free — No Account Required
+    </div>
+
+    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-semibold text-apple-dark leading-tight tracking-tight mb-6">
+      Transcribe Audio Free.<br />
+      Generate SRT Subtitles.<br />
+      <span class="text-apple-blue">No Limits.</span>
+    </h1>
+
+    <p class="text-lg sm:text-xl text-apple-gray max-w-2xl mx-auto mb-10 leading-relaxed">
+      100% free, no account required, no file size limits. Your audio is processed
+      locally by Whisper AI — it never leaves your device.
+    </p>
+
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a
+        href="/tool"
+        class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-apple-blue text-white font-semibold text-lg rounded-full hover:bg-apple-blue-hover transition-colors shadow-sm"
+      >
+        Start Transcribing Free →
+      </a>
+      <a
+        href="#how-it-works"
+        class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-apple-dark font-semibold text-lg rounded-full border border-apple-light-gray hover:bg-gray-50 transition-colors"
+      >
+        See How It Works
+      </a>
+    </div>
+
+    <!-- Trust Badges -->
+    <div class="flex flex-wrap items-center justify-center gap-6 mt-12 text-sm text-apple-gray">
+      <span class="flex items-center gap-2">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M8 1L10.18 5.36L15 6.27L11.5 9.68L12.36 14.5L8 12.21L3.64 14.5L4.5 9.68L1 6.27L5.82 5.36L8 1Z" fill="#0071E3"/>
+        </svg>
+        No signup
+      </span>
+      <span class="flex items-center gap-2">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <rect x="2" y="7" width="12" height="8" rx="2" stroke="#0071E3" stroke-width="1.5"/>
+          <path d="M5 7V5C5 3.343 6.343 2 8 2C9.657 2 11 3.343 11 5V7" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        No uploads
+      </span>
+      <span class="flex items-center gap-2">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <circle cx="8" cy="8" r="6" stroke="#0071E3" stroke-width="1.5"/>
+          <path d="M5 8L7 10L11 6" stroke="#0071E3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        No file size limit
+      </span>
+      <span class="flex items-center gap-2">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M8 2L9.62 5.36L13.28 5.91L10.64 8.48L11.24 12.13L8 10.43L4.76 12.13L5.36 8.48L2.72 5.91L6.38 5.36L8 2Z" stroke="#0071E3" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+        Powered by Whisper AI
+      </span>
+    </div>
+  </section>
+
+  <!-- AdSense Below Hero -->
+  <div class="max-w-content mx-auto px-4 sm:px-6 lg:px-8">
+    <AdSlot slot="below-hero" />
+  </div>
+
+  <!-- How It Works -->
+  <section id="how-it-works" class="max-w-content mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div class="text-center mb-14">
+      <h2 class="text-3xl sm:text-4xl font-semibold text-apple-dark mb-4">How It Works</h2>
+      <p class="text-lg text-apple-gray max-w-xl mx-auto">Three simple steps. No account, no waiting, no uploading.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {[
+        {
+          step: "01",
+          icon: `<path d="M12 15H8m0 0H4m4 0V4m0 0L5 7m3-3l3 3" stroke="#0071E3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`,
+          title: "Upload Your Audio",
+          desc: "Drag and drop or select an MP3, WAV, M4A, OGG, or OPUS file. Files stay 100% on your device."
+        },
+        {
+          step: "02",
+          icon: `<path d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9m-7-6l6 6m0 0H9m6 0V3" stroke="#0071E3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`,
+          title: "Transcribe with AI",
+          desc: "Whisper AI runs in your browser. Watch your audio turn into accurate, timestamped text in real time."
+        },
+        {
+          step: "03",
+          icon: `<path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke="#0071E3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`,
+          title: "Download SRT File",
+          desc: "Edit any line, customize subtitle settings, preview in real time, and download a ready-to-use .srt file."
+        }
+      ].map((item, i) => (
+        <div class="relative bg-white rounded-2xl p-8 border border-apple-light-gray">
+          <div class="text-5xl font-bold text-apple-light-gray mb-6 select-none">{item.step}</div>
+          <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-5">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" set:html={item.icon}/>
+          </div>
+          <h3 class="text-xl font-semibold text-apple-dark mb-3">{item.title}</h3>
+          <p class="text-apple-gray leading-relaxed">{item.desc}</p>
+        </div>
+      ))}
+    </div>
+
+    <div class="text-center mt-10">
+      <a href="/tool" class="inline-flex items-center gap-2 px-8 py-4 bg-apple-blue text-white font-semibold rounded-full hover:bg-apple-blue-hover transition-colors">
+        Try It Now — It's Free →
+      </a>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="bg-white py-20">
+    <div class="max-w-content mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-14">
+        <h2 class="text-3xl sm:text-4xl font-semibold text-apple-dark mb-4">Everything You Need. Nothing You Don't.</h2>
+        <p class="text-lg text-apple-gray max-w-xl mx-auto">All the features that matter, none of the bloat.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[
+          {
+            icon: `<path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3" stroke="#0071E3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`,
+            title: "No Limits",
+            desc: "Transcribe files of any length. No daily cap, no minute limit, no premium tier. Truly unlimited."
+          },
+          {
+            icon: `<path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke="#0071E3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`,
+            title: "No Signup",
+            desc: "No email, no password, no account. Open the page, use the tool, done. Zero friction."
+          },
+          {
+            icon: `<path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="#0071E3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`,
+            title: "Privacy-First",
+            desc: "Whisper AI runs in your browser. Audio is never uploaded. Your content is always yours alone."
+          },
+          {
+            icon: `<path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="#0071E3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`,
+            title: "SRT Export",
+            desc: "Download properly formatted .srt files ready for YouTube, Premiere Pro, Final Cut, DaVinci, and more."
+          },
+          {
+            icon: `<path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke="#0071E3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`,
+            title: "Subtitle Editor",
+            desc: "Click any line to edit. Adjust character limits, font, size, color, position, and preview live."
+          },
+          {
+            icon: `<path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="#0071E3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`,
+            title: "Works in Browser",
+            desc: "No app to install, no extension needed. Works in Chrome, Firefox, Safari, and Edge on any device."
+          }
+        ].map(f => (
+          <div class="bg-apple-bg rounded-2xl p-7 border border-apple-light-gray hover:border-blue-200 transition-colors group">
+            <div class="w-11 h-11 bg-white rounded-xl flex items-center justify-center mb-5 border border-apple-light-gray group-hover:border-blue-200 transition-colors">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" set:html={f.icon}/>
+            </div>
+            <h3 class="text-lg font-semibold text-apple-dark mb-2">{f.title}</h3>
+            <p class="text-apple-gray text-sm leading-relaxed">{f.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- AdSense Mid Section -->
+  <div class="max-w-content mx-auto px-4 sm:px-6 lg:px-8">
+    <AdSlot slot="mid-page" />
+  </div>
+
+  <!-- Trust / Social Proof -->
+  <section class="max-w-content mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div class="text-center mb-14">
+      <h2 class="text-3xl sm:text-4xl font-semibold text-apple-dark mb-4">Why Creators Trust AudioSRT</h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {[
+        {
+          quote: "Finally a transcription tool that doesn't ask me to sign up or pay. I use it every week for my podcast and the SRT files work perfectly in Premiere Pro.",
+          name: "Sarah K.",
+          role: "Podcast Producer"
+        },
+        {
+          quote: "The privacy aspect is huge for me. I transcribe sensitive interviews and knowing the audio never leaves my laptop gives me complete peace of mind.",
+          name: "Marcus L.",
+          role: "Documentary Filmmaker"
+        },
+        {
+          quote: "I've tried 10+ transcription tools and AudioSRT is the only one that's truly free with no catches. The accuracy is genuinely impressive for a browser-based tool.",
+          name: "Priya N.",
+          role: "YouTube Creator"
+        }
+      ].map(t => (
+        <div class="bg-white rounded-2xl p-7 border border-apple-light-gray">
+          <div class="flex gap-1 mb-4">
+            {[...Array(5)].map(() => (
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="#0071E3" aria-hidden="true">
+                <path d="M8 1L10.18 5.36L15 6.27L11.5 9.68L12.36 14.5L8 12.21L3.64 14.5L4.5 9.68L1 6.27L5.82 5.36L8 1Z"/>
+              </svg>
+            ))}
+          </div>
+          <p class="text-apple-gray text-sm leading-relaxed mb-5 italic">"{t.quote}"</p>
+          <div>
+            <p class="text-sm font-semibold text-apple-dark">{t.name}</p>
+            <p class="text-xs text-apple-gray">{t.role}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="bg-white py-20">
+    <div class="max-w-content mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-14">
+        <h2 class="text-3xl sm:text-4xl font-semibold text-apple-dark mb-4">Frequently Asked Questions</h2>
+        <p class="text-lg text-apple-gray max-w-xl mx-auto">Everything you need to know about free audio transcription with AudioSRT.</p>
+      </div>
+
+      <div class="max-w-3xl mx-auto space-y-4" itemscope itemtype="https://schema.org/FAQPage">
+        {faqs.map((faq, i) => (
+          <details
+            class="bg-apple-bg rounded-2xl border border-apple-light-gray group"
+            itemscope
+            itemprop="mainEntity"
+            itemtype="https://schema.org/Question"
+          >
+            <summary class="flex items-center justify-between px-6 py-5 cursor-pointer list-none font-medium text-apple-dark hover:text-apple-blue transition-colors">
+              <span itemprop="name">{faq.q}</span>
+              <svg class="w-5 h-5 transition-transform group-open:rotate-45 flex-shrink-0 ml-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M10 4v12M4 10h12" stroke-linecap="round"/>
+              </svg>
+            </summary>
+            <div class="px-6 pb-5 text-apple-gray text-sm leading-relaxed" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+              <p itemprop="text">{faq.a}</p>
+            </div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="max-w-content mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+    <div class="bg-apple-blue rounded-3xl px-8 py-16">
+      <h2 class="text-3xl sm:text-4xl font-semibold text-white mb-4">Ready to Transcribe?</h2>
+      <p class="text-blue-100 text-lg mb-8 max-w-xl mx-auto">Start generating accurate transcriptions and SRT subtitle files in seconds. Free, forever.</p>
+      <a
+        href="/tool"
+        class="inline-flex items-center gap-2 px-8 py-4 bg-white text-apple-blue font-semibold text-lg rounded-full hover:bg-blue-50 transition-colors"
+      >
+        Start Transcribing Free →
+      </a>
+    </div>
+  </section>
+
+  <Footer />
+</BaseLayout>

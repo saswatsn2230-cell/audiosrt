@@ -1,0 +1,100 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import AdSlot from '../../components/AdSlot.astro';
+
+export async function getStaticPaths() {
+  const posts = await import.meta.glob('../../content/blog/*.md', { eager: true });
+  return Object.entries(posts).map(([path, post]: [string, any]) => {
+    const slug = path.split('/').pop()?.replace('.md', '') ?? '';
+    return {
+      params: { slug },
+      props: { post },
+    };
+  });
+}
+
+const { post } = Astro.props;
+const { Content, frontmatter } = post as any;
+---
+
+<BaseLayout
+  title={`${frontmatter.title} | AudioSRT Blog`}
+  description={frontmatter.description}
+  ogTitle={frontmatter.title}
+  ogDescription={frontmatter.description}
+  canonical={`https://audiosrt.com/blog/${Astro.params.slug}`}
+>
+  <Header />
+
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-sm text-apple-gray mb-8" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-apple-blue transition-colors">Home</a>
+      <span>/</span>
+      <a href="/blog" class="hover:text-apple-blue transition-colors">Blog</a>
+      <span>/</span>
+      <span class="text-apple-dark truncate">{frontmatter.title}</span>
+    </nav>
+
+    <!-- Meta -->
+    <div class="flex items-center gap-3 text-sm text-apple-gray mb-6">
+      <time datetime={frontmatter.pubDate}>{new Date(frontmatter.pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</time>
+      <span>·</span>
+      <span>AudioSRT Team</span>
+    </div>
+
+    <!-- AdSense above article -->
+    <AdSlot slot="article-top" />
+
+    <!-- Article Content -->
+    <article class="prose prose-lg prose-apple max-w-none mt-8">
+      <Content />
+    </article>
+
+    <!-- AdSense mid-article -->
+    <AdSlot slot="article-mid" class="my-8" />
+
+    <!-- CTA -->
+    <div class="mt-12 bg-apple-blue rounded-2xl px-8 py-10 text-center">
+      <h2 class="text-2xl font-semibold text-white mb-3">Try AudioSRT Free</h2>
+      <p class="text-blue-100 mb-6">Transcribe audio and generate SRT files in your browser. No account, no upload, no limits.</p>
+      <a href="/tool" class="inline-flex items-center gap-2 px-7 py-3 bg-white text-apple-blue font-semibold rounded-full hover:bg-blue-50 transition-colors">
+        Start Transcribing Free →
+      </a>
+    </div>
+
+    <!-- Back to Blog -->
+    <div class="mt-10 pt-8 border-t border-apple-light-gray">
+      <a href="/blog" class="flex items-center gap-2 text-apple-gray hover:text-apple-blue transition-colors text-sm font-medium">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M10 3L5 8l5 5"/>
+        </svg>
+        Back to Blog
+      </a>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style is:global>
+  .prose-apple h1 { @apply text-3xl font-semibold text-apple-dark mb-6 mt-0; }
+  .prose-apple h2 { @apply text-2xl font-semibold text-apple-dark mt-10 mb-4; }
+  .prose-apple h3 { @apply text-xl font-semibold text-apple-dark mt-8 mb-3; }
+  .prose-apple p  { @apply text-apple-gray leading-relaxed mb-5; }
+  .prose-apple a  { @apply text-apple-blue hover:underline; }
+  .prose-apple ul { @apply list-disc list-outside ml-5 mb-5 space-y-2; }
+  .prose-apple ol { @apply list-decimal list-outside ml-5 mb-5 space-y-2; }
+  .prose-apple li { @apply text-apple-gray leading-relaxed; }
+  .prose-apple strong { @apply font-semibold text-apple-dark; }
+  .prose-apple code { @apply bg-apple-light-gray text-apple-dark text-sm px-1.5 py-0.5 rounded; }
+  .prose-apple pre  { @apply bg-apple-dark text-white rounded-xl p-5 mb-6 overflow-x-auto; }
+  .prose-apple pre code { @apply bg-transparent text-white p-0; }
+  .prose-apple table { @apply w-full border-collapse mb-6; }
+  .prose-apple th { @apply text-left text-sm font-semibold text-apple-dark border-b-2 border-apple-light-gray pb-2 pr-4; }
+  .prose-apple td { @apply text-sm text-apple-gray border-b border-apple-light-gray py-2 pr-4; }
+  .prose-apple blockquote { @apply border-l-4 border-apple-blue pl-5 my-6 italic text-apple-gray; }
+  .prose-apple hr { @apply border-apple-light-gray my-8; }
+</style>

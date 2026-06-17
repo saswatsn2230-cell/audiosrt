@@ -1,0 +1,95 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import AdSlot from '../../components/AdSlot.astro';
+
+const posts = [
+  {
+    slug: 'how-to-create-srt-subtitles-free-2026',
+    title: 'How to Create SRT Subtitles for Free in 2026 — Complete Guide',
+    description: 'A complete step-by-step guide to creating SRT subtitle files for free in 2026 using browser-based AI tools.',
+    pubDate: 'Jan 15, 2026',
+    readTime: '8 min read',
+  },
+  {
+    slug: 'add-subtitles-premiere-pro-srt',
+    title: 'How to Add Subtitles in Premiere Pro Using an SRT File',
+    description: 'Step-by-step guide to importing and working with SRT subtitle files in Adobe Premiere Pro 2024/2025.',
+    pubDate: 'Jan 22, 2026',
+    readTime: '7 min read',
+  },
+  {
+    slug: 'best-free-audio-transcription-tools-2026',
+    title: 'Best Free Audio Transcription Tools in 2026 — Honest Comparison',
+    description: 'An honest, no-affiliate comparison of the best free audio transcription tools available in 2026.',
+    pubDate: 'Feb 5, 2026',
+    readTime: '9 min read',
+  },
+  {
+    slug: 'what-is-an-srt-file',
+    title: 'What Is an SRT File and How Does It Work?',
+    description: 'Everything you need to know about SRT files: what they are, how the format works, where they\'re used, and how to create one.',
+    pubDate: 'Feb 12, 2026',
+    readTime: '6 min read',
+  },
+  {
+    slug: 'transcribe-audio-without-uploading',
+    title: 'How to Transcribe Audio Without Uploading to Any Server',
+    description: 'Learn how browser-based AI allows you to transcribe audio locally on your device with no server uploads and no privacy risk.',
+    pubDate: 'Feb 20, 2026',
+    readTime: '8 min read',
+  },
+  {
+    slug: 'free-vs-paid-transcription-tools-2026',
+    title: 'Free vs Paid Transcription Tools: Is Paying Worth It in 2026?',
+    description: 'An honest analysis of whether paid transcription services are worth the cost compared to free alternatives powered by the same AI.',
+    pubDate: 'Mar 1, 2026',
+    readTime: '10 min read',
+  },
+];
+---
+
+<BaseLayout
+  title="Blog — Audio Transcription & SRT Subtitle Guides | AudioSRT"
+  description="Guides, tutorials, and comparisons on audio transcription, SRT subtitle creation, and video captioning. All free resources from AudioSRT."
+>
+  <Header />
+
+  <main class="max-w-content mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="mb-12">
+      <h1 class="text-4xl font-semibold text-apple-dark mb-4">Blog</h1>
+      <p class="text-lg text-apple-gray max-w-2xl">Guides and tutorials on audio transcription, SRT subtitles, and video captioning for creators and professionals.</p>
+    </div>
+
+    <AdSlot slot="blog-top" />
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+      {posts.map(post => (
+        <article class="bg-white rounded-2xl border border-apple-light-gray overflow-hidden hover:border-blue-200 hover:shadow-sm transition-all group">
+          <a href={`/blog/${post.slug}`} class="block p-6">
+            <div class="flex items-center gap-3 mb-4 text-xs text-apple-gray">
+              <span>{post.pubDate}</span>
+              <span>·</span>
+              <span>{post.readTime}</span>
+            </div>
+            <h2 class="text-lg font-semibold text-apple-dark mb-3 group-hover:text-apple-blue transition-colors leading-snug">
+              {post.title}
+            </h2>
+            <p class="text-sm text-apple-gray leading-relaxed">{post.description}</p>
+            <div class="mt-5 text-apple-blue text-sm font-medium flex items-center gap-1">
+              Read article
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 7h8M8 4l3 3-3 3"/>
+              </svg>
+            </div>
+          </a>
+        </article>
+      ))}
+    </div>
+
+    <AdSlot slot="blog-bottom" class="mt-8" />
+  </main>
+
+  <Footer />
+</BaseLayout>

@@ -1,0 +1,160 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const updated = 'January 1, 2026';
+---
+
+<BaseLayout
+  title="Terms of Service | AudioSRT"
+  description="AudioSRT terms of service. Read our acceptable use policy and the terms governing your use of the free audio transcription tool."
+>
+  <Header />
+
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <h1 class="text-4xl font-semibold text-apple-dark mb-3">Terms of Service</h1>
+    <p class="text-apple-gray mb-10">Last updated: {updated}</p>
+
+    <div class="prose-apple space-y-8">
+
+      <section>
+        <h2>1. Acceptance of Terms</h2>
+        <p>
+          By accessing or using AudioSRT ("the Service"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the Service.
+        </p>
+        <p>
+          We reserve the right to modify these terms at any time. Continued use of the Service after changes constitutes acceptance of the modified terms.
+        </p>
+      </section>
+
+      <section>
+        <h2>2. Description of Service</h2>
+        <p>
+          AudioSRT is a free, browser-based audio transcription and subtitle generation tool. The Service uses Whisper AI (via Transformers.js) to transcribe audio files and generate SRT subtitle files. All processing occurs locally on your device — no audio is transmitted to our servers.
+        </p>
+        <p>
+          The Service is provided free of charge and is supported by display advertising. We do not guarantee continuous, uninterrupted availability of the Service.
+        </p>
+      </section>
+
+      <section>
+        <h2>3. Acceptable Use Policy</h2>
+        <p>You agree to use the Service only for lawful purposes. You must not use AudioSRT to:</p>
+        <ul>
+          <li>Transcribe audio that you do not have the legal right to use</li>
+          <li>Violate any copyright, trademark, or other intellectual property rights</li>
+          <li>Record or transcribe conversations without the knowledge and consent of all parties, where required by law</li>
+          <li>Process audio containing content that is illegal in your jurisdiction</li>
+          <li>Attempt to reverse engineer, decompile, or extract the AI model weights beyond what is permitted by their respective licenses</li>
+          <li>Use automated tools to abuse, overload, or interfere with the Service</li>
+          <li>Attempt to circumvent any security or access control measures</li>
+          <li>Use the Service for any purpose that could cause harm to others</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>4. User Content and Intellectual Property</h2>
+        <p>
+          You retain all intellectual property rights to the audio content you process through AudioSRT and the transcripts you generate from it. Since your audio is processed entirely on your device and never transmitted to us, we make no claim to any rights in your content.
+        </p>
+        <p>
+          You represent and warrant that you have all necessary rights, licenses, and permissions to the audio content you process through the Service.
+        </p>
+        <p>
+          The AudioSRT website design, code, and content (excluding user content and the Whisper model, which is licensed by OpenAI under the MIT License) are owned by AudioSRT and protected by applicable intellectual property laws.
+        </p>
+      </section>
+
+      <section>
+        <h2>5. Third-Party Technology</h2>
+        <p>
+          AudioSRT uses the following open-source and third-party technologies:
+        </p>
+        <ul>
+          <li><strong>Whisper by OpenAI</strong>: Licensed under the MIT License</li>
+          <li><strong>Transformers.js by Hugging Face</strong>: Licensed under the Apache 2.0 License</li>
+          <li><strong>Astro</strong>: Licensed under the MIT License</li>
+          <li><strong>Tailwind CSS</strong>: Licensed under the MIT License</li>
+          <li><strong>Google AdSense</strong>: Subject to Google's terms of service</li>
+          <li><strong>Google Fonts (Inter)</strong>: Licensed under the SIL Open Font License</li>
+        </ul>
+        <p>
+          Your use of the Service is also subject to the terms of these third-party providers where applicable.
+        </p>
+      </section>
+
+      <section>
+        <h2>6. Disclaimer of Warranties</h2>
+        <p>
+          THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+        </p>
+        <p>
+          We do not warrant that:
+        </p>
+        <ul>
+          <li>The transcription will be 100% accurate</li>
+          <li>The Service will be uninterrupted or error-free</li>
+          <li>Defects will be corrected</li>
+          <li>The Service is free of viruses or other harmful components</li>
+        </ul>
+        <p>
+          Transcription accuracy varies based on audio quality, accent, background noise, technical vocabulary, and other factors. Always review and verify transcripts before relying on them for professional, legal, medical, or other important purposes.
+        </p>
+      </section>
+
+      <section>
+        <h2>7. Limitation of Liability</h2>
+        <p>
+          TO THE MAXIMUM EXTENT PERMITTED BY LAW, AUDIOSRT SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO LOSS OF PROFITS, DATA, GOODWILL, OR OTHER INTANGIBLE LOSSES, RESULTING FROM YOUR USE OF THE SERVICE.
+        </p>
+        <p>
+          Our total liability to you for any claims arising from your use of the Service shall not exceed the amount you have paid us in the past 12 months (which, for a free service, is zero).
+        </p>
+      </section>
+
+      <section>
+        <h2>8. Privacy</h2>
+        <p>
+          Your use of the Service is governed by our <a href="/privacy">Privacy Policy</a>, which is incorporated into these Terms of Service by reference.
+        </p>
+      </section>
+
+      <section>
+        <h2>9. Advertising</h2>
+        <p>
+          AudioSRT displays advertisements via Google AdSense. Advertisements are displayed around the tool area and are clearly distinguishable from the tool functionality. We do not endorse any products or services advertised on the Service.
+        </p>
+        <p>
+          Ad blocking software may affect the display of advertisements. As a free service, we ask that you consider disabling ad blockers on AudioSRT to support continued free access.
+        </p>
+      </section>
+
+      <section>
+        <h2>10. Governing Law</h2>
+        <p>
+          These Terms shall be governed by and construed in accordance with applicable law. Any disputes arising from these Terms or your use of the Service shall be resolved through good-faith negotiation before pursuing formal legal action.
+        </p>
+      </section>
+
+      <section>
+        <h2>11. Contact</h2>
+        <p>
+          For questions about these Terms of Service, please contact us via the <a href="/contact">contact page</a>.
+        </p>
+      </section>
+
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style is:global>
+  .prose-apple h2 { @apply text-2xl font-semibold text-apple-dark mt-10 mb-4; }
+  .prose-apple p  { @apply text-apple-gray leading-relaxed mb-4; }
+  .prose-apple a  { @apply text-apple-blue hover:underline; }
+  .prose-apple ul { @apply list-disc list-outside ml-5 mb-5 space-y-2; }
+  .prose-apple li { @apply text-apple-gray leading-relaxed; }
+  .prose-apple strong { @apply font-semibold text-apple-dark; }
+</style>

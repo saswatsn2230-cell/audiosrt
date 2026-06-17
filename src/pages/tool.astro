@@ -1,0 +1,1117 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import AdSlot from '../components/AdSlot.astro';
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "AudioSRT Transcription Tool",
+  "description": "Free browser-based audio transcription and SRT subtitle generator powered by Whisper AI. No uploads, no account required.",
+  "url": "https://audiosrt.com/tool",
+  "applicationCategory": "MultimediaApplication",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+};
+---
+
+<BaseLayout
+  title="Free Audio Transcription Tool — Generate SRT Subtitles Online | AudioSRT"
+  description="Transcribe audio to text and generate SRT subtitle files free in your browser. Upload MP3, WAV, M4A files. Powered by Whisper AI. No account, no uploads, no limits."
+  jsonLd={jsonLd}
+>
+  <Header />
+
+  <main class="max-w-content mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <AdSlot slot="tool-top" />
+
+    <div class="text-center mb-10">
+      <h1 class="text-3xl sm:text-4xl font-semibold text-apple-dark mb-3">Free Audio Transcription & SRT Generator</h1>
+      <p class="text-apple-gray max-w-2xl mx-auto">Your audio is processed locally on your device using Whisper AI. Nothing is ever uploaded to any server.</p>
+    </div>
+
+    <div class="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl px-5 py-3 mb-8 max-w-2xl mx-auto">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      <p class="text-sm text-green-800 font-medium">Your audio never leaves your device — 100% private, processed locally.</p>
+    </div>
+
+    <!-- Tool Container -->
+    <div id="tool-app" class="bg-white rounded-2xl border border-apple-light-gray mb-8">
+
+      <!-- STEP 1: Upload (full-width, always visible) -->
+      <div id="step-upload" class="p-8">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="flex items-center justify-center w-8 h-8 rounded-full bg-apple-blue text-white text-sm font-bold">1</span>
+          <h2 class="text-xl font-semibold text-apple-dark">Upload Audio File</h2>
+        </div>
+
+        <div
+          id="drop-zone"
+          class="border-2 border-dashed border-apple-light-gray rounded-2xl p-12 text-center cursor-pointer hover:border-apple-blue hover:bg-blue-50/30 transition-all"
+          role="button" tabindex="0" aria-label="Upload audio file"
+        >
+          <div class="flex justify-center mb-4">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+            </svg>
+          </div>
+          <p class="text-apple-dark font-medium mb-1">Drag & drop your audio file here</p>
+          <p class="text-apple-gray text-sm mb-4">or click to browse</p>
+          <p class="text-xs text-apple-gray">Supports MP3, WAV, M4A, OGG, OPUS — Any file size</p>
+          <input type="file" id="file-input" accept=".mp3,.wav,.m4a,.ogg,.opus,audio/*" class="hidden" />
+        </div>
+
+        <div id="file-info" class="hidden mt-4 flex items-center gap-3 bg-apple-bg rounded-xl px-5 py-3">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0071E3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+          </svg>
+          <div class="flex-1 min-w-0">
+            <p id="file-name" class="text-sm font-medium text-apple-dark truncate"></p>
+            <p id="file-size" class="text-xs text-apple-gray"></p>
+          </div>
+          <button id="remove-file" class="text-apple-gray hover:text-red-500 transition-colors" aria-label="Remove file">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="mt-6">
+          <button id="transcribe-btn" disabled
+            class="w-full py-4 bg-apple-blue text-white font-semibold rounded-xl hover:bg-apple-blue-hover transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-lg">
+            Transcribe Audio →
+          </button>
+        </div>
+      </div>
+
+      <!--
+        Two-column layout — revealed when transcription starts.
+        LEFT  (flex-1 ~60%): Step 2 Transcription · Step 3 Settings · Step 5 Export
+        RIGHT (w-2/5  ~40%): Step 4 Preview — sticky so it stays on screen while user scrolls left column
+      -->
+      <div id="tool-cols" class="hidden border-t border-apple-light-gray flex flex-col md:flex-row">
+
+        <!-- LEFT COLUMN -->
+        <div id="tool-left" class="flex-1 min-w-0 divide-y divide-apple-light-gray">
+
+          <!-- STEP 2: Transcription Progress + Result -->
+          <div id="step-transcribe" class="p-8">
+            <div class="flex items-center gap-3 mb-6">
+              <span class="flex items-center justify-center w-8 h-8 rounded-full bg-apple-blue text-white text-sm font-bold">2</span>
+              <h2 class="text-xl font-semibold text-apple-dark">Transcription</h2>
+            </div>
+
+            <div id="progress-area" class="mb-6">
+              <div class="flex items-center justify-between mb-2">
+                <span id="status-text" class="text-sm font-medium text-apple-dark">Initializing...</span>
+                <span id="progress-pct" class="text-sm text-apple-gray">0%</span>
+              </div>
+              <div class="w-full bg-apple-light-gray rounded-full h-2">
+                <div id="progress-bar" class="bg-apple-blue h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+              </div>
+              <p class="text-xs text-apple-gray mt-2">The AI model runs locally in your browser. First load may take 20–60 seconds.</p>
+            </div>
+
+            <div id="audio-player-wrap" class="hidden mb-6">
+              <p class="text-sm font-medium text-apple-dark mb-2">Audio Playback</p>
+              <audio id="audio-player" controls class="w-full rounded-xl"></audio>
+            </div>
+
+            <div id="transcript-area" class="hidden">
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-sm font-medium text-apple-dark">Transcript <span class="text-apple-gray font-normal">(click timestamp to seek; click text to edit)</span></p>
+                <button id="clear-transcript" class="text-xs text-apple-gray hover:text-red-500 transition-colors">Clear All</button>
+              </div>
+              <div id="transcript-lines" class="space-y-2 max-h-96 overflow-y-auto pr-1"></div>
+            </div>
+          </div>
+
+          <!-- STEP 3: Subtitle Settings -->
+          <div id="step-settings" class="hidden p-8">
+            <div class="flex items-center gap-3 mb-6">
+              <span class="flex items-center justify-center w-8 h-8 rounded-full bg-apple-blue text-white text-sm font-bold">3</span>
+              <h2 class="text-xl font-semibold text-apple-dark">Subtitle Settings</h2>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-medium text-apple-dark mb-2">Subtitle Lines</label>
+                <div class="flex gap-2">
+                  <button id="single-line-btn" class="flex-1 py-2.5 rounded-xl border text-sm font-medium bg-apple-blue text-white border-apple-blue transition-colors" data-lines="1">Single Line</button>
+                  <button id="double-line-btn" class="flex-1 py-2.5 rounded-xl border text-sm font-medium bg-white text-apple-dark border-apple-light-gray hover:bg-gray-50 transition-colors" data-lines="2">Double Line</button>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-apple-dark mb-2">
+                  Max Chars/Line: <span id="chars-val" class="text-apple-blue">42</span>
+                </label>
+                <input type="range" id="chars-slider" min="20" max="80" value="42" class="w-full accent-apple-blue" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-apple-dark mb-2">Font</label>
+                <select id="font-select" class="w-full px-3 py-2.5 rounded-xl border border-apple-light-gray bg-white text-sm text-apple-dark focus:outline-none focus:border-apple-blue">
+                  <option value="Arial">Arial</option>
+                  <option value="Inter" selected>Inter</option>
+                  <option value="Roboto">Roboto</option>
+                  <option value="Times New Roman">Times New Roman</option>
+                  <option value="Courier New">Courier New</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-apple-dark mb-2">
+                  Font Size: <span id="fontsize-val" class="text-apple-blue">20px</span>
+                </label>
+                <input type="range" id="fontsize-slider" min="12" max="32" value="20" class="w-full accent-apple-blue" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-apple-dark mb-2">Text Color</label>
+                <div class="flex items-center gap-3">
+                  <input type="color" id="text-color" value="#FFFFFF" class="w-12 h-10 rounded-lg border border-apple-light-gray cursor-pointer" />
+                  <span id="color-hex" class="text-sm text-apple-gray">#FFFFFF</span>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-apple-dark mb-2">Style</label>
+                <div class="flex gap-2 flex-wrap">
+                  <button id="bold-btn" class="px-4 py-2 rounded-xl border text-sm font-bold bg-white text-apple-dark border-apple-light-gray hover:bg-gray-50 transition-colors">Bold</button>
+                  <button id="shadow-btn" class="px-4 py-2 rounded-xl border text-sm font-medium bg-white text-apple-dark border-apple-light-gray hover:bg-gray-50 transition-colors">Shadow</button>
+                  <button id="stroke-btn" class="px-4 py-2 rounded-xl border text-sm font-medium bg-white text-apple-dark border-apple-light-gray hover:bg-gray-50 transition-colors">Stroke</button>
+                </div>
+              </div>
+
+              <div class="sm:col-span-2">
+                <label class="block text-sm font-medium text-apple-dark mb-2">
+                  Vertical Position: <span id="vpos-label" class="text-apple-blue">Bottom</span>
+                </label>
+                <input type="range" id="vpos-slider" min="5" max="95" value="85" class="w-full accent-apple-blue" />
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 5: Export -->
+          <div id="step-export" class="hidden p-8">
+            <div class="flex items-center gap-3 mb-6">
+              <span class="flex items-center justify-center w-8 h-8 rounded-full bg-apple-blue text-white text-sm font-bold">5</span>
+              <h2 class="text-xl font-semibold text-apple-dark">Export</h2>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4">
+              <button id="download-srt-btn"
+                class="flex-1 flex items-center justify-center gap-2 py-4 bg-apple-blue text-white font-semibold rounded-xl hover:bg-apple-blue-hover transition-colors">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                </svg>
+                Download SRT File
+              </button>
+              <button id="download-txt-btn"
+                class="flex-1 flex items-center justify-center gap-2 py-4 bg-white text-apple-dark font-semibold rounded-xl border border-apple-light-gray hover:bg-gray-50 transition-colors">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                  <polyline points="14,2 14,8 20,8"/>
+                </svg>
+                Download Plain Text
+              </button>
+              <button id="download-ppro-btn"
+                class="flex-1 flex items-center justify-center gap-2 py-4 bg-white text-apple-dark font-semibold rounded-xl border border-apple-light-gray hover:bg-gray-50 transition-colors">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h4a2 2 0 010 4H9V9z"/><path d="M9 13v4"/>
+                </svg>
+                Premiere Pro JSON
+              </button>
+            </div>
+            <p class="text-xs text-apple-gray mt-3">
+              SRT respects your character limit and line settings. &nbsp;·&nbsp;
+              <strong>Premiere Pro JSON:</strong> Text panel → Transcript tab → (...) → Import → Import Static Transcript
+            </p>
+          </div>
+
+        </div><!-- /tool-left -->
+
+        <!-- RIGHT COLUMN: Step 4 Preview — sticky while left column scrolls -->
+        <div class="md:w-2/5 border-t md:border-t-0 md:border-l border-apple-light-gray">
+          <div id="step-preview" class="p-8 md:sticky md:top-20 md:overflow-y-auto" style="max-height: calc(100vh - 80px);">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <span class="flex items-center justify-center w-8 h-8 rounded-full bg-apple-blue text-white text-sm font-bold">4</span>
+                <h2 class="text-xl font-semibold text-apple-dark">Preview</h2>
+              </div>
+              <div class="flex gap-2">
+                <button class="bg-btn px-3 py-1.5 rounded-lg border text-xs font-medium border-apple-light-gray bg-apple-dark text-white" data-bg="#000000">Black</button>
+                <button class="bg-btn px-3 py-1.5 rounded-lg border text-xs font-medium border-apple-light-gray bg-white text-apple-dark hover:bg-gray-50" data-bg="#FFFFFF">White</button>
+                <button class="bg-btn px-3 py-1.5 rounded-lg border text-xs font-medium border-apple-light-gray bg-green-600 text-white" data-bg="#00B140">Green</button>
+              </div>
+            </div>
+
+            <div id="preview-box" class="relative w-full rounded-2xl overflow-hidden" style="background:#000; aspect-ratio:16/9;">
+              <p id="preview-subtitle" class="absolute left-0 right-0 px-6 text-center select-none" style="bottom:8%; color:#fff; font-size:20px; font-family:Inter; white-space:pre-wrap;"></p>
+            </div>
+
+            <!-- Mini player synced to main audio element -->
+            <div id="mini-player" class="mt-4 flex items-center gap-3 bg-apple-bg rounded-xl px-4 py-3">
+              <button id="mini-play-btn" aria-label="Play / Pause"
+                class="w-9 h-9 flex items-center justify-center rounded-full bg-apple-blue text-white hover:bg-apple-blue-hover transition-colors flex-shrink-0">
+                <svg id="mini-icon-play" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5,3 19,12 5,21"/></svg>
+                <svg id="mini-icon-pause" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="hidden">
+                  <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+                </svg>
+              </button>
+              <input id="mini-seek" type="range" min="0" max="100" value="0" step="0.1"
+                class="flex-1 accent-apple-blue h-1.5 rounded cursor-pointer" aria-label="Seek" />
+              <span id="mini-time" class="text-xs text-apple-gray tabular-nums flex-shrink-0 w-24 text-right">0:00 / 0:00</span>
+            </div>
+          </div>
+        </div><!-- /right column -->
+
+      </div><!-- /tool-cols -->
+
+    </div><!-- /tool-app -->
+
+    <AdSlot slot="tool-bottom" />
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<script>
+(() => {
+  // DOM refs
+  const dropZone        = document.getElementById('drop-zone');
+  const fileInput       = document.getElementById('file-input');
+  const fileInfo        = document.getElementById('file-info');
+  const fileName        = document.getElementById('file-name');
+  const fileSize        = document.getElementById('file-size');
+  const removeFileBtn   = document.getElementById('remove-file');
+  const transcribeBtn   = document.getElementById('transcribe-btn');
+
+  const toolCols    = document.getElementById('tool-cols');    // two-column wrapper
+  const stepSettings = document.getElementById('step-settings');
+  const stepExport   = document.getElementById('step-export');
+
+  const progressBar  = document.getElementById('progress-bar');
+  const progressPct  = document.getElementById('progress-pct');
+  const statusText   = document.getElementById('status-text');
+  const progressArea = document.getElementById('progress-area');
+
+  const audioPlayerWrap = document.getElementById('audio-player-wrap');
+  const audioPlayer     = document.getElementById('audio-player');
+  const transcriptArea  = document.getElementById('transcript-area');
+  const transcriptLines = document.getElementById('transcript-lines');
+  const clearTranscript = document.getElementById('clear-transcript');
+
+  const miniPlayBtn   = document.getElementById('mini-play-btn');
+  const miniIconPlay  = document.getElementById('mini-icon-play');
+  const miniIconPause = document.getElementById('mini-icon-pause');
+  const miniSeek      = document.getElementById('mini-seek');
+  const miniTime      = document.getElementById('mini-time');
+
+  const singleLineBtn  = document.getElementById('single-line-btn');
+  const doubleLineBtn  = document.getElementById('double-line-btn');
+  const charsSlider    = document.getElementById('chars-slider');
+  const charsVal       = document.getElementById('chars-val');
+  const fontSelect     = document.getElementById('font-select');
+  const fontsizeSlider = document.getElementById('fontsize-slider');
+  const fontsizeVal    = document.getElementById('fontsize-val');
+  const textColor      = document.getElementById('text-color');
+  const colorHex       = document.getElementById('color-hex');
+  const boldBtn        = document.getElementById('bold-btn');
+  const shadowBtn      = document.getElementById('shadow-btn');
+  const strokeBtn      = document.getElementById('stroke-btn');
+  const vposSlider     = document.getElementById('vpos-slider');
+  const vposLabel      = document.getElementById('vpos-label');
+
+  const bgBtns     = document.querySelectorAll('.bg-btn');
+  const previewBox = document.getElementById('preview-box');
+  const previewSub = document.getElementById('preview-subtitle');
+
+  const downloadSrtBtn  = document.getElementById('download-srt-btn');
+  const downloadTxtBtn  = document.getElementById('download-txt-btn');
+  const downloadPproBtn = document.getElementById('download-ppro-btn');
+
+  // ── State ────────────────────────────────────────────────────────────────
+  let selectedFile = null;
+  // rawSegments: immutable Whisper output [{start,end,text}]
+  let rawSegments = [];
+  // logicalSegments: one entry per Whisper segment; text may be edited by user.
+  // rebuildDisplaySegments always re-splits from here, so increasing maxChars
+  // correctly produces fewer/longer lines (segments never fragment permanently).
+  let logicalSegments = [];
+  // displaySegments: current view rebuilt from logicalSegments with active settings.
+  let displaySegments = [];
+  // displayToLogical[i] = index in logicalSegments that displaySegments[i] came from.
+  let displayToLogical = [];
+
+  let worker      = null;
+  let rafId       = null;
+  let monoRef     = null;
+  let totalChunks = 1;
+  let chunksDone  = 0;
+
+  let subtitleSettings = {
+    lines: 1, maxChars: 42, font: 'Inter', fontSize: 20,
+    color: '#FFFFFF', bold: false, shadow: false, stroke: false, vpos: 85,
+  };
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function formatBytes(b) {
+    if (b < 1024)    return b + ' B';
+    if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+    return (b / 1048576).toFixed(1) + ' MB';
+  }
+
+  // HH:MM:SS,mmm — display in transcript rows AND used for SRT export
+  function formatTimestamp(sec) {
+    if (!isFinite(sec) || sec < 0) sec = 0;
+    const h  = Math.floor(sec / 3600);
+    const m  = Math.floor((sec % 3600) / 60);
+    const s  = Math.floor(sec % 60);
+    const ms = Math.min(999, Math.round((sec % 1) * 1000));
+    const p2 = n => String(n).padStart(2, '0');
+    const p3 = n => String(n).padStart(3, '0');
+    return `${p2(h)}:${p2(m)}:${p2(s)},${p3(ms)}`;
+  }
+
+  // Accepts "HH:MM:SS,mmm" / "HH:MM:SS" / "MM:SS,mmm" / "MM:SS" → seconds
+  function parseTimeInput(str) {
+    const s = str.trim().replace(',', '.');
+    const parts = s.split(':');
+    if (parts.some(p => isNaN(parseFloat(p)))) return NaN;
+    if (parts.length === 3) return parseFloat(parts[0]) * 3600 + parseFloat(parts[1]) * 60 + parseFloat(parts[2]);
+    if (parts.length === 2) return parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
+    return NaN;
+  }
+
+  function formatShort(sec) {
+    if (!isFinite(sec)) return '0:00';
+    return `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, '0')}`;
+  }
+
+  // ── Core splitting ────────────────────────────────────────────────────────
+  function splitSegment(seg, maxChars, lines) {
+    const words = seg.text.split(/\s+/).filter(Boolean);
+    if (!words.length) return [];
+
+    const pages = [];
+    let currentPage = [];
+    let currentLine = '';
+
+    for (const word of words) {
+      const candidate = currentLine ? currentLine + ' ' + word : word;
+      if (candidate.length <= maxChars) {
+        currentLine = candidate;
+      } else {
+        if (currentLine) currentPage.push(currentLine);
+        if (currentPage.length >= lines) { pages.push(currentPage); currentPage = []; }
+        currentLine = word.length > maxChars ? word.slice(0, maxChars) : word;
+      }
+    }
+    if (currentLine) currentPage.push(currentLine);
+    if (currentPage.length) pages.push(currentPage);
+    if (!pages.length) return [];
+
+    const totalWords = words.length;
+    const totalDur   = Math.max(0, (seg.end || seg.start + 1) - seg.start);
+    const secPerWord = totalDur / Math.max(1, totalWords);
+    const result     = [];
+    let cursor = seg.start;
+
+    for (let i = 0; i < pages.length; i++) {
+      const pageText  = pages[i].join('\n');
+      const pageWords = pageText.split(/\s+/).filter(Boolean).length;
+      const isLast    = i === pages.length - 1;
+      const segEnd    = isLast ? (seg.end || seg.start + 1) : cursor + pageWords * secPerWord;
+      result.push({ start: cursor, end: segEnd, text: pageText });
+      cursor = segEnd;
+    }
+    return result;
+  }
+
+  // Add new raw segments to logicalSegments without splitting.
+  // logicalSegments stays at Whisper-segment granularity so that increasing
+  // maxChars later can produce fewer, longer display rows (true merging).
+  function appendChunkToLogical(newRawSegs) {
+    for (const seg of newRawSegs) {
+      if (!seg.text.trim()) continue;
+      logicalSegments.push({ ...seg });
+    }
+  }
+
+  // Rebuild displaySegments + displayToLogical from logicalSegments with current settings.
+  // Never modifies logicalSegments, so re-running with a larger maxChars correctly
+  // produces fewer lines — there is no "already-split" fragmentation to block merging.
+  function rebuildDisplaySegments() {
+    const { maxChars, lines } = subtitleSettings;
+    displaySegments  = [];
+    displayToLogical = [];
+    for (let li = 0; li < logicalSegments.length; li++) {
+      const seg = logicalSegments[li];
+      if (!seg.text.trim()) continue;
+      for (const part of splitSegment(seg, maxChars, lines)) {
+        displaySegments.push(part);
+        displayToLogical.push(li);
+      }
+    }
+  }
+
+  // ── Split / Move logic ────────────────────────────────────────────────────
+
+  // Make logicalSegments 1-to-1 with the current displaySegments.
+  function flattenToLogical() {
+    logicalSegments  = displaySegments.map(s => ({ ...s }));
+    displayToLogical = displaySegments.map((_, idx) => idx);
+  }
+
+  function splitDisplayAt(rowIdx, cursorOffset) {
+    flattenToLogical();
+    const seg        = logicalSegments[rowIdx];
+    const textBefore = seg.text.slice(0, cursorOffset).trim();
+    const textAfter  = seg.text.slice(cursorOffset).trim();
+    if (!textBefore || !textAfter) return;
+
+    const wBefore = textBefore.split(/\s+/).filter(Boolean).length;
+    const wTotal  = wBefore + textAfter.split(/\s+/).filter(Boolean).length;
+    const dur     = Math.max(0, seg.end - seg.start);
+    const splitT  = seg.start + (wBefore / Math.max(1, wTotal)) * dur;
+
+    logicalSegments.splice(rowIdx, 1,
+      { start: seg.start, end: splitT,  text: textBefore },
+      { start: splitT,    end: seg.end, text: textAfter  }
+    );
+    rebuildDisplaySegments();
+    renderTranscript();
+    refreshPreviewText(audioPlayer.currentTime);
+    transcriptLines.children[rowIdx + 1]?.querySelector('[contenteditable]')?.focus();
+  }
+
+  // Move word at wordIdx in row rowIdx to end of row above.
+  function moveWordUp(rowIdx, wordIdx) {
+    if (rowIdx < 1) return;
+    flattenToLogical();
+    const from      = logicalSegments[rowIdx];
+    const to        = logicalSegments[rowIdx - 1];
+    const fromWords = from.text.trim().split(/\s+/).filter(Boolean);
+    const toWords   = to.text.trim().split(/\s+/).filter(Boolean);
+    if (!fromWords.length) return;
+    const [word] = fromWords.splice(wordIdx, 1);
+    toWords.push(word);
+    const totalDur  = Math.max(0, from.end - to.start);
+    const boundary  = to.start + (toWords.length / (toWords.length + fromWords.length)) * totalDur;
+    logicalSegments[rowIdx - 1] = { start: to.start,  end: boundary, text: toWords.join(' ')   };
+    logicalSegments[rowIdx]     = { start: boundary,  end: from.end, text: fromWords.join(' ')  };
+    if (!fromWords.length) logicalSegments.splice(rowIdx, 1);
+    rebuildDisplaySegments();
+    renderTranscript();
+    refreshPreviewText(audioPlayer.currentTime);
+  }
+
+  // Move word at wordIdx in row rowIdx to start of row below.
+  function moveWordDown(rowIdx, wordIdx) {
+    if (rowIdx >= displaySegments.length - 1) return;
+    flattenToLogical();
+    const from      = logicalSegments[rowIdx];
+    const to        = logicalSegments[rowIdx + 1];
+    const fromWords = from.text.trim().split(/\s+/).filter(Boolean);
+    const toWords   = to.text.trim().split(/\s+/).filter(Boolean);
+    if (!fromWords.length) return;
+    const [word] = fromWords.splice(wordIdx, 1);
+    toWords.unshift(word);
+    const totalDur  = Math.max(0, to.end - from.start);
+    const boundary  = from.start + (fromWords.length / (fromWords.length + toWords.length)) * totalDur;
+    logicalSegments[rowIdx]     = { start: from.start, end: boundary, text: fromWords.join(' ') };
+    logicalSegments[rowIdx + 1] = { start: boundary,   end: to.end,   text: toWords.join(' ')   };
+    if (!fromWords.length) logicalSegments.splice(rowIdx, 1);
+    rebuildDisplaySegments();
+    renderTranscript();
+    refreshPreviewText(audioPlayer.currentTime);
+  }
+
+  // ── Floating pill ─────────────────────────────────────────────────────────
+
+  const pill = document.createElement('div');
+  pill.style.cssText = [
+    'position:fixed', 'z-index:9999', 'display:none', 'opacity:0',
+    'background:#fff', 'border-radius:6px',
+    'box-shadow:0 2px 8px rgba(0,0,0,0.12)',
+    'transition:opacity 150ms ease',
+    'overflow:hidden', 'pointer-events:auto',
+    'align-items:center',
+  ].join(';');
+  document.body.appendChild(pill);
+
+  // pill state is now captured locally in handleTextMouseUp closures, not here
+
+  function showPill(anchorRect) {
+    pill.style.display = 'flex';
+    requestAnimationFrame(() => {
+      const pw = pill.offsetWidth;
+      const ph = pill.offsetHeight;
+      let left = anchorRect.left + anchorRect.width / 2 - pw / 2;
+      let top  = anchorRect.top - ph - 6;
+      left = Math.max(4, Math.min(left, window.innerWidth - pw - 4));
+      top  = Math.max(4, top);
+      pill.style.left = left + 'px';
+      pill.style.top  = top  + 'px';
+      pill.style.opacity = '1';
+    });
+  }
+
+  function hidePill() {
+    pill.style.opacity = '0';
+    setTimeout(() => { if (pill.style.opacity === '0') pill.style.display = 'none'; }, 160);
+  }
+
+  // Hide when clicking outside the pill
+  document.addEventListener('click', (e) => { if (!pill.contains(e.target)) hidePill(); });
+  // Hide when transcript scrolls (pill position would be stale)
+  transcriptLines.addEventListener('scroll', hidePill);
+
+  // Reusable pill-button factory
+  function pillBtn(label, title, onClick) {
+    const b = document.createElement('button');
+    b.type  = 'button';
+    b.title = title;
+    b.style.cssText = 'display:flex;align-items:center;justify-content:center;width:28px;height:26px;border:none;background:none;cursor:pointer;padding:0;color:#0071E3;font-size:15px;line-height:1;';
+    b.innerHTML = label;
+    b.addEventListener('mousedown', e => e.preventDefault()); // keep focus in contenteditable
+    b.addEventListener('click', (e) => { e.stopPropagation(); onClick(); });
+    return b;
+  }
+
+  // Called on mouseup inside a transcript text cell.
+  // All data needed for the operation is captured into LOCAL constants here,
+  // then closed over directly by the button handler — never read from the mutable
+  // pillRow/pillCursorOffset/pillWordIdx variables at click time.
+  function handleTextMouseUp(textEl, rowIdx) {
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) { hidePill(); return; }
+    const range = sel.getRangeAt(0);
+
+    if (sel.isCollapsed) {
+      // ── Collapsed cursor: offer split ────────────────────────────────────
+      const preRange = range.cloneRange();
+      preRange.selectNodeContents(textEl);
+      preRange.setEnd(range.startContainer, range.startOffset);
+      const capturedOffset = preRange.toString().length;
+      const capturedRow    = rowIdx;
+      const fullText       = textEl.textContent || '';
+      const before = fullText.slice(0, capturedOffset).trim();
+      const after  = fullText.slice(capturedOffset).trim();
+      if (!before || !after) { hidePill(); return; }
+
+      pill.innerHTML = '';
+      pill.appendChild(pillBtn(
+        `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/>
+          <line x1="20" y1="4" x2="8.12" y2="15.88"/>
+          <line x1="14.47" y1="14.48" x2="20" y2="20"/>
+          <line x1="8.12" y1="8.12" x2="12" y2="12"/>
+        </svg>`,
+        'Split line here',
+        () => { hidePill(); splitDisplayAt(capturedRow, capturedOffset); }
+      ));
+      let anchorRect = range.getBoundingClientRect();
+      if (!anchorRect.width && !anchorRect.height) anchorRect = textEl.getBoundingClientRect();
+      showPill(anchorRect);
+
+    } else {
+      // ── Range selection: offer word move if exactly one word selected ─────
+      const selected = sel.toString().trim();
+      if (!selected || /\s/.test(selected)) { hidePill(); return; }
+
+      // Resolve which word index the selection falls on using a single stable loop.
+      const preRange = range.cloneRange();
+      preRange.selectNodeContents(textEl);
+      preRange.setEnd(range.startContainer, range.startOffset);
+      const selStart  = preRange.toString().length;
+      const fullText  = textEl.textContent || '';
+      let capturedWordIdx = -1;
+      let wi = 0;
+      for (const m of fullText.matchAll(/\S+/g)) {
+        // >= start AND < end (exclusive) avoids matching the space after the word
+        if (selStart >= m.index && selStart < m.index + m[0].length) {
+          capturedWordIdx = wi;
+          break;
+        }
+        wi++;
+      }
+      if (capturedWordIdx === -1) { hidePill(); return; }
+
+      const capturedRow = rowIdx;
+      const canUp   = rowIdx > 0;
+      const canDown = rowIdx < displaySegments.length - 1;
+      if (!canUp && !canDown) { hidePill(); return; }
+
+      pill.innerHTML = '';
+      if (canUp)   pill.appendChild(pillBtn('↑', 'Move word to line above', () => { hidePill(); moveWordUp(capturedRow, capturedWordIdx); }));
+      if (canDown) pill.appendChild(pillBtn('↓', 'Move word to line below', () => { hidePill(); moveWordDown(capturedRow, capturedWordIdx); }));
+
+      showPill(range.getBoundingClientRect());
+    }
+  }
+
+  // ── Transcript UI ─────────────────────────────────────────────────────────
+  function renderTranscript() {
+    transcriptLines.innerHTML = '';
+    displaySegments.forEach((seg, i) => {
+      const row = document.createElement('div');
+      row.className = 'flex gap-2 items-start';
+
+      const tsInput = document.createElement('input');
+      tsInput.type      = 'text';
+      tsInput.value     = formatTimestamp(seg.start);
+      tsInput.className = 'w-32 shrink-0 px-2 py-1.5 rounded-lg border border-transparent hover:border-apple-light-gray bg-apple-bg focus:outline-none focus:border-apple-blue text-xs text-apple-gray font-mono cursor-text text-center';
+      tsInput.title     = 'Click to seek audio; edit to change start time (HH:MM:SS,mmm)';
+
+      tsInput.addEventListener('focus', () => {
+        if (isFinite(audioPlayer.duration)) audioPlayer.currentTime = Math.max(0, seg.start);
+        refreshPreviewText(seg.start);
+      });
+      tsInput.addEventListener('change', () => {
+        const parsed = parseTimeInput(tsInput.value);
+        if (!isNaN(parsed)) {
+          displaySegments[i].start = parsed;
+          logicalSegments[displayToLogical[i]].start = parsed;
+          // Extend the previous segment's end to close any gap so the preview
+          // doesn't fall into a silent window between the two segments.
+          if (i > 0) {
+            displaySegments[i - 1].end = parsed;
+            logicalSegments[displayToLogical[i - 1]].end = parsed;
+          }
+          tsInput.value = formatTimestamp(parsed);
+        } else {
+          tsInput.value = formatTimestamp(displaySegments[i].start);
+        }
+        refreshPreviewText(audioPlayer.currentTime);
+      });
+
+      const textEl = document.createElement('div');
+      textEl.className       = 'flex-1 px-3 py-1.5 rounded-lg border border-transparent hover:border-apple-light-gray bg-apple-bg focus:outline-none focus:border-apple-blue text-sm text-apple-dark cursor-text whitespace-pre-wrap';
+      textEl.contentEditable = 'true';
+      textEl.textContent     = seg.text;
+
+      textEl.addEventListener('mouseup',  () => handleTextMouseUp(textEl, i));
+      textEl.addEventListener('keydown',  ()  => hidePill());
+
+      textEl.addEventListener('input', () => {
+        displaySegments[i].text = textEl.textContent;
+        const li = displayToLogical[i];
+        logicalSegments[li].text = displaySegments
+          .filter((_, idx) => displayToLogical[idx] === li)
+          .map(d => d.text.trim())
+          .join(' ');
+        refreshPreviewText(audioPlayer.currentTime);
+      });
+
+      row.appendChild(tsInput);
+      row.appendChild(textEl);
+      transcriptLines.appendChild(row);
+    });
+  }
+
+  // Settings change: re-split from logicalSegments — text edits are preserved.
+  function onSettingsChange() {
+    if (!rawSegments.length) return;
+    if (!logicalSegments.length) appendChunkToLogical(rawSegments);
+    rebuildDisplaySegments();
+    renderTranscript();
+    refreshPreviewText(audioPlayer.currentTime);
+  }
+
+  // ── Preview ───────────────────────────────────────────────────────────────
+  function applyPreviewStyles() {
+    previewSub.style.fontFamily       = subtitleSettings.font;
+    previewSub.style.fontSize         = subtitleSettings.fontSize + 'px';
+    previewSub.style.color            = subtitleSettings.color;
+    previewSub.style.fontWeight       = subtitleSettings.bold ? 'bold' : 'normal';
+    previewSub.style.textShadow       = subtitleSettings.shadow ? '2px 2px 4px rgba(0,0,0,0.8)' : '';
+    previewSub.style.webkitTextStroke = subtitleSettings.stroke ? '1px #000000' : '';
+    previewSub.style.paintOrder       = subtitleSettings.stroke ? 'stroke fill' : '';
+    previewSub.style.top       = 'auto';
+    previewSub.style.bottom    = 'auto';
+    previewSub.style.transform = 'none';
+    const vpos = subtitleSettings.vpos;
+    if (vpos < 35) {
+      previewSub.style.top  = vpos + '%';
+      vposLabel.textContent = 'Top';
+    } else if (vpos < 65) {
+      previewSub.style.top       = '50%';
+      previewSub.style.transform = 'translateY(-50%)';
+      vposLabel.textContent      = 'Center';
+    } else {
+      previewSub.style.bottom = (100 - vpos) + '%';
+      vposLabel.textContent   = 'Bottom';
+    }
+  }
+
+  function refreshPreviewText(t) {
+    if (t === undefined) t = audioPlayer.currentTime;
+    const seg = displaySegments.find(d => t >= d.start && t < d.end)
+              || (t < 0.2 && displaySegments.length ? displaySegments[0] : null);
+    previewSub.textContent = seg ? seg.text : '';
+  }
+
+  // rAF loop — drives subtitle sync while playing (−0.1 s perception offset)
+  function startRafSync() {
+    if (rafId) return;
+    function tick() {
+      const t = Math.max(0, audioPlayer.currentTime - 0.1);
+      const seg = displaySegments.find(d => t >= d.start && t < d.end)
+                || (audioPlayer.currentTime < 0.15 && displaySegments.length ? displaySegments[0] : null);
+      previewSub.textContent = seg ? seg.text : '';
+      rafId = requestAnimationFrame(tick);
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+  function stopRafSync() {
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  }
+
+  // ── Mini player ───────────────────────────────────────────────────────────
+  function updateMiniUI() {
+    const playing = !audioPlayer.paused;
+    miniIconPlay.classList.toggle('hidden', playing);
+    miniIconPause.classList.toggle('hidden', !playing);
+    const dur = audioPlayer.duration || 0;
+    const cur = audioPlayer.currentTime;
+    miniSeek.value       = dur > 0 ? (cur / dur) * 100 : 0;
+    miniTime.textContent = `${formatShort(cur)} / ${formatShort(dur)}`;
+  }
+
+  miniPlayBtn.addEventListener('click', () => {
+    if (audioPlayer.paused) audioPlayer.play(); else audioPlayer.pause();
+  });
+
+  let seekDragging = false;
+  miniSeek.addEventListener('mousedown',  () => { seekDragging = true; });
+  miniSeek.addEventListener('touchstart', () => { seekDragging = true; }, { passive: true });
+  miniSeek.addEventListener('input', () => {
+    const dur = audioPlayer.duration;
+    if (isFinite(dur) && dur > 0) audioPlayer.currentTime = (miniSeek.value / 100) * dur;
+  });
+  miniSeek.addEventListener('change', () => { seekDragging = false; });
+
+  audioPlayer.addEventListener('timeupdate',     () => { if (!seekDragging) updateMiniUI(); });
+  audioPlayer.addEventListener('play',           () => { updateMiniUI(); startRafSync(); });
+  audioPlayer.addEventListener('pause',          () => { updateMiniUI(); stopRafSync(); });
+  audioPlayer.addEventListener('ended',          () => { updateMiniUI(); stopRafSync(); });
+  audioPlayer.addEventListener('loadedmetadata', updateMiniUI);
+
+  // ── File handling ─────────────────────────────────────────────────────────
+  function setFile(file) {
+    if (!file) return;
+    const ext = file.name.split('.').pop().toLowerCase();
+    const okExts = ['mp3','wav','m4a','ogg','opus','flac','aac','weba','webm'];
+    if (!file.type.startsWith('audio/') && !okExts.includes(ext)) {
+      alert('Please select an audio file (MP3, WAV, M4A, OGG, OPUS).');
+      return;
+    }
+    selectedFile = file;
+    fileName.textContent = file.name;
+    fileSize.textContent = formatBytes(file.size);
+    fileInfo.classList.remove('hidden');
+    transcribeBtn.disabled = false;
+    audioPlayer.src = URL.createObjectURL(file);
+    audioPlayerWrap.classList.remove('hidden');
+  }
+
+  dropZone.addEventListener('click',   () => fileInput.click());
+  dropZone.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') fileInput.click(); });
+  fileInput.addEventListener('change', e => setFile(e.target.files[0]));
+  dropZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropZone.classList.add('border-apple-blue', 'bg-blue-50/30');
+  });
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('border-apple-blue', 'bg-blue-50/30');
+  });
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('border-apple-blue', 'bg-blue-50/30');
+    setFile(e.dataTransfer.files[0]);
+  });
+
+  removeFileBtn.addEventListener('click', () => {
+    selectedFile = null;
+    fileInput.value = '';
+    fileInfo.classList.add('hidden');
+    transcribeBtn.disabled = true;
+    rawSegments      = [];
+    logicalSegments  = [];
+    displaySegments  = [];
+    displayToLogical = [];
+    monoRef = null; totalChunks = 1; chunksDone = 0;
+    stopRafSync();
+    toolCols.classList.add('hidden');
+    stepSettings.classList.add('hidden');
+    stepExport.classList.add('hidden');
+    if (worker) { worker.terminate(); worker = null; }
+    audioPlayer.src = '';
+    updateMiniUI();
+  });
+
+  // ── Progress ──────────────────────────────────────────────────────────────
+  function setProgress(pct, label) {
+    progressBar.style.width = pct + '%';
+    progressPct.textContent = pct + '%';
+    statusText.textContent  = label;
+  }
+  function showError(msg) {
+    setProgress(0, 'Error: ' + msg);
+    progressBar.classList.add('bg-red-500');
+    progressBar.classList.remove('bg-apple-blue');
+    transcribeBtn.disabled = false;
+  }
+
+  // ── Chunked transcription ─────────────────────────────────────────────────
+  const CHUNK_SEC     = 600;
+  const CHUNK_SAMPLES = CHUNK_SEC * 16000;
+
+  function sendNextChunk() {
+    const start      = chunksDone * CHUNK_SAMPLES;
+    const end        = Math.min(start + CHUNK_SAMPLES, monoRef.length);
+    const chunk      = monoRef.slice(start, end);
+    const timeOffset = chunksDone * CHUNK_SEC;
+    worker.postMessage(
+      { type: 'transcribe', audioBuffer: chunk, sampleRate: 16000,
+        timeOffset, chunkIndex: chunksDone, totalChunks },
+      [chunk.buffer]
+    );
+  }
+
+  transcribeBtn.addEventListener('click', async () => {
+    if (!selectedFile) return;
+    transcribeBtn.disabled = true;
+    stopRafSync();
+
+    // Reveal the two-column layout; reset sub-sections for a fresh run
+    toolCols.classList.remove('hidden');
+    stepSettings.classList.add('hidden');
+    stepExport.classList.add('hidden');
+    progressArea.classList.remove('hidden');
+    transcriptArea.classList.add('hidden');
+    transcriptLines.innerHTML = '';
+    rawSegments      = [];
+    logicalSegments  = [];
+    displaySegments  = [];
+    displayToLogical = [];
+    monoRef = null;
+    progressBar.classList.remove('bg-red-500');
+    progressBar.classList.add('bg-apple-blue');
+    setProgress(3, 'Reading audio file…');
+
+    try {
+      const arrayBuffer = await selectedFile.arrayBuffer();
+      const audioCtx    = new AudioContext({ sampleRate: 16000 });
+      const decoded     = await audioCtx.decodeAudioData(arrayBuffer);
+      const numCh = decoded.numberOfChannels;
+      const len   = decoded.length;
+      const mono  = new Float32Array(len);
+      for (let ch = 0; ch < numCh; ch++) {
+        const chan = decoded.getChannelData(ch);
+        for (let i = 0; i < len; i++) mono[i] += chan[i];
+      }
+      if (numCh > 1) for (let i = 0; i < len; i++) mono[i] /= numCh;
+      audioCtx.close();
+
+      monoRef     = mono;
+      totalChunks = Math.ceil(mono.length / CHUNK_SAMPLES);
+      chunksDone  = 0;
+
+      if (totalChunks > 1) {
+        setProgress(4, `Long audio — will process in ${totalChunks} parts of up to 10 min each`);
+      }
+      setProgress(5, 'Starting transcription worker…');
+      if (!worker) worker = new Worker('/transcription-worker.js', { type: 'module' });
+
+      worker.onerror = (e) => {
+        console.error('[worker]', e);
+        showError(e.message || 'Worker crashed. Refresh and try again.');
+        worker = null;
+        transcribeBtn.disabled = false;
+      };
+
+      worker.onmessage = (e) => {
+        const msg = e.data;
+        if (msg.type === 'progress') {
+          const overall = Math.round(
+            (chunksDone / totalChunks + msg.percent / 100 / totalChunks) * 100
+          );
+          const prefix = totalChunks > 1 ? `Part ${chunksDone + 1} of ${totalChunks} — ` : '';
+          setProgress(overall, prefix + msg.message);
+
+        } else if (msg.type === 'complete') {
+          rawSegments.push(...msg.transcript);
+          appendChunkToLogical(msg.transcript);
+          rebuildDisplaySegments();
+          renderTranscript();
+
+          if (chunksDone === 0) {
+            // First chunk — reveal settings and export sections
+            transcriptArea.classList.remove('hidden');
+            stepSettings.classList.remove('hidden');
+            stepExport.classList.remove('hidden');
+            applyPreviewStyles();
+            refreshPreviewText(0);
+          }
+          chunksDone++;
+
+          if (chunksDone < totalChunks) {
+            setProgress(
+              Math.round((chunksDone / totalChunks) * 100),
+              `Part ${chunksDone} of ${totalChunks} done — you can edit while the rest processes`
+            );
+            sendNextChunk();
+          } else {
+            setProgress(100, 'Done!');
+            progressArea.classList.add('hidden');
+            monoRef = null;
+            transcribeBtn.disabled = false;
+          }
+
+        } else if (msg.type === 'error') {
+          console.error('[worker]', msg.message);
+          showError(msg.message);
+          transcribeBtn.disabled = false;
+        }
+      };
+
+      sendNextChunk();
+    } catch (err) {
+      console.error(err);
+      showError(err.message || 'Could not decode audio. Try a different file.');
+      transcribeBtn.disabled = false;
+    }
+  });
+
+  clearTranscript.addEventListener('click', () => {
+    if (!confirm('Clear all transcript lines?')) return;
+    rawSegments      = [];
+    logicalSegments  = [];
+    displaySegments  = [];
+    displayToLogical = [];
+    renderTranscript();
+    refreshPreviewText(0);
+  });
+
+  // ── Settings listeners ────────────────────────────────────────────────────
+  singleLineBtn.addEventListener('click', () => {
+    subtitleSettings.lines = 1;
+    singleLineBtn.classList.add('bg-apple-blue','text-white','border-apple-blue');
+    singleLineBtn.classList.remove('bg-white','text-apple-dark','border-apple-light-gray');
+    doubleLineBtn.classList.remove('bg-apple-blue','text-white','border-apple-blue');
+    doubleLineBtn.classList.add('bg-white','text-apple-dark','border-apple-light-gray');
+    onSettingsChange();
+  });
+  doubleLineBtn.addEventListener('click', () => {
+    subtitleSettings.lines = 2;
+    doubleLineBtn.classList.add('bg-apple-blue','text-white','border-apple-blue');
+    doubleLineBtn.classList.remove('bg-white','text-apple-dark','border-apple-light-gray');
+    singleLineBtn.classList.remove('bg-apple-blue','text-white','border-apple-blue');
+    singleLineBtn.classList.add('bg-white','text-apple-dark','border-apple-light-gray');
+    onSettingsChange();
+  });
+
+  charsSlider.addEventListener('input', () => {
+    subtitleSettings.maxChars = parseInt(charsSlider.value);
+    charsVal.textContent = charsSlider.value;
+    onSettingsChange();
+  });
+  fontSelect.addEventListener('change', () => {
+    subtitleSettings.font = fontSelect.value;
+    applyPreviewStyles();
+  });
+  fontsizeSlider.addEventListener('input', () => {
+    subtitleSettings.fontSize = parseInt(fontsizeSlider.value);
+    fontsizeVal.textContent   = fontsizeSlider.value + 'px';
+    applyPreviewStyles();
+  });
+  textColor.addEventListener('input', () => {
+    subtitleSettings.color = textColor.value;
+    colorHex.textContent   = textColor.value.toUpperCase();
+    applyPreviewStyles();
+  });
+  vposSlider.addEventListener('input', () => {
+    subtitleSettings.vpos = parseInt(vposSlider.value);
+    applyPreviewStyles();
+  });
+
+  function toggleStyleBtn(btn, key) {
+    btn.addEventListener('click', () => {
+      subtitleSettings[key] = !subtitleSettings[key];
+      btn.classList.toggle('bg-apple-blue',            subtitleSettings[key]);
+      btn.classList.toggle('text-white',               subtitleSettings[key]);
+      btn.classList.toggle('border-apple-blue',        subtitleSettings[key]);
+      btn.classList.toggle('bg-white',                !subtitleSettings[key]);
+      btn.classList.toggle('text-apple-dark',         !subtitleSettings[key]);
+      btn.classList.toggle('border-apple-light-gray', !subtitleSettings[key]);
+      applyPreviewStyles();
+    });
+  }
+  toggleStyleBtn(boldBtn, 'bold');
+  toggleStyleBtn(shadowBtn, 'shadow');
+  toggleStyleBtn(strokeBtn, 'stroke');
+
+  bgBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      previewBox.style.background = btn.dataset.bg;
+      bgBtns.forEach(b => b.classList.remove('ring-2','ring-apple-blue'));
+      btn.classList.add('ring-2','ring-apple-blue');
+    });
+  });
+
+  // ── Export ────────────────────────────────────────────────────────────────
+  function downloadBlob(content, filename, mime) {
+    const blob = new Blob([content], { type: mime });
+    const a = Object.assign(document.createElement('a'), {
+      href: URL.createObjectURL(blob), download: filename,
+    });
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function baseName() {
+    return selectedFile?.name?.replace(/\.[^.]+$/, '') || 'transcript';
+  }
+
+  downloadSrtBtn.addEventListener('click', () => {
+    let out = '';
+    displaySegments.forEach((seg, i) => {
+      if (!seg.text.trim()) return;
+      out += `${i + 1}\n${formatTimestamp(seg.start)} --> ${formatTimestamp(seg.end)}\n${seg.text}\n\n`;
+    });
+    downloadBlob(out, baseName() + '.srt', 'text/plain');
+  });
+
+  downloadTxtBtn.addEventListener('click', () => {
+    downloadBlob(displaySegments.map(d => d.text).join('\n'), baseName() + '.txt', 'text/plain');
+  });
+
+  downloadPproBtn.addEventListener('click', () => {
+    const transcript = displaySegments.filter(s => s.text.trim()).map(seg => {
+      const words = seg.text.split(/\s+/).filter(Boolean);
+      const dur   = Math.max(0, seg.end - seg.start);
+      const wDur  = words.length ? dur / words.length : 0;
+      return {
+        startTime: parseFloat(seg.start.toFixed(3)),
+        endTime:   parseFloat(seg.end.toFixed(3)),
+        text:      seg.text,
+        words: words.map((w, wi) => ({
+          word:      w,
+          startTime: parseFloat((seg.start + wi * wDur).toFixed(3)),
+          endTime:   parseFloat((seg.start + (wi + 1) * wDur).toFixed(3)),
+        })),
+      };
+    });
+    downloadBlob(JSON.stringify({ version: '1.0', transcript }, null, 2), baseName() + '.json', 'application/json');
+  });
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  applyPreviewStyles();
+})();
+</script>
