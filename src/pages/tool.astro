@@ -1246,6 +1246,10 @@ button:active { transform:scale(0.97); }
       <!-- Tab 2: Subtitle timestamp rows -->
       <div id="subs-view" class="tab-panel" style="display:none;">
         <div id="transcript-area" class="hidden">
+          <div id="inline-transcribing-indicator" style="display:none;align-items:center;gap:8px;padding:8px 14px;background:#EEEFFD;border-bottom:0.5px solid #C7C8F9;font-size:12px;color:#6366F1;flex-shrink:0;">
+            <div style="width:12px;height:12px;border:2px solid #C7C8F9;border-top-color:#6366F1;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;"></div>
+            <span id="inline-progress-text">Transcribing…</span>
+          </div>
           <div id="transcript-lines"></div>
         </div>
         <div id="left-empty">
@@ -3124,60 +3128,77 @@ button:active { transform:scale(0.97); }
         transcribeBtn.disabled = false;
       };
 
+      const inlineIndicator = document.getElementById('inline-transcribing-indicator');
+      const inlineText      = document.getElementById('inline-progress-text');
+
+      function showInlineIndicator(done, total) {
+        if (!inlineIndicator) return;
+        if (done < total) {
+          inlineIndicator.style.display = 'flex';
+          if (inlineText) inlineText.textContent = `Transcribing chunk ${done} of ${total}…`;
+        } else {
+          inlineIndicator.style.display = 'none';
+        }
+      }
+
+      // Reveals the editor screen (progress ring → transcript/subtitle panels).
+      // Safe to call multiple times — idempotent after first call.
+      function revealEditorScreen() {
+        if (!transcriptArea.classList.contains('hidden')) return; // already visible
+        renderTranscript();
+        progressArea.classList.add('hidden');
+        transcriptArea.classList.remove('hidden');
+        stepSettings.classList.remove('hidden');
+        stepExport.classList.remove('hidden');
+        stepTimeline.classList.remove('hidden');
+        applyPreviewStyles();
+        refreshPreviewText(0);
+        renderTemplates();
+        initTimeline();
+      }
+
       worker.onmessage = (e) => {
         const msg = e.data;
         if (msg.type === 'progress') {
-          const overall = Math.round(
-            (chunksDone / totalChunks + msg.percent / 100 / totalChunks) * 100
-          );
-          const prefix = totalChunks > 1 ? `Chunk ${chunksDone + 1}/${totalChunks} — ` : '';
-          setProgress(overall, prefix + msg.message);
+          // Only update the full-screen progress ring while the editor isn't shown yet
+          if (transcriptArea.classList.contains('hidden')) {
+            const overall = Math.round(
+              (chunksDone / totalChunks + msg.percent / 100 / totalChunks) * 100
+            );
+            const prefix = totalChunks > 1 ? `Chunk ${chunksDone + 1}/${totalChunks} — ` : '';
+            setProgress(overall, prefix + msg.message);
+          }
 
         } else if (msg.type === 'complete') {
           rawSegments.push(...msg.transcript);
-
-          // Track how many display rows existed before this chunk lands
           const prevDisplayCount = displaySegments.length;
-
           appendChunkToLogical(msg.transcript);
           rebuildDisplaySegments();
-
-          // Progressive append: only render new rows, never clear existing DOM.
-          // If the transcript panel is already visible (mid-transcription editing),
-          // append rows without disturbing scroll position or active cursor.
-          if (!transcriptArea.classList.contains('hidden')) {
-            renderTranscriptAppend(prevDisplayCount);
-          }
-
-          // Persist immediately — user can restore this chunk even if later ones fail
-          autoSave();
           chunksDone++;
 
+          const isFirstChunk = chunksDone === 1;
+
+          if (isFirstChunk) {
+            // Reveal the editor immediately on the first chunk — audio is already
+            // fully loaded so playback works right away; only the text is still streaming.
+            revealEditorScreen();
+            // Show inline indicator if more chunks remain
+            showInlineIndicator(chunksDone, totalChunks);
+          } else {
+            // Editor already visible — append only the new rows without touching
+            // existing DOM, scroll position, or the user's active cursor.
+            renderTranscriptAppend(prevDisplayCount);
+            showInlineIndicator(chunksDone, totalChunks);
+          }
+
+          // Persist each chunk immediately so a crash mid-transcription loses nothing
+          autoSave();
+
           if (chunksDone < totalChunks) {
-            setProgress(
-              Math.round((chunksDone / totalChunks) * 100),
-              `Chunk ${chunksDone}/${totalChunks} done — processing next…`
-            );
             dispatchNextChunk();
           } else {
-            // All chunks done — open edit view if not already open
-            setProgress(100, 'Done!');
-            if (transcriptArea.classList.contains('hidden')) {
-              // First time reveal: do a full render since nothing is in the DOM yet
-              renderTranscript();
-              progressArea.classList.add('hidden');
-              transcriptArea.classList.remove('hidden');
-              stepSettings.classList.remove('hidden');
-              stepExport.classList.remove('hidden');
-              stepTimeline.classList.remove('hidden');
-              applyPreviewStyles();
-              refreshPreviewText(0);
-              renderTemplates();
-              initTimeline();
-            } else {
-              // Panel was already open from a prior chunk — just hide the progress ring
-              progressArea.classList.add('hidden');
-            }
+            // All done — hide full-screen ring (already hidden after chunk 1) and finish up
+            progressArea.classList.add('hidden');
             transcribeBtn.disabled = false;
             monoRef = null;
           }
