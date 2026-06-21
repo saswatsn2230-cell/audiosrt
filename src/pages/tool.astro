@@ -46,8 +46,9 @@ const jsonLd = {
   animation:shimmer 1.4s infinite linear;
 }
 .chunk-tail-wrap {
-  padding:18px 24px 8px;
+  padding:18px 0 8px;
   display:flex; flex-direction:column; gap:10px;
+  pointer-events:none; user-select:none;
 }
 .chunk-tail-wrap .skeleton-bar:nth-child(1) { width:100%; }
 .chunk-tail-wrap .skeleton-bar:nth-child(2) { width:92%; animation-delay:0.1s; }
@@ -3174,14 +3175,12 @@ button:active { transform:scale(0.97); }
       }
 
       function showChunkTail() {
-        // Transcript tab — skeleton block below last paragraph
+        // Transcript tab — skeleton inside para-text so it scrolls with content
         const paraText = document.getElementById('para-text');
         if (paraText && !document.getElementById('chunk-tail-para')) {
-          const wrap = makeSkeletonWrap('chunk-tail-para');
-          // Insert after para-text's parent so it sits below the text block
-          paraText.parentElement.appendChild(wrap);
+          paraText.appendChild(makeSkeletonWrap('chunk-tail-para'));
         }
-        // Subtitles tab — skeleton block below last row
+        // Subtitles tab — skeleton below last subtitle row
         if (transcriptLines && !document.getElementById('chunk-tail-row')) {
           transcriptLines.appendChild(makeSkeletonWrap('chunk-tail-row'));
         }
