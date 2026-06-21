@@ -38,6 +38,14 @@ const jsonLd = {
 @keyframes fade-slide  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 @keyframes modal-in    { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
 @keyframes spin        { to{transform:rotate(360deg)} }
+@keyframes dot-pulse   { 0%,80%,100%{opacity:0.2;transform:scale(0.8)} 40%{opacity:1;transform:scale(1)} }
+.chunk-tail { display:inline-flex; align-items:center; gap:3px; padding:2px 4px; vertical-align:middle; }
+.chunk-tail span { width:5px; height:5px; border-radius:50%; background:#6366F1; display:inline-block; animation:dot-pulse 1.2s ease-in-out infinite; }
+.chunk-tail span:nth-child(2) { animation-delay:0.2s; }
+.chunk-tail span:nth-child(3) { animation-delay:0.4s; }
+/* Subtitles-tab tail row */
+.chunk-tail-row { padding:10px 8px 6px; }
+.chunk-tail-row .chunk-tail span { background:#C7C8F9; }
 
 /* Base */
 *, *::before, *::after { box-sizing:border-box; }
@@ -3140,12 +3148,44 @@ button:active { transform:scale(0.97); }
       function showInlineIndicator(done, total) {
         const visible = done < total;
         const label   = `Transcribing chunk ${done} of ${total}…`;
-        // Subtitles tab indicator
         if (inlineIndicator) inlineIndicator.style.display = visible ? 'flex' : 'none';
         if (visible && inlineText) inlineText.textContent = label;
-        // Transcript tab indicator
         if (inlineIndicatorPara) inlineIndicatorPara.style.display = visible ? 'flex' : 'none';
         if (visible && inlineTextPara) inlineTextPara.textContent = label;
+      }
+
+      function makeDots() {
+        const wrap = document.createElement('span');
+        wrap.className = 'chunk-tail';
+        wrap.id = 'chunk-tail-para';
+        for (let i = 0; i < 3; i++) wrap.appendChild(document.createElement('span'));
+        return wrap;
+      }
+
+      function showChunkTail() {
+        // Transcript (para) tab — append animated dots after last word
+        const paraText = document.getElementById('para-text');
+        if (paraText && !document.getElementById('chunk-tail-para')) {
+          paraText.appendChild(document.createTextNode(' '));
+          paraText.appendChild(makeDots());
+        }
+        // Subtitles tab — append a placeholder row at the bottom of transcript-lines
+        if (transcriptLines && !document.getElementById('chunk-tail-row')) {
+          const row = document.createElement('div');
+          row.id = 'chunk-tail-row';
+          row.className = 'chunk-tail-row';
+          const dots = document.createElement('span');
+          dots.className = 'chunk-tail';
+          for (let i = 0; i < 3; i++) dots.appendChild(document.createElement('span'));
+          row.appendChild(dots);
+          transcriptLines.appendChild(row);
+        }
+      }
+
+      function hideChunkTail() {
+        document.getElementById('chunk-tail-para')?.previousSibling?.remove(); // the space text node
+        document.getElementById('chunk-tail-para')?.remove();
+        document.getElementById('chunk-tail-row')?.remove();
       }
 
       // Reveals the editor screen (progress ring → transcript/subtitle panels).
@@ -3184,27 +3224,27 @@ button:active { transform:scale(0.97); }
           chunksDone++;
 
           const isFirstChunk = chunksDone === 1;
+          const moreChunks   = chunksDone < totalChunks;
+
+          // Remove waiting dots before adding new content
+          hideChunkTail();
 
           if (isFirstChunk) {
-            // Reveal the editor immediately on the first chunk — audio is already
-            // fully loaded so playback works right away; only the text is still streaming.
             revealEditorScreen();
-            // Show inline indicator if more chunks remain
-            showInlineIndicator(chunksDone, totalChunks);
           } else {
-            // Editor already visible — append only the new rows without touching
-            // existing DOM, scroll position, or the user's active cursor.
             renderTranscriptAppend(prevDisplayCount);
-            showInlineIndicator(chunksDone, totalChunks);
           }
 
-          // Persist each chunk immediately so a crash mid-transcription loses nothing
+          showInlineIndicator(chunksDone, totalChunks);
+
+          // Show animated dots after the last transcribed line while waiting for next chunk
+          if (moreChunks) showChunkTail();
+
           autoSave();
 
-          if (chunksDone < totalChunks) {
+          if (moreChunks) {
             dispatchNextChunk();
           } else {
-            // All done — hide full-screen ring (already hidden after chunk 1) and finish up
             progressArea.classList.add('hidden');
             transcribeBtn.disabled = false;
             monoRef = null;
@@ -4403,8 +4443,13 @@ button:active { transform:scale(0.97); }
   }
 
   if (tlLines) {
-    new MutationObserver(() => { if (!rebuilding && !paraEditing && !isEditingTranscript) rebuildPara(); })
-      .observe(tlLines, { childList: true, subtree: true, characterData: true });
+    new MutationObserver((mutations) => {
+      // Ignore mutations that only affect the chunk-tail-row placeholder
+      const onlyTail = mutations.every(m =>
+        [...m.addedNodes, ...m.removedNodes].every(n => n.id === 'chunk-tail-row' || n.parentElement?.id === 'chunk-tail-row')
+      );
+      if (!onlyTail && !rebuilding && !paraEditing && !isEditingTranscript) rebuildPara();
+    }).observe(tlLines, { childList: true, subtree: true, characterData: true });
   }
 
   // ── FIX 2 — Sync para-text edits back to transcript-lines ────────────────
