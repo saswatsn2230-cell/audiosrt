@@ -1,0 +1,111 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+---
+<BaseLayout title="Audio to Text Converter Free — No Upload, No Signup | AudioSRT" description="Convert audio to text for free, instantly, in your browser. No upload, no account, no file length limit. Export as plain text or SRT subtitles." canonical="https://audiosrt.com/tools/audio-to-text">
+  <Header />
+  <main class="lp-main">
+
+    <section class="lp-hero">
+      <span class="lp-badge">MP3 · WAV · M4A · Any Length</span>
+      <h1 class="lp-h1">Audio to Text Converter<br><span class="lp-accent">Free, Fast, Private</span></h1>
+      <p class="lp-intro">
+        Audio-to-text conversion used to mean choosing between accuracy and privacy — cloud-based tools are accurate but send your recordings to a remote server, while offline tools are private but slow and hard to set up. AudioSRT runs Whisper AI directly in your browser, so you get both: high accuracy and zero upload.
+      </p>
+      <p class="lp-intro">
+        Plain text output is front and center here — not just SRT subtitle files. Whether you're working with a voice memo, a meeting recording, a podcast episode, or any audio source, you can export a clean timestampless transcript ready to paste anywhere. If you need subtitles for a <a href="/tools/podcast-transcription" class="lp-inline-link">podcast episode</a> or want to understand the underlying AI, see the <a href="/tools/speech-to-text" class="lp-inline-link">speech to text page</a> for more detail on how Whisper works.
+      </p>
+      <a href="/#tool" class="lp-cta">Convert audio to text →</a>
+    </section>
+
+    <section class="lp-steps-section" style="margin: 0 auto 48px;">
+      <h2>How it works</h2>
+      <div class="lp-steps">
+        <div class="lp-step">
+          <div class="lp-step-num">01</div>
+          <h3>Upload any audio file</h3>
+          <p>Load an MP3, WAV, M4A, or OGG file of any length. The file is read directly by your browser — no upload step, no waiting for a server, no file size limit.</p>
+        </div>
+        <div class="lp-step">
+          <div class="lp-step-num">02</div>
+          <h3>AI converts speech to text</h3>
+          <p>Whisper AI processes the audio in chunks, delivering progressive output as each segment completes. No queue, no wait — results appear in real time alongside your file.</p>
+        </div>
+        <div class="lp-step">
+          <div class="lp-step-num">03</div>
+          <h3>Download your transcript</h3>
+          <p>Choose plain text for a clean, timestampless document — or SRT/VTT if you need subtitle files with timing data. Edit the transcript first if needed, then export in one click.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-features">
+      <h2>Everything included, nothing required</h2>
+      <div class="lp-feature-grid">
+        <div class="lp-feature-card">
+          <div class="lp-feature-icon">📄</div>
+          <h3>Plain text output</h3>
+          <p>Export a clean transcript without any timestamp markers — ready to copy into a document, email, or note. No extra cleanup needed after export.</p>
+        </div>
+        <div class="lp-feature-card">
+          <div class="lp-feature-icon">🌐</div>
+          <h3>Works in any browser</h3>
+          <p>Chrome, Firefox, Safari, and Edge are all supported. No extension to install, no desktop app to download — open the page and start converting.</p>
+        </div>
+        <div class="lp-feature-card">
+          <div class="lp-feature-icon">∞</div>
+          <h3>No file length limit</h3>
+          <p>Hour-long recordings, voice memos, meeting recordings, and multi-hour content all process without hitting a duration cap or triggering a file size error.</p>
+        </div>
+        <div class="lp-feature-card">
+          <div class="lp-feature-icon">🔒</div>
+          <h3>Nothing uploaded</h3>
+          <p>Audio stays on your device from start to finish. There is no server-side copy of your recording at any point in the transcription process.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-cta-section">
+      <h2>Convert your audio to text now</h2>
+      <p>Free. No account. No upload. Starts in seconds.</p>
+      <a href="/#tool" class="lp-cta">Start converting →</a>
+    </section>
+
+  </main>
+  <Footer />
+</BaseLayout>
+
+<style>
+.lp-main { font-family: 'Inter', sans-serif; color: #1D1D1F; }
+.lp-hero { text-align: center; padding: 80px 20px 60px; max-width: 760px; margin: 0 auto; }
+.lp-badge { display: inline-flex; align-items: center; background: #EEEFFD; color: #6366F1; font-size: 12px; font-weight: 500; padding: 5px 14px; border-radius: 20px; border: 0.5px solid #C7C8F9; margin-bottom: 24px; }
+.lp-h1 { font-size: clamp(28px, 4.5vw, 46px); font-weight: 700; line-height: 1.15; letter-spacing: -0.8px; margin-bottom: 16px; }
+.lp-accent { color: #6366F1; }
+.lp-intro { font-size: 15px; color: #6E6E73; line-height: 1.7; margin-bottom: 32px; max-width: 560px; margin-left: auto; margin-right: auto; }
+.lp-cta { display: inline-block; background: #6366F1; color: #fff; padding: 13px 28px; border-radius: 10px; font-size: 15px; font-weight: 500; text-decoration: none; transition: background 0.15s; }
+.lp-cta:hover { background: #4F46E5; }
+.lp-steps-section { padding: 64px 20px; max-width: 900px; margin: 0 auto; background: #F5F5F7; border-radius: 24px; text-align: center; }
+.lp-steps-section h2 { font-size: 26px; font-weight: 700; margin-bottom: 40px; letter-spacing: -0.5px; }
+.lp-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; text-align: left; }
+@media (max-width: 768px) { .lp-steps { grid-template-columns: 1fr; } }
+.lp-step-num { font-size: 44px; font-weight: 800; color: #EEEFFD; letter-spacing: -2px; margin-bottom: 12px; }
+.lp-step h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.lp-step p { font-size: 13px; color: #6E6E73; line-height: 1.6; }
+.lp-features { padding: 64px 20px; max-width: 900px; margin: 0 auto; }
+.lp-features h2 { font-size: 26px; font-weight: 700; text-align: center; margin-bottom: 36px; letter-spacing: -0.5px; }
+.lp-feature-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+@media (max-width: 600px) { .lp-feature-grid { grid-template-columns: 1fr; } }
+.lp-feature-card { background: #fff; border: 0.5px solid #E5E5E7; border-radius: 14px; padding: 24px; }
+.lp-feature-icon { font-size: 24px; margin-bottom: 12px; }
+.lp-feature-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.lp-feature-card p { font-size: 13px; color: #6E6E73; line-height: 1.6; }
+.lp-cta-section { text-align: center; padding: 64px 20px 80px; }
+.lp-cta-section h2 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+.lp-cta-section p { font-size: 14px; color: #6E6E73; margin-bottom: 24px; }
+.lp-body { font-size: 14px; color: #3D3D3F; line-height: 1.8; margin-bottom: 14px; }
+.lp-detail { max-width: 680px; margin: 64px auto; padding: 0 20px; }
+.lp-detail h2 { font-size: 22px; font-weight: 700; margin-bottom: 16px; }
+.lp-inline-link { color: #6366F1; text-decoration: none; }
+.lp-inline-link:hover { text-decoration: underline; }
+</style>

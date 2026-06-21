@@ -169,21 +169,22 @@ self.addEventListener('message', async (event) => {
     // --- Step 3: Transcribe ---
     progress(68, 'Transcribing audio…');
 
-    // chunk_callback fires after each ~30s internal window is decoded and stitched.
-    // We post it immediately so the main thread can render it without waiting for
-    // the full pipeline() promise. timestamps are chunk-relative; add timeOffset.
-    let chunksReceived = 0;
-    const audioDuration = audio16k.length / 16000; // seconds
+    // chunk_callback fires after each internal Whisper window completes.
+    // For VAD chunks (~25–35s) this fires once per chunk; for any longer
+    // fallback input it fires multiple times with accurate elapsed tracking.
+    const audioDuration = audio16k.length / 16000;
+    let   windowsDone   = 0;
+    const windowSec     = 30; // matches chunk_length_s
 
     const result = await transcriber(audio16k, {
       return_timestamps: true,
-      chunk_length_s: 30,
-      stride_length_s: 5,
-      chunk_callback: (chunk) => {
-        chunksReceived++;
-        const approxElapsed = Math.min(chunksReceived * 25, audioDuration);
-        const pct = Math.min(97, Math.round(68 + (approxElapsed / audioDuration) * 29));
-        progress(pct, `Transcribing… (${Math.round(approxElapsed)}s / ${Math.round(audioDuration)}s)`);
+      chunk_length_s:    30,
+      stride_length_s:   5,
+      chunk_callback: () => {
+        windowsDone++;
+        const elapsed = Math.min(windowsDone * windowSec, audioDuration);
+        const pct     = Math.min(97, Math.round(68 + (elapsed / audioDuration) * 29));
+        progress(pct, `Transcribing… (${Math.round(elapsed)}s / ${Math.round(audioDuration)}s)`);
       },
     });
 

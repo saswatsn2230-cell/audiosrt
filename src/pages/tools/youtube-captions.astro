@@ -1,0 +1,117 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+---
+<BaseLayout title="YouTube Caption Generator Free — SRT, VTT, Burned-In Captions | AudioSRT" description="Generate accurate captions for YouTube videos for free. Export SRT or VTT for YouTube's caption uploader, or burn captions directly into your video." canonical="https://audiosrt.com/tools/youtube-captions">
+  <Header />
+  <main class="lp-main">
+
+    <section class="lp-hero">
+      <span class="lp-badge">SRT · VTT · Burned-In MP4</span>
+      <h1 class="lp-h1">YouTube Caption Generator<br><span class="lp-accent">Free SRT and VTT Export</span></h1>
+      <p class="lp-intro">
+        Captions do two things for YouTube creators: they make your content accessible to viewers who are deaf or hard of hearing, and they give the algorithm more text to index — which means better discoverability in search and suggested feeds. Both reasons matter, and neither requires you to pay a transcription service.
+      </p>
+      <p class="lp-intro">
+        For long-form videos, upload an SRT or VTT file directly into YouTube Studio's caption uploader — no re-encoding needed. For Shorts and repurposed clips, burned-in captions auto-play as the video starts, which dramatically increases retention on muted autoplay. Style the font, color, and position to stay consistent with your brand before you export.
+      </p>
+      <a href="/#tool" class="lp-cta">Generate captions →</a>
+    </section>
+
+    <section class="lp-steps-section" style="margin: 0 auto 48px;">
+      <h2>How it works</h2>
+      <div class="lp-steps">
+        <div class="lp-step">
+          <div class="lp-step-num">01</div>
+          <h3>Upload your video</h3>
+          <p>Drag in an MP4, MOV, or WebM file. Everything is processed locally — your video is never sent to an external server, which matters when you're working with content before it goes live.</p>
+        </div>
+        <div class="lp-step">
+          <div class="lp-step-num">02</div>
+          <h3>Transcribe and style</h3>
+          <p>Whisper AI transcribes the audio track. Once the transcript is ready, review it for accuracy and — if you're making a burned-in version — choose font, color, and position to match your channel's visual style.</p>
+        </div>
+        <div class="lp-step">
+          <div class="lp-step-num">03</div>
+          <h3>Export SRT for YouTube or burned-in MP4</h3>
+          <p>For long-form YouTube videos, export the SRT or VTT file and upload it in YouTube Studio under Subtitles. For Shorts or social clips, export the finished MP4 with captions baked in — ready to upload anywhere.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-features">
+      <h2>What's included</h2>
+      <div class="lp-feature-grid">
+        <div class="lp-feature-card">
+          <div class="lp-feature-icon">🎬</div>
+          <h3>SRT and VTT for YouTube uploader</h3>
+          <p>Both formats are accepted by YouTube Studio. SRT is the most universally compatible; VTT supports additional styling metadata if you need it.</p>
+        </div>
+        <div class="lp-feature-card">
+          <div class="lp-feature-icon">🔥</div>
+          <h3>Burned-in captions for Shorts</h3>
+          <p>Export a finished MP4 with captions rendered directly into the video — no separate caption file needed. Captions display on every platform regardless of caption support.</p>
+        </div>
+        <div class="lp-feature-card">
+          <div class="lp-feature-icon">🎨</div>
+          <h3>Style to match your brand</h3>
+          <p>Control font family, size, color, stroke, and vertical position before burning in. Consistent caption styling across your videos reinforces channel identity.</p>
+        </div>
+        <div class="lp-feature-card">
+          <div class="lp-feature-icon">∞</div>
+          <h3>No video length cap</h3>
+          <p>Full-length YouTube videos — not just short clips — transcribe without hitting a duration limit. The same tool handles a 2-minute Short and a 90-minute documentary.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-detail">
+      <p class="lp-body">
+        <strong>Short-form workflow:</strong> If you're primarily making content for TikTok, Instagram Reels, or YouTube Shorts and want a vertical 9:16 canvas with full caption styling controls, see the <a href="/integrations/capcut" class="lp-inline-link">CapCut subtitle workflow</a> for a guide tailored to short-form vertical video.
+      </p>
+    </section>
+
+    <section class="lp-cta-section">
+      <h2>Generate captions for your next video</h2>
+      <p>Free for audio. Video captions on the Starter plan — 14-day trial, no credit card.</p>
+      <a href="/#tool" class="lp-cta">Start for free →</a>
+    </section>
+
+  </main>
+  <Footer />
+</BaseLayout>
+
+<style>
+.lp-main { font-family: 'Inter', sans-serif; color: #1D1D1F; }
+.lp-hero { text-align: center; padding: 80px 20px 60px; max-width: 760px; margin: 0 auto; }
+.lp-badge { display: inline-flex; align-items: center; background: #EEEFFD; color: #6366F1; font-size: 12px; font-weight: 500; padding: 5px 14px; border-radius: 20px; border: 0.5px solid #C7C8F9; margin-bottom: 24px; }
+.lp-h1 { font-size: clamp(28px, 4.5vw, 46px); font-weight: 700; line-height: 1.15; letter-spacing: -0.8px; margin-bottom: 16px; }
+.lp-accent { color: #6366F1; }
+.lp-intro { font-size: 15px; color: #6E6E73; line-height: 1.7; margin-bottom: 32px; max-width: 560px; margin-left: auto; margin-right: auto; }
+.lp-cta { display: inline-block; background: #6366F1; color: #fff; padding: 13px 28px; border-radius: 10px; font-size: 15px; font-weight: 500; text-decoration: none; transition: background 0.15s; }
+.lp-cta:hover { background: #4F46E5; }
+.lp-steps-section { padding: 64px 20px; max-width: 900px; margin: 0 auto; background: #F5F5F7; border-radius: 24px; text-align: center; }
+.lp-steps-section h2 { font-size: 26px; font-weight: 700; margin-bottom: 40px; letter-spacing: -0.5px; }
+.lp-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; text-align: left; }
+@media (max-width: 768px) { .lp-steps { grid-template-columns: 1fr; } }
+.lp-step-num { font-size: 44px; font-weight: 800; color: #EEEFFD; letter-spacing: -2px; margin-bottom: 12px; }
+.lp-step h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.lp-step p { font-size: 13px; color: #6E6E73; line-height: 1.6; }
+.lp-features { padding: 64px 20px; max-width: 900px; margin: 0 auto; }
+.lp-features h2 { font-size: 26px; font-weight: 700; text-align: center; margin-bottom: 36px; letter-spacing: -0.5px; }
+.lp-feature-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+@media (max-width: 600px) { .lp-feature-grid { grid-template-columns: 1fr; } }
+.lp-feature-card { background: #fff; border: 0.5px solid #E5E5E7; border-radius: 14px; padding: 24px; }
+.lp-feature-icon { font-size: 24px; margin-bottom: 12px; }
+.lp-feature-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.lp-feature-card p { font-size: 13px; color: #6E6E73; line-height: 1.6; }
+.lp-cta-section { text-align: center; padding: 64px 20px 80px; }
+.lp-cta-section h2 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+.lp-cta-section p { font-size: 14px; color: #6E6E73; margin-bottom: 24px; }
+.lp-body { font-size: 14px; color: #3D3D3F; line-height: 1.8; margin-bottom: 14px; }
+.lp-detail { max-width: 680px; margin: 64px auto; padding: 0 20px; }
+.lp-detail h2 { font-size: 22px; font-weight: 700; margin-bottom: 16px; }
+.lp-inline-link { color: #6366F1; text-decoration: none; }
+.lp-inline-link:hover { text-decoration: underline; }
+</style>

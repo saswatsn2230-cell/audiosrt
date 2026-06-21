@@ -1153,6 +1153,16 @@ button:active { transform:scale(0.97); }
         <div id="progress-bar" style="position:absolute;left:-9999px;width:0%;height:0;overflow:hidden;" aria-hidden="true"></div>
       </div>
       <div id="status-text">Starting…</div>
+      <!-- Time progress bar — shown during transcription when Xs/Ys is known -->
+      <div id="time-progress-wrap" style="display:none;width:100%;margin-top:4px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+          <span id="time-elapsed" style="font-size:11px;color:#6E6E73;"></span>
+          <span id="time-total" style="font-size:11px;color:#6E6E73;"></span>
+        </div>
+        <div style="height:4px;background:#E5E5E7;border-radius:2px;overflow:hidden;">
+          <div id="time-progress-bar" style="height:100%;width:0%;background:#6366F1;border-radius:2px;transition:width 0.4s ease;"></div>
+        </div>
+      </div>
       <div class="prog-waves">
         <div class="pwv"></div><div class="pwv"></div><div class="pwv"></div>
         <div class="pwv"></div><div class="pwv"></div><div class="pwv"></div>
@@ -2160,6 +2170,7 @@ button:active { transform:scale(0.97); }
   let monoRef     = null;
   let totalChunks = 1;
   let chunksDone  = 0;
+  let chunkQueue  = []; // [{ audioSlice: Float32Array, timeOffset: number }]
 
   let isVideo        = false;
   let mediaObjectUrl = null;
@@ -2554,70 +2565,104 @@ button:active { transform:scale(0.97); }
   }
 
   // ── Transcript UI ─────────────────────────────────────────────────────────
+
+  // Builds and returns a single transcript row DOM node for displaySegments[i].
+  // Extracted so both full-render and progressive-append can share the same logic.
+  function buildTranscriptRow(seg, i) {
+    const row = document.createElement('div');
+    row.className = 'flex gap-2 items-start';
+    row.dataset.displayIdx = String(i);
+    row.style.cursor = 'pointer';
+
+    const tsInput = document.createElement('input');
+    tsInput.type      = 'text';
+    tsInput.value     = formatTimestamp(seg.start);
+    tsInput.className = 'w-32 shrink-0 px-2 py-1.5 rounded-lg border border-transparent hover:border-apple-light-gray bg-apple-bg focus:outline-none focus:border-apple-blue text-xs text-apple-gray font-mono cursor-text text-center';
+    tsInput.title     = 'Click to seek audio; edit to change start time (HH:MM:SS,mmm)';
+
+    const textEl = document.createElement('div');
+    textEl.className       = 'flex-1 px-3 py-1.5 rounded-lg border border-transparent hover:border-apple-light-gray bg-apple-bg focus:outline-none focus:border-apple-blue text-sm text-apple-dark cursor-text whitespace-pre-wrap';
+    textEl.contentEditable = 'true';
+    textEl.textContent     = seg.text;
+
+    row.addEventListener('click', (e) => {
+      if (e.target === tsInput || e.target === textEl) return;
+      if (isFinite(audioPlayer.duration)) audioPlayer.currentTime = Math.max(0, seg.start);
+      refreshPreviewText(seg.start);
+    });
+    tsInput.addEventListener('focus', () => {
+      if (isFinite(audioPlayer.duration)) audioPlayer.currentTime = Math.max(0, seg.start);
+      refreshPreviewText(seg.start);
+    });
+    tsInput.addEventListener('change', () => {
+      const parsed = parseTimeInput(tsInput.value);
+      if (!isNaN(parsed)) {
+        displaySegments[i].start = parsed;
+        logicalSegments[displayToLogical[i]].start = parsed;
+        if (i > 0) {
+          displaySegments[i - 1].end = parsed;
+          logicalSegments[displayToLogical[i - 1]].end = parsed;
+        }
+        tsInput.value = formatTimestamp(parsed);
+      } else {
+        tsInput.value = formatTimestamp(displaySegments[i].start);
+      }
+      refreshPreviewText(audioPlayer.currentTime);
+    });
+    textEl.addEventListener('mouseup',  () => handleTextMouseUp(textEl, i));
+    textEl.addEventListener('keydown',  ()  => hidePill());
+    textEl.addEventListener('input', () => {
+      displaySegments[i].text = textEl.textContent;
+      const li = displayToLogical[i];
+      logicalSegments[li].text = displaySegments
+        .filter((_, idx) => displayToLogical[idx] === li)
+        .map(d => d.text.trim())
+        .join(' ');
+      refreshPreviewText(audioPlayer.currentTime);
+    });
+
+    row.appendChild(tsInput);
+    row.appendChild(textEl);
+    return row;
+  }
+
+  // Full render — clears the list and redraws every row from scratch.
+  // Used when the user edits settings, splits/merges, or loads a saved project.
   function renderTranscript() {
     autoSave();
     transcriptLines.innerHTML = '';
     displaySegments.forEach((seg, i) => {
-      const row = document.createElement('div');
-      row.className = 'flex gap-2 items-start';
-      row.dataset.displayIdx = String(i);
-
-      // FIX 3 — clicking row seeks audio + shows preview
-      row.style.cursor = 'pointer';
-      row.addEventListener('click', (e) => {
-        if (e.target === tsInput || e.target === textEl) return;
-        if (isFinite(audioPlayer.duration)) audioPlayer.currentTime = Math.max(0, seg.start);
-        refreshPreviewText(seg.start);
-      });
-
-      const tsInput = document.createElement('input');
-      tsInput.type      = 'text';
-      tsInput.value     = formatTimestamp(seg.start);
-      tsInput.className = 'w-32 shrink-0 px-2 py-1.5 rounded-lg border border-transparent hover:border-apple-light-gray bg-apple-bg focus:outline-none focus:border-apple-blue text-xs text-apple-gray font-mono cursor-text text-center';
-      tsInput.title     = 'Click to seek audio; edit to change start time (HH:MM:SS,mmm)';
-
-      tsInput.addEventListener('focus', () => {
-        if (isFinite(audioPlayer.duration)) audioPlayer.currentTime = Math.max(0, seg.start);
-        refreshPreviewText(seg.start);
-      });
-      tsInput.addEventListener('change', () => {
-        const parsed = parseTimeInput(tsInput.value);
-        if (!isNaN(parsed)) {
-          displaySegments[i].start = parsed;
-          logicalSegments[displayToLogical[i]].start = parsed;
-          if (i > 0) {
-            displaySegments[i - 1].end = parsed;
-            logicalSegments[displayToLogical[i - 1]].end = parsed;
-          }
-          tsInput.value = formatTimestamp(parsed);
-        } else {
-          tsInput.value = formatTimestamp(displaySegments[i].start);
-        }
-        refreshPreviewText(audioPlayer.currentTime);
-      });
-
-      const textEl = document.createElement('div');
-      textEl.className       = 'flex-1 px-3 py-1.5 rounded-lg border border-transparent hover:border-apple-light-gray bg-apple-bg focus:outline-none focus:border-apple-blue text-sm text-apple-dark cursor-text whitespace-pre-wrap';
-      textEl.contentEditable = 'true';
-      textEl.textContent     = seg.text;
-
-      textEl.addEventListener('mouseup',  () => handleTextMouseUp(textEl, i));
-      textEl.addEventListener('keydown',  ()  => hidePill());
-
-      textEl.addEventListener('input', () => {
-        displaySegments[i].text = textEl.textContent;
-        const li = displayToLogical[i];
-        logicalSegments[li].text = displaySegments
-          .filter((_, idx) => displayToLogical[idx] === li)
-          .map(d => d.text.trim())
-          .join(' ');
-        refreshPreviewText(audioPlayer.currentTime);
-      });
-
-      row.appendChild(tsInput);
-      row.appendChild(textEl);
-      transcriptLines.appendChild(row);
+      transcriptLines.appendChild(buildTranscriptRow(seg, i));
     });
+    applySubtitleRowLock(window._audiosrt.currentPlan || 'free');
+  }
+
+  // Progressive append — adds only rows from fromDisplayIdx onward.
+  // Never clears existing DOM, never moves scroll, never disturbs the active cursor.
+  // Called after each transcription chunk completes during live transcription.
+  function renderTranscriptAppend(fromDisplayIdx) {
+    const activeEl           = document.activeElement;
+    const cursorWasInList    = transcriptLines.contains(activeEl);
+    let   savedRange         = null;
+    if (cursorWasInList && window.getSelection) {
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount > 0) savedRange = sel.getRangeAt(0).cloneRange();
+    }
+
+    for (let i = fromDisplayIdx; i < displaySegments.length; i++) {
+      transcriptLines.appendChild(buildTranscriptRow(displaySegments[i], i));
+    }
+
+    // Restore selection so the user's cursor position is exactly unchanged
+    if (cursorWasInList && savedRange && activeEl && activeEl.isConnected) {
+      try {
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(savedRange);
+        activeEl.focus({ preventScroll: true });
+      } catch (_) {}
+    }
+
     applySubtitleRowLock(window._audiosrt.currentPlan || 'free');
   }
 
@@ -2765,6 +2810,15 @@ button:active { transform:scale(0.97); }
       alert('Please select an audio or video file (MP3, WAV, M4A, OGG, OPUS, MP4, MOV, WebM).');
       return;
     }
+    // Video upload requires Starter or Pro plan
+    if (isVideo) {
+      const plan = window._audiosrt?.currentPlan || window.currentUserPlan || 'free';
+      if (plan !== 'starter' && plan !== 'pro') {
+        alert('Video uploads are available on the Starter Trial and Pro plans.\n\nSign up for a free 14-day trial to unlock video transcription — no credit card required.');
+        fileInput.value = '';
+        return;
+      }
+    }
     selectedFile = file;
     updatePreviewControlsVisibility(file);
     updateExportOptions();
@@ -2816,7 +2870,7 @@ button:active { transform:scale(0.97); }
     logicalSegments  = [];
     displaySegments  = [];
     displayToLogical = [];
-    monoRef = null; totalChunks = 1; chunksDone = 0;
+    monoRef = null; totalChunks = 1; chunksDone = 0; chunkQueue = [];
     isVideo = false;
     if (mediaObjectUrl) { URL.revokeObjectURL(mediaObjectUrl); mediaObjectUrl = null; }
     videoPreviewEl.src = '';
@@ -2834,10 +2888,35 @@ button:active { transform:scale(0.97); }
   });
 
   // ── Progress ──────────────────────────────────────────────────────────────
+  const timeProgressWrap = document.getElementById('time-progress-wrap');
+  const timeProgressBar  = document.getElementById('time-progress-bar');
+  const timeElapsed      = document.getElementById('time-elapsed');
+  const timeTotal        = document.getElementById('time-total');
+
   function setProgress(pct, label) {
     progressBar.style.width = pct + '%';
     progressPct.textContent = pct + '%';
     statusText.textContent  = label;
+
+    // Parse "Transcribing… (Xs / Ys)" from chunk_callback progress messages
+    const m = label.match(/\((\d+)s\s*\/\s*(\d+)s\)/);
+    if (m) {
+      const elapsed = parseInt(m[1]);
+      const total   = parseInt(m[2]);
+      const frac    = Math.min(1, elapsed / total);
+      timeProgressWrap.style.display = 'block';
+      timeProgressBar.style.width    = (frac * 100).toFixed(1) + '%';
+      timeElapsed.textContent        = formatTime(elapsed);
+      timeTotal.textContent          = formatTime(total);
+    } else if (pct === 100 || pct === 0) {
+      timeProgressWrap.style.display = 'none';
+    }
+  }
+
+  function formatTime(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return m > 0 ? `${m}m ${s}s` : `${s}s`;
   }
   function showError(msg) {
     setProgress(0, 'Error: ' + msg);
@@ -2846,19 +2925,68 @@ button:active { transform:scale(0.97); }
     transcribeBtn.disabled = false;
   }
 
-  // ── Chunked transcription ─────────────────────────────────────────────────
-  const CHUNK_SEC     = 600;
-  const CHUNK_SAMPLES = CHUNK_SEC * 16000;
+  // ── VAD-based audio segmentation ─────────────────────────────────────────
+  // Slices mono 16kHz Float32Array at natural silence boundaries within a
+  // 25–35 second soft window, so Whisper never receives an unnatural mid-word
+  // cut. Falls back to the target midpoint when no clear silence is found.
+  function vadSegmentAudio(mono, sampleRate) {
+    const MIN_S   = 25, MAX_S = 35, TARGET_S = 30;
+    const minSamp = MIN_S    * sampleRate;
+    const maxSamp = MAX_S    * sampleRate;
 
-  function sendNextChunk() {
-    const start      = chunksDone * CHUNK_SAMPLES;
-    const end        = Math.min(start + CHUNK_SAMPLES, monoRef.length);
-    const chunk      = monoRef.slice(start, end);
-    const timeOffset = chunksDone * CHUNK_SEC;
+    // Compute RMS energy in 20ms analysis windows
+    const winLen = Math.round(0.020 * sampleRate);
+    const numWin = Math.ceil(mono.length / winLen);
+    const rms    = new Float32Array(numWin);
+    for (let w = 0; w < numWin; w++) {
+      const s = w * winLen, e = Math.min(s + winLen, mono.length);
+      let sq = 0;
+      for (let i = s; i < e; i++) sq += mono[i] * mono[i];
+      rms[w] = Math.sqrt(sq / (e - s));
+    }
+
+    const segments = [];
+    let pos = 0;
+    while (pos < mono.length) {
+      if (mono.length - pos <= maxSamp) {
+        segments.push({ sampleStart: pos, sampleEnd: mono.length });
+        break;
+      }
+      // Search for the quietest 20ms window between [pos+MIN, pos+MAX]
+      const searchS = pos + minSamp;
+      const searchE = Math.min(pos + maxSamp, mono.length);
+      const wS = Math.floor(searchS / winLen);
+      const wE = Math.ceil(searchE / winLen);
+      let bestW    = Math.floor((pos + TARGET_S * sampleRate) / winLen);
+      let lowestRms = Infinity;
+      for (let w = wS; w < wE && w < numWin; w++) {
+        if (rms[w] < lowestRms) { lowestRms = rms[w]; bestW = w; }
+      }
+      const cut = Math.min(bestW * winLen, mono.length);
+      segments.push({ sampleStart: pos, sampleEnd: cut });
+      pos = cut;
+    }
+    return segments;
+  }
+
+  // ── Sequential chunk queue ────────────────────────────────────────────────
+  function buildChunkQueue(mono, sampleRate) {
+    const segs = vadSegmentAudio(mono, sampleRate);
+    return segs.map(({ sampleStart, sampleEnd }) => ({
+      audioSlice: mono.slice(sampleStart, sampleEnd),
+      timeOffset: sampleStart / sampleRate,
+    }));
+  }
+
+  function dispatchNextChunk() {
+    if (chunksDone >= chunkQueue.length) return;
+    const { audioSlice, timeOffset } = chunkQueue[chunksDone];
+    // Transfer the buffer — zero-copy, worker owns it after this call
+    const transfer = audioSlice.slice();
     worker.postMessage(
-      { type: 'transcribe', audioBuffer: chunk, sampleRate: 16000,
+      { type: 'transcribe', audioBuffer: transfer, sampleRate: 16000,
         timeOffset, chunkIndex: chunksDone, totalChunks },
-      [chunk.buffer]
+      [transfer.buffer]
     );
   }
 
@@ -2977,12 +3105,14 @@ button:active { transform:scale(0.97); }
       if (numCh > 1) for (let i = 0; i < len; i++) mono[i] /= numCh;
       audioCtx.close();
 
-      monoRef     = mono;
-      totalChunks = Math.ceil(mono.length / CHUNK_SAMPLES);
+      monoRef    = mono;
+      chunkQueue = buildChunkQueue(mono, 16000);
+      totalChunks = chunkQueue.length;
       chunksDone  = 0;
 
       if (totalChunks > 1) {
-        setProgress(4, `Long audio — will process in ${totalChunks} parts of up to 10 min each`);
+        const totalSec = Math.round(mono.length / 16000);
+        setProgress(4, `Splitting ${Math.round(totalSec / 60)}m audio into ${totalChunks} natural segments…`);
       }
       setProgress(5, 'Starting transcription worker…');
       if (!worker) worker = new Worker('/transcription-worker.js', { type: 'module' });
@@ -3000,35 +3130,54 @@ button:active { transform:scale(0.97); }
           const overall = Math.round(
             (chunksDone / totalChunks + msg.percent / 100 / totalChunks) * 100
           );
-          const prefix = totalChunks > 1 ? `Part ${chunksDone + 1} of ${totalChunks} — ` : '';
+          const prefix = totalChunks > 1 ? `Chunk ${chunksDone + 1}/${totalChunks} — ` : '';
           setProgress(overall, prefix + msg.message);
 
         } else if (msg.type === 'complete') {
           rawSegments.push(...msg.transcript);
+
+          // Track how many display rows existed before this chunk lands
+          const prevDisplayCount = displaySegments.length;
+
           appendChunkToLogical(msg.transcript);
           rebuildDisplaySegments();
-          renderTranscript();
+
+          // Progressive append: only render new rows, never clear existing DOM.
+          // If the transcript panel is already visible (mid-transcription editing),
+          // append rows without disturbing scroll position or active cursor.
+          if (!transcriptArea.classList.contains('hidden')) {
+            renderTranscriptAppend(prevDisplayCount);
+          }
+
+          // Persist immediately — user can restore this chunk even if later ones fail
           autoSave();
           chunksDone++;
 
           if (chunksDone < totalChunks) {
             setProgress(
               Math.round((chunksDone / totalChunks) * 100),
-              `Part ${chunksDone} of ${totalChunks} done…`
+              `Chunk ${chunksDone}/${totalChunks} done — processing next…`
             );
-            sendNextChunk();
+            dispatchNextChunk();
           } else {
-            // All chunks done — open edit view
+            // All chunks done — open edit view if not already open
             setProgress(100, 'Done!');
-            progressArea.classList.add('hidden');
-            transcriptArea.classList.remove('hidden');
-            stepSettings.classList.remove('hidden');
-            stepExport.classList.remove('hidden');
-            stepTimeline.classList.remove('hidden');
-            applyPreviewStyles();
-            refreshPreviewText(0);
-            renderTemplates();
-            initTimeline();
+            if (transcriptArea.classList.contains('hidden')) {
+              // First time reveal: do a full render since nothing is in the DOM yet
+              renderTranscript();
+              progressArea.classList.add('hidden');
+              transcriptArea.classList.remove('hidden');
+              stepSettings.classList.remove('hidden');
+              stepExport.classList.remove('hidden');
+              stepTimeline.classList.remove('hidden');
+              applyPreviewStyles();
+              refreshPreviewText(0);
+              renderTemplates();
+              initTimeline();
+            } else {
+              // Panel was already open from a prior chunk — just hide the progress ring
+              progressArea.classList.add('hidden');
+            }
             transcribeBtn.disabled = false;
             monoRef = null;
           }
@@ -3040,7 +3189,7 @@ button:active { transform:scale(0.97); }
         }
       };
 
-      sendNextChunk();
+      dispatchNextChunk();
     } catch (err) {
       console.error(err);
       showError(err.message || 'Could not decode audio. Try a different file.');

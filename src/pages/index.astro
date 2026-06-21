@@ -8,11 +8,36 @@ const faqJsonLd = {
   "@type": "FAQPage",
   "mainEntity": [
     { "@type": "Question", "name": "Does my audio or video get uploaded to a server?", "acceptedAnswer": { "@type": "Answer", "text": "No. AudioSRT processes everything locally in your browser using asynchronous Web Workers. Your files never leave your device. Zero cloud storage, zero upload latency, zero privacy risk." } },
-    { "@type": "Question", "name": "How do I import subtitles into Adobe Premiere Pro?", "acceptedAnswer": { "@type": "Answer", "text": "Export the Premiere Pro JSON file from AudioSRT. In Premiere Pro, open the Text panel → click (...) → Import → Import Static Transcript. Your subtitles will load frame-accurately onto your timeline." } },
-    { "@type": "Question", "name": "How accurate is the transcription?", "acceptedAnswer": { "@type": "Answer", "text": "AudioSRT uses OpenAI's Whisper model — one of the most accurate open-source speech recognition systems available. It handles multiple languages, accents, background noise, and technical vocabulary well." } },
-    { "@type": "Question", "name": "Will my browser freeze on large video files?", "acceptedAnswer": { "@type": "Answer", "text": "No. We use asynchronous Web Workers and WebGPU memory-chunking that completely separates AI processing from the browser UI thread. Long files process in chunks so you can edit earlier sections while later sections are still transcribing." } },
-    { "@type": "Question", "name": "What is the difference between Free and Starter?", "acceptedAnswer": { "@type": "Answer", "text": "Free supports audio-only transcription with SRT and TXT export — no signup needed. Starter ($3/month or ₹99/month) adds video uploads, custom font injection, advanced typography controls, VTT export, and Premiere Pro JSON. Start with a 14-day free trial — no credit card required." } },
-    { "@type": "Question", "name": "Is there a desktop app?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — coming soon. Our free Tauri desktop app bypasses browser memory limits and uses your system's native GPU for 15-20x faster transcription. Available for Windows and Mac." } }
+    { "@type": "Question", "name": "How do I import subtitles into Adobe Premiere Pro?", "acceptedAnswer": { "@type": "Answer", "text": "Export the Premiere Pro JSON file from AudioSRT. In Premiere Pro, open the Text panel, click the (...) menu, choose Import, then Import Static Transcript. Your subtitles will load frame-accurately onto your timeline." } },
+    { "@type": "Question", "name": "How accurate is the transcription?", "acceptedAnswer": { "@type": "Answer", "text": "AudioSRT uses OpenAI's Whisper model, one of the most accurate open-source speech recognition systems available. It handles multiple languages, accents, background noise, and technical vocabulary well." } },
+    { "@type": "Question", "name": "Will my browser freeze on large video files?", "acceptedAnswer": { "@type": "Answer", "text": "No. AudioSRT uses asynchronous Web Workers and WebGPU memory-chunking that completely separates AI processing from the browser UI thread. Long files process in chunks so you can edit earlier sections while later sections are still transcribing." } },
+    { "@type": "Question", "name": "What is the difference between Free and Starter plans?", "acceptedAnswer": { "@type": "Answer", "text": "Free supports audio-only transcription with SRT and TXT export, no signup needed. Starter, at $3 per month or 99 rupees per month in India, adds video uploads, custom font injection, advanced typography controls, VTT export, and Premiere Pro JSON. It includes a 14-day free trial with no credit card required." } },
+    { "@type": "Question", "name": "Is there a desktop app for AudioSRT?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, coming soon. The free Tauri-based desktop app bypasses browser memory limits and uses the system's native GPU for 15 to 20 times faster transcription. It will be available for Windows and Mac." } }
+  ]
+};
+
+const howToJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to convert audio or video to SRT subtitles with AudioSRT",
+  "description": "Convert any audio or video file into accurate SRT subtitles using AudioSRT's free browser-based transcription tool.",
+  "step": [
+    { "@type": "HowToStep", "name": "Upload your file", "text": "Drop any audio or video file in MP3, WAV, M4A, MP4, MOV, or WebM format. There is no file size limit, and the file is processed entirely on your device." },
+    { "@type": "HowToStep", "name": "AI transcribes locally", "text": "Whisper AI runs directly in your browser using Web Workers. There is no upload and no queue. Results appear in real time as each chunk completes." },
+    { "@type": "HowToStep", "name": "Edit, style, and export", "text": "Fix words, adjust timestamps, style subtitles, and preview on the video. Export as SRT, VTT, plain text, or Premiere Pro JSON, ready to import into any editor." }
+  ]
+};
+
+const softwareJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "AudioSRT",
+  "applicationCategory": "MultimediaApplication",
+  "operatingSystem": "Web Browser",
+  "offers": [
+    { "@type": "Offer", "name": "Free Plan", "price": "0", "priceCurrency": "USD", "description": "Audio-only transcription with full transcript editing, SRT and plain text export. No signup required." },
+    { "@type": "Offer", "name": "Starter Plan", "price": "3", "priceCurrency": "USD", "description": "Adds video uploads, custom fonts, typography controls, VTT export, and Premiere Pro JSON export. 14-day free trial, no credit card required." },
+    { "@type": "Offer", "name": "Pro Plan", "price": "16", "priceCurrency": "USD", "description": "Adds cloud transcription, AI viral segment finder, animated caption templates, and automatic video clipping." }
   ]
 };
 
@@ -33,8 +58,8 @@ const jsonLd = {
 ---
 
 <BaseLayout
-  title="AudioSRT — Free Subtitle Editor & SRT Generator for Video Editors"
-  description="Transcribe audio and video locally with Whisper AI. Edit subtitles with professional typography controls. Export SRT, VTT, and Premiere Pro JSON — free to start, no signup needed."
+  title="AudioSRT — Free Audio to SRT Converter, Video to SRT, No Limits"
+  description="Convert audio to SRT or video to SRT free, with no upload limits and no signup. Export Premiere Pro JSON, VTT, and plain text. Advanced subtitle editor, fully browser-based."
   jsonLd={jsonLd}
 >
   <Header />
@@ -43,12 +68,11 @@ const jsonLd = {
   <section class="hero">
     <div class="hero-badge">⭐ 14-Day Free Trial — No Credit Card Required</div>
     <h1 class="hero-title">
-      The Professional Subtitle Editor<br>
-      <span class="hero-accent">Built for Video Editors</span>
+      Free Audio to SRT Converter<br>
+      <span class="hero-accent">& Online Subtitle Editor</span>
     </h1>
     <p class="hero-sub">
-      Transcribe audio and video locally. Edit subtitles with professional typography controls.
-      Export SRT, VTT, and native Premiere Pro JSON files — all free to start.
+      Free audio to SRT and video to SRT conversion with no upload limits, no file length caps, and no signup required to start. Edit subtitles with professional typography controls and export native Premiere Pro JSON files.
     </p>
     <div class="hero-btns">
       <a href="/tool" class="btn-primary">Start Transcribing Free →</a>
@@ -67,34 +91,74 @@ const jsonLd = {
     <h2>Everything a video editor needs</h2>
     <div class="features-grid">
       <div class="feature-card">
-        <div class="feature-icon">🎵</div>
-        <h3>Audio &amp; Video Transcription</h3>
-        <p>Upload MP3, WAV, M4A, MP4, MOV, WebM. Whisper AI transcribes locally on your device — no cloud upload, no queue, no waiting.</p>
+        <div class="feature-icon">🎬</div>
+        <h3>Export Video with Subtitles</h3>
+        <p>Burn your edited subtitles directly into the video and export a finished MP4 — no need to round-trip through another editor.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">✏️</div>
-        <h3>Professional Subtitle Editor</h3>
-        <p>Edit transcript word by word. Adjust timestamps. Split and merge lines. Custom fonts, stroke, shadow, and position controls — all in real time.</p>
+        <div class="feature-icon">📂</div>
+        <h3>Pick Up Right Where You Left Off</h3>
+        <p>Every project is saved locally on your device for 24 hours. Close the tab, come back anytime within that window, and your transcript, subtitles, and audio are exactly as you left them.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">👁️</div>
-        <h3>Live Preview Window</h3>
-        <p>See your subtitles on a real video preview as you edit. Switch between 16:9 and 9:16 canvas sizes. Preview exactly what your audience will see.</p>
+        <div class="feature-icon">✂️</div>
+        <h3>Split, Merge, and Re-time Lines</h3>
+        <p>Click any word to split a subtitle line instantly. Select multiple words to move them between lines. Timestamps recalculate automatically — no manual math.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔠</div>
+        <h3>Single or Double Line Subtitles</h3>
+        <p>Choose single-line or double-line subtitle formatting. Export as SRT and import into any editor — fully time-synced, ready to use.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">🎨</div>
-        <h3>Typography Controls</h3>
-        <p>Upload your own brand fonts (.ttf, .otf). Control stroke width, shadow opacity, blur, X/Y offsets. Bold, position, color — full creative control.</p>
+        <h3>Typography You Control</h3>
+        <p>Upload your own brand font. Adjust stroke width, shadow blur, color, and position — see every change live in the preview.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">📦</div>
-        <h3>Export for Any NLE</h3>
-        <p>Download frame-accurate SRT, VTT, plain text, and native Adobe Premiere Pro JSON — imports directly into Premiere's Text-Based Editing panel.</p>
+        <h3>Every Export Format You Need</h3>
+        <p>SRT, plain text, VTT, and native Adobe Premiere Pro JSON — import straight into Premiere's Text-Based Editing panel.</p>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon">🔒</div>
-        <h3>100% Private</h3>
-        <p>All processing happens in your browser using Web Workers and WebGPU. Your video and audio data never leaves your device. Zero cloud storage.</p>
+    </div>
+  </section>
+
+  <!-- Product Showcase -->
+  <section class="product-showcase">
+    <h2>See it in action</h2>
+    <p class="showcase-sub">A real editing workflow, start to finish.</p>
+
+    <div class="showcase-grid">
+      <div class="showcase-item">
+        <div class="showcase-image-slot" data-screenshot="transcript-highlight">
+          <img src="/screenshots/transcript-editor.png" alt="Audio to SRT transcript editor with word-synced highlighting" />
+        </div>
+        <h3>Word-synced transcript editing</h3>
+        <p>Click any word to jump to that moment in your audio. As playback runs, the active word highlights in real time. Works the same whether you're converting audio to SRT or video to SRT.</p>
+      </div>
+
+      <div class="showcase-item">
+        <div class="showcase-image-slot" data-screenshot="subtitle-split">
+          <img src="/screenshots/subtitle-editor.png" alt="Video to SRT subtitle editor with timestamp and line-splitting controls" />
+        </div>
+        <h3>Precise subtitle control, no limits</h3>
+        <p>Split lines at any word, move text between lines, and recalculate timestamps automatically. No line caps, no character limits, no length restrictions on the file you upload.</p>
+      </div>
+
+      <div class="showcase-item">
+        <div class="showcase-image-slot" data-screenshot="styling-panel">
+          <img src="/screenshots/styling-panel.png" alt="Subtitle typography editor with font, stroke, shadow, and position controls" />
+        </div>
+        <h3>Full typography control</h3>
+        <p>Upload your own font, then tune stroke, shadow, size, and position. Every change updates the preview instantly.</p>
+      </div>
+
+      <div class="showcase-item">
+        <div class="showcase-image-slot" data-screenshot="export-modal">
+          <img src="/screenshots/export-modal.png" alt="Export audio to SRT, VTT, or Premiere Pro JSON from one menu" />
+        </div>
+        <h3>Export to SRT, VTT, or Premiere Pro JSON</h3>
+        <p>Convert audio to SRT, video to SRT, or export directly as a Premiere Pro JSON file ready to drop into your timeline. Free transcription, no signup, no file limits.</p>
       </div>
     </div>
   </section>
@@ -193,7 +257,7 @@ const jsonLd = {
       </div>
       <div class="faq-item">
         <h3>How do I import subtitles into Adobe Premiere Pro?</h3>
-        <p>Export the Premiere Pro JSON file from AudioSRT. In Premiere Pro, open the Text panel → click (...) → Import → Import Static Transcript. Your subtitles will load frame-accurately onto your timeline.</p>
+        <p>Export the Premiere Pro JSON file from AudioSRT. In Premiere Pro, open the Text panel → click (...) → Import → Import Static Transcript. Your subtitles will load frame-accurately onto your timeline. <a href="/integrations/adobe-premiere-pro" style="color:#6366F1;text-decoration:none;">See the full Premiere Pro integration guide →</a></p>
       </div>
       <div class="faq-item">
         <h3>How accurate is the transcription?</h3>
@@ -214,6 +278,27 @@ const jsonLd = {
     </div>
   </section>
 
+  <!-- Popular searches -->
+  <section class="popular-searches">
+    <p class="popular-searches-label">Popular tools:</p>
+    <div class="popular-searches-links">
+      <a href="/tools/free-srt-generator">Free SRT Generator</a>
+      <a href="/tools/audio-to-text">Audio to Text</a>
+      <a href="/tools/speech-to-text">Speech to Text</a>
+      <a href="/tools/podcast-transcription">Podcast Transcription</a>
+      <a href="/tools/youtube-captions">YouTube Captions</a>
+      <a href="/tools/closed-caption-generator">Closed Captions</a>
+      <a href="/integrations/adobe-premiere-pro">Premiere Pro</a>
+      <a href="/integrations/davinci-resolve">DaVinci Resolve</a>
+      <a href="/compare/browser-based-subtitle-tools">Browser vs Cloud</a>
+    </div>
+  </section>
+
+  <!-- Positioning note -->
+  <section class="positioning-note">
+    <p>Most subtitle and captioning tools require uploading your media to a remote server, capping free transcription length, or charging monthly fees before you can export a usable SRT file. AudioSRT runs entirely in your browser: audio to SRT, video to SRT, or audio to Premiere Pro JSON, with no file length limit and no account needed to start. For editors who want an advanced subtitle editor without recurring software costs or upload restrictions, AudioSRT handles transcription, subtitle styling, and timeline-ready export entirely client-side.</p>
+  </section>
+
   <!-- Technical GEO copy -->
   <article class="technical-article">
     <h3>Under the Hood: Client-Side Media Processing Architecture</h3>
@@ -221,6 +306,8 @@ const jsonLd = {
   </article>
 
   <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
+  <script type="application/ld+json" set:html={JSON.stringify(howToJsonLd)} />
+  <script type="application/ld+json" set:html={JSON.stringify(softwareJsonLd)} />
   <Footer />
 </BaseLayout>
 
@@ -247,6 +334,16 @@ const jsonLd = {
 .feature-icon { font-size: 24px; margin-bottom: 12px; }
 .feature-card h3 { font-size: 15px; font-weight: 600; color: #1D1D1F; margin-bottom: 8px; }
 .feature-card p { font-size: 13px; color: #6E6E73; line-height: 1.6; }
+
+.product-showcase { padding: 80px 20px; max-width: 1000px; margin: 0 auto; }
+.product-showcase h2 { font-size: 32px; font-weight: 700; color: #1D1D1F; text-align: center; margin-bottom: 8px; letter-spacing: -0.5px; }
+.showcase-sub { font-size: 15px; color: #6E6E73; text-align: center; margin-bottom: 48px; }
+.showcase-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px; }
+@media (max-width: 768px) { .showcase-grid { grid-template-columns: 1fr; } }
+.showcase-item h3 { font-size: 15px; font-weight: 600; color: #1D1D1F; margin-bottom: 6px; }
+.showcase-item p { font-size: 13px; color: #6E6E73; line-height: 1.6; }
+.showcase-image-slot { width: 100%; aspect-ratio: 16/10; background: #F5F5F7; border: 0.5px solid #E5E5E7; border-radius: 12px; margin-bottom: 14px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.showcase-image-slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* Pricing */
 .pricing { padding: 80px 20px; max-width: 1000px; margin: 0 auto; text-align: center; }
@@ -294,6 +391,17 @@ const jsonLd = {
 .technical-article { max-width: 760px; margin: 40px auto 80px; padding: 24px 20px; border-top: 0.5px solid #E5E5E7; }
 .technical-article h3 { font-size: 13px; font-weight: 600; color: #A0A0A5; margin-bottom: 12px; }
 .technical-article p { font-size: 11px; color: #B0B0B5; line-height: 1.8; }
+
+/* Positioning note */
+.positioning-note { max-width: 760px; margin: 40px auto 0; padding: 0 20px; }
+.positioning-note p { font-size: 12px; color: #A0A0A5; line-height: 1.8; text-align: center; }
+
+/* Popular searches */
+.popular-searches { max-width: 760px; margin: 48px auto 0; padding: 0 20px; text-align: center; }
+.popular-searches-label { font-size: 11px; font-weight: 600; color: #A0A0A5; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px; }
+.popular-searches-links { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.popular-searches-links a { font-size: 12px; color: #6366F1; background: #EEEFFD; border: 0.5px solid #C7C8F9; border-radius: 20px; padding: 4px 12px; text-decoration: none; transition: background 0.15s; }
+.popular-searches-links a:hover { background: #E0E1FC; }
 </style>
 
 <!-- Auth navbar update handled globally by BaseLayout.astro -->

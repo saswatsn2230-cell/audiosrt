@@ -1,0 +1,171 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+---
+<BaseLayout title="Free vs Paid Subtitle Tools — Which Do You Actually Need?" description="An honest comparison of free and paid subtitle tools. See which features actually matter for your workflow before choosing a plan." canonical="https://audiosrt.com/compare/free-vs-paid-subtitle-tools">
+  <Header />
+  <main class="lp-main">
+
+    <section class="lp-hero">
+      <span class="lp-badge">Honest Comparison · No Sales Pitch</span>
+      <h1 class="lp-h1">Free vs Paid Subtitle Tools<br><span class="lp-accent">What You Actually Need</span></h1>
+      <p class="lp-intro">
+        Most subtitle tool comparison pages are written by people trying to sell you a subscription. This one isn't. Free subtitle tools — including AudioSRT's free tier — are genuinely sufficient for a large share of use cases. Paid plans add real value for specific workflows. The goal here is to help you figure out which category you're in before you reach for a credit card.
+      </p>
+      <a href="/#tool" class="lp-cta">Try AudioSRT free →</a>
+    </section>
+
+    <section class="compare-section">
+      <div class="compare-table-wrap">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th class="compare-th-feature">Feature</th>
+              <th class="compare-th-a">When free is enough<span class="compare-th-sub">for most audio-first workflows</span></th>
+              <th class="compare-th-b">When paid features matter<span class="compare-th-sub">for video, brand, or volume work</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Audio transcription</td>
+              <td class="compare-yes">✓ Fully covered — no limits</td>
+              <td class="compare-no">No upgrade needed</td>
+            </tr>
+            <tr class="compare-row-alt">
+              <td>SRT and VTT export</td>
+              <td class="compare-yes">✓ Both formats included free</td>
+              <td class="compare-no">No upgrade needed</td>
+            </tr>
+            <tr>
+              <td>Plain text transcript export</td>
+              <td class="compare-yes">✓ Free, no timestamp clutter</td>
+              <td class="compare-no">No upgrade needed</td>
+            </tr>
+            <tr class="compare-row-alt">
+              <td>Video transcription</td>
+              <td class="compare-no">Not included in free tier</td>
+              <td class="compare-yes">✓ Available on Starter plan</td>
+            </tr>
+            <tr>
+              <td>Burned-in MP4 export</td>
+              <td class="compare-no">Requires video features</td>
+              <td class="compare-yes">✓ Full styling + export</td>
+            </tr>
+            <tr class="compare-row-alt">
+              <td>Custom fonts and typography</td>
+              <td class="compare-no">Limited to default styles</td>
+              <td class="compare-yes">✓ Full font and style control</td>
+            </tr>
+            <tr>
+              <td>NLE JSON export (Premiere)</td>
+              <td class="compare-no">Not included in free tier</td>
+              <td class="compare-yes">✓ Available on Starter plan</td>
+            </tr>
+            <tr class="compare-row-alt">
+              <td>File length limits</td>
+              <td class="compare-yes">✓ No limits on free tier</td>
+              <td class="compare-no">No upgrade needed</td>
+            </tr>
+            <tr>
+              <td>Privacy (no upload)</td>
+              <td class="compare-yes">✓ All tiers — runs in browser</td>
+              <td class="compare-yes">✓ All tiers — runs in browser</td>
+            </tr>
+            <tr class="compare-row-alt">
+              <td>9:16 portrait canvas</td>
+              <td class="compare-no">Requires video features</td>
+              <td class="compare-yes">✓ For Shorts and Reels</td>
+            </tr>
+            <tr>
+              <td>Priority processing speed</td>
+              <td class="compare-no">Standard queue</td>
+              <td class="compare-yes">✓ Higher priority on paid plans</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="lp-detail">
+      <h2>When free tools are genuinely sufficient</h2>
+      <p class="lp-body">
+        If your primary use case is audio — podcast show notes, interview transcripts, lecture recordings, voice memos — the free tier covers the full workflow. You get accurate transcription with no file length limit, plain text export, and SRT/VTT output for any audio file. There's nothing artificially crippled about the free tier for audio use cases; it's just that video features require more infrastructure.
+      </p>
+      <p class="lp-body">
+        One-off projects also don't need a subscription. If you need to transcribe a single recording for a specific reason — a keynote speech, a deposition, a panel discussion — free tools are the rational choice. You're not building a workflow, you're solving a one-time problem.
+      </p>
+
+      <h2>When paid features actually matter</h2>
+      <p class="lp-body">
+        Video workflows are the main driver. If you're uploading the video file itself (not just extracting the audio), styling captions and burning them into the output, or exporting NLE-ready JSON for Premiere Pro, you need a paid plan. These features require more compute and produce larger output files — that's why they sit behind a plan.
+      </p>
+      <p class="lp-body">
+        Brand consistency is the second driver. Custom font selection and advanced typography controls matter when your captions need to match a brand style guide, a show's visual identity, or a client's spec. The default styles work fine for functional captions; they won't satisfy a design brief.
+      </p>
+      <p class="lp-body">
+        Volume and team work is the third. If you're transcribing dozens of files per week, or multiple people on a team need access, a paid plan with higher usage limits and team features pays for itself quickly compared to the manual overhead of workarounds.
+      </p>
+    </section>
+
+    <section class="lp-cta-section">
+      <h2>See AudioSRT's pricing</h2>
+      <p>Free tier available with no account. Starter plan from $9/mo — 14-day trial, no credit card.</p>
+      <a href="/#pricing" class="lp-cta">View pricing →</a>
+      <br><br>
+      <a href="/#tool" style="font-size: 14px; color: #6366F1; text-decoration: none;">Or try the free tool first →</a>
+    </section>
+
+  </main>
+  <Footer />
+</BaseLayout>
+
+<style>
+.lp-main { font-family: 'Inter', sans-serif; color: #1D1D1F; }
+.lp-hero { text-align: center; padding: 80px 20px 60px; max-width: 760px; margin: 0 auto; }
+.lp-badge { display: inline-flex; align-items: center; background: #EEEFFD; color: #6366F1; font-size: 12px; font-weight: 500; padding: 5px 14px; border-radius: 20px; border: 0.5px solid #C7C8F9; margin-bottom: 24px; }
+.lp-h1 { font-size: clamp(28px, 4.5vw, 46px); font-weight: 700; line-height: 1.15; letter-spacing: -0.8px; margin-bottom: 16px; }
+.lp-accent { color: #6366F1; }
+.lp-intro { font-size: 15px; color: #6E6E73; line-height: 1.7; margin-bottom: 32px; max-width: 560px; margin-left: auto; margin-right: auto; }
+.lp-cta { display: inline-block; background: #6366F1; color: #fff; padding: 13px 28px; border-radius: 10px; font-size: 15px; font-weight: 500; text-decoration: none; transition: background 0.15s; }
+.lp-cta:hover { background: #4F46E5; }
+.lp-steps-section { padding: 64px 20px; max-width: 900px; margin: 0 auto; background: #F5F5F7; border-radius: 24px; text-align: center; }
+.lp-steps-section h2 { font-size: 26px; font-weight: 700; margin-bottom: 40px; letter-spacing: -0.5px; }
+.lp-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; text-align: left; }
+@media (max-width: 768px) { .lp-steps { grid-template-columns: 1fr; } }
+.lp-step-num { font-size: 44px; font-weight: 800; color: #EEEFFD; letter-spacing: -2px; margin-bottom: 12px; }
+.lp-step h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.lp-step p { font-size: 13px; color: #6E6E73; line-height: 1.6; }
+.lp-features { padding: 64px 20px; max-width: 900px; margin: 0 auto; }
+.lp-features h2 { font-size: 26px; font-weight: 700; text-align: center; margin-bottom: 36px; letter-spacing: -0.5px; }
+.lp-feature-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+@media (max-width: 600px) { .lp-feature-grid { grid-template-columns: 1fr; } }
+.lp-feature-card { background: #fff; border: 0.5px solid #E5E5E7; border-radius: 14px; padding: 24px; }
+.lp-feature-icon { font-size: 24px; margin-bottom: 12px; }
+.lp-feature-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.lp-feature-card p { font-size: 13px; color: #6E6E73; line-height: 1.6; }
+.lp-cta-section { text-align: center; padding: 64px 20px 80px; }
+.lp-cta-section h2 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+.lp-cta-section p { font-size: 14px; color: #6E6E73; margin-bottom: 24px; }
+.lp-body { font-size: 14px; color: #3D3D3F; line-height: 1.8; margin-bottom: 14px; }
+.lp-detail { max-width: 680px; margin: 64px auto; padding: 0 20px; }
+.lp-detail h2 { font-size: 22px; font-weight: 700; margin-bottom: 16px; }
+.lp-inline-link { color: #6366F1; text-decoration: none; }
+.lp-inline-link:hover { text-decoration: underline; }
+.compare-section { padding: 0 20px 64px; max-width: 860px; margin: 0 auto; }
+.compare-table-wrap { overflow-x: auto; }
+.compare-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.compare-table thead th { padding: 14px 18px; font-weight: 600; font-size: 13px; border-bottom: 1px solid #E5E5E7; }
+.compare-th-feature { text-align: left; color: #6E6E73; width: 36%; }
+.compare-th-a { background: #EEEFFD; color: #6366F1; text-align: center; border-radius: 8px 8px 0 0; width: 32%; }
+.compare-th-b { text-align: center; color: #6E6E73; width: 32%; }
+.compare-th-sub { font-weight: 400; font-size: 11px; display: block; margin-top: 2px; opacity: 0.8; }
+.compare-table td { padding: 13px 18px; border-bottom: 0.5px solid #E5E5E7; vertical-align: top; line-height: 1.5; }
+.compare-table td:first-child { color: #3D3D3F; }
+.compare-table td:nth-child(2) { background: #FAFAFF; text-align: center; }
+.compare-table td:nth-child(3) { text-align: center; color: #6E6E73; }
+.compare-row-alt td { background: #FAFAFA; }
+.compare-row-alt td:nth-child(2) { background: #F4F4FD; }
+.compare-yes { color: #22863A; font-weight: 500; }
+.compare-no { color: #6E6E73; }
+</style>

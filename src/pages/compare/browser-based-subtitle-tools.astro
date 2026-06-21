@@ -1,0 +1,173 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Browser-Based vs Cloud Subtitle Tools — Which Is Right for You?"
+  description="Compare browser-based and cloud-based subtitle editors. See why client-side processing means faster, more private subtitle generation."
+  canonical="https://audiosrt.com/compare/browser-based-subtitle-tools"
+>
+  <Header />
+
+  <main class="lp-main">
+
+    <section class="lp-hero">
+      <div class="lp-badge">Privacy · Speed · Cost</div>
+      <h1 class="lp-h1">Browser-Based vs Cloud-Based<br><span class="lp-accent">Subtitle Tools — What's the Difference</span></h1>
+      <p class="lp-intro">Not all subtitle generators work the same way. The architecture behind the tool — client-side vs server-side — determines how fast it processes your media, who can access your footage, and what happens when you hit a file size limit.</p>
+    </section>
+
+    <!-- Comparison table -->
+    <section class="compare-section">
+      <div class="compare-table-wrap">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th class="compare-th-feature">Feature</th>
+              <th class="compare-th-browser">Browser-Based<br><span class="compare-th-sub">e.g. AudioSRT</span></th>
+              <th class="compare-th-cloud">Cloud-Based<br><span class="compare-th-sub">upload-and-wait tools</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Your file is uploaded to a server</td>
+              <td class="compare-yes">✗ Never</td>
+              <td class="compare-no">✓ Always</td>
+            </tr>
+            <tr class="compare-row-alt">
+              <td>Works offline</td>
+              <td class="compare-yes">✓ After first load</td>
+              <td class="compare-no">✗ Requires internet + server</td>
+            </tr>
+            <tr>
+              <td>Requires payment to export</td>
+              <td class="compare-yes">✗ Free SRT/TXT export</td>
+              <td class="compare-no">✓ Often paywalled</td>
+            </tr>
+            <tr class="compare-row-alt">
+              <td>File size / duration cap</td>
+              <td class="compare-yes">✗ No cap</td>
+              <td class="compare-no">✓ Typically 30–90 min</td>
+            </tr>
+            <tr>
+              <td>Processing model</td>
+              <td class="compare-yes">30-second VAD chunks,<br>progressive results</td>
+              <td class="compare-no">Full upload, then wait<br>for full result</td>
+            </tr>
+            <tr class="compare-row-alt">
+              <td>Appropriate for client/NDA footage</td>
+              <td class="compare-yes">✓ Yes — nothing leaves device</td>
+              <td class="compare-no">Depends on provider's data policy</td>
+            </tr>
+            <tr>
+              <td>UI freezes during transcription</td>
+              <td class="compare-yes">✗ Web Workers keep UI responsive</td>
+              <td class="compare-no">N/A — wait for server response</td>
+            </tr>
+            <tr class="compare-row-alt">
+              <td>Edit subtitles before exporting</td>
+              <td class="compare-yes">✓ Full editor built in</td>
+              <td class="compare-no">Varies — often separate step</td>
+            </tr>
+            <tr>
+              <td>Export to Premiere Pro JSON</td>
+              <td class="compare-yes">✓ Native format</td>
+              <td class="compare-no">Rare — most export SRT only</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Why it matters -->
+    <section class="lp-detail lp-detail--wide">
+      <h2>Why client-side processing matters for professional editors</h2>
+      <p class="lp-body">Professional video editors routinely work with footage covered by non-disclosure agreements, talent contracts, or broadcast exclusivity windows. Uploading a rough cut — even to a well-intentioned tool — creates a copy of that footage on a third-party server, outside your control. Browser-based processing eliminates that risk entirely: the media file is decoded inside your browser's sandboxed environment and discarded when you close the tab.</p>
+      <p class="lp-body">There is also a practical performance difference. Cloud tools require a full upload before transcription begins, then a full download of results. For a 2-hour documentary, that can mean waiting 10–15 minutes before seeing any output. Browser-based tools like AudioSRT begin transcribing the first 30-second segment immediately and deliver progressive results — you can read and edit the first minute of transcript while the rest is still processing.</p>
+      <p class="lp-body">Finally, file length caps are an architectural limit of cloud tools, not a business decision. Keeping large files in memory on a shared server is expensive. A browser-based tool running on your local machine doesn't have this constraint — AudioSRT processes hour-long podcast recordings and feature films using VAD-based chunking that splits the audio at natural silence boundaries before sending each segment to the AI model.</p>
+    </section>
+
+    <section class="lp-features">
+      <h2>Key differences in how the processing works</h2>
+      <div class="lp-feature-grid">
+        <div class="lp-feature-card">
+          <div class="lp-feature-icon">🔄</div>
+          <h3>Progressive vs batch</h3>
+          <p>Browser-based tools split audio into 25–35 second natural chunks and deliver results as each chunk completes. Cloud tools wait until the full file is processed server-side before returning anything.</p>
+        </div>
+        <div class="lp-feature-card">
+          <div class="lp-feature-icon">🧵</div>
+          <h3>Web Worker isolation</h3>
+          <p>AudioSRT runs Whisper AI in a dedicated Web Worker — completely separate from the browser's UI thread. You can scroll, edit earlier segments, and interact with the interface while transcription continues in the background.</p>
+        </div>
+        <div class="lp-feature-card">
+          <div class="lp-feature-icon">💾</div>
+          <h3>Local session persistence</h3>
+          <p>Your transcript is saved to IndexedDB automatically every few seconds. Close the tab mid-transcription, come back within 24 hours, and your project is exactly where you left it — no re-upload required.</p>
+        </div>
+        <div class="lp-feature-card">
+          <div class="lp-feature-icon">🏗️</div>
+          <h3>No server queue</h3>
+          <p>Cloud tools share compute across all users. During peak hours, you wait in a queue. A browser-based tool uses your own CPU and GPU — consistent speed regardless of how many other people are using the service.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-cta-section">
+      <h2>Try a browser-based subtitle tool</h2>
+      <p>No upload. No account. Free SRT export. Runs entirely in your browser.</p>
+      <a href="/tool" class="lp-cta">Open AudioSRT Free →</a>
+    </section>
+
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+.lp-main { font-family: 'Inter', sans-serif; color: #1D1D1F; }
+.lp-hero { text-align: center; padding: 80px 20px 60px; max-width: 800px; margin: 0 auto; }
+.lp-badge { display: inline-flex; align-items: center; background: #EEEFFD; color: #6366F1; font-size: 12px; font-weight: 500; padding: 5px 14px; border-radius: 20px; border: 0.5px solid #C7C8F9; margin-bottom: 24px; }
+.lp-h1 { font-size: clamp(26px, 4vw, 42px); font-weight: 700; line-height: 1.15; letter-spacing: -0.8px; margin-bottom: 16px; }
+.lp-accent { color: #6366F1; }
+.lp-intro { font-size: 15px; color: #6E6E73; line-height: 1.7; margin-bottom: 32px; max-width: 600px; margin-left: auto; margin-right: auto; }
+.lp-cta { display: inline-block; background: #6366F1; color: #fff; padding: 13px 28px; border-radius: 10px; font-size: 15px; font-weight: 500; text-decoration: none; transition: background 0.15s; }
+.lp-cta:hover { background: #4F46E5; }
+
+/* Comparison table */
+.compare-section { padding: 0 20px 64px; max-width: 860px; margin: 0 auto; }
+.compare-table-wrap { overflow-x: auto; }
+.compare-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.compare-table thead th { padding: 14px 18px; font-weight: 600; font-size: 13px; border-bottom: 1px solid #E5E5E7; }
+.compare-th-feature { text-align: left; color: #6E6E73; width: 36%; }
+.compare-th-browser { background: #EEEFFD; color: #6366F1; text-align: center; border-radius: 8px 8px 0 0; width: 32%; }
+.compare-th-cloud { text-align: center; color: #6E6E73; width: 32%; }
+.compare-th-sub { font-weight: 400; font-size: 11px; display: block; margin-top: 2px; opacity: 0.8; }
+.compare-table td { padding: 13px 18px; border-bottom: 0.5px solid #E5E5E7; vertical-align: top; line-height: 1.5; }
+.compare-table td:first-child { color: #3D3D3F; }
+.compare-table td:nth-child(2) { background: #FAFAFF; text-align: center; }
+.compare-table td:nth-child(3) { text-align: center; color: #6E6E73; }
+.compare-row-alt td { background: #FAFAFA; }
+.compare-row-alt td:nth-child(2) { background: #F4F4FD; }
+.compare-yes { color: #22863A; font-weight: 500; }
+.compare-no { color: #6E6E73; }
+
+.lp-detail { max-width: 680px; margin: 64px auto; padding: 0 20px; }
+.lp-detail--wide { max-width: 760px; }
+.lp-detail h2 { font-size: 22px; font-weight: 700; margin-bottom: 16px; }
+.lp-body { font-size: 14px; color: #3D3D3F; line-height: 1.8; margin-bottom: 14px; }
+
+.lp-features { padding: 64px 20px; max-width: 900px; margin: 0 auto; }
+.lp-features h2 { font-size: 26px; font-weight: 700; text-align: center; margin-bottom: 36px; letter-spacing: -0.5px; }
+.lp-feature-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+@media (max-width: 600px) { .lp-feature-grid { grid-template-columns: 1fr; } }
+.lp-feature-card { background: #fff; border: 0.5px solid #E5E5E7; border-radius: 14px; padding: 24px; }
+.lp-feature-icon { font-size: 24px; margin-bottom: 12px; }
+.lp-feature-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.lp-feature-card p { font-size: 13px; color: #6E6E73; line-height: 1.6; }
+.lp-cta-section { text-align: center; padding: 64px 20px 80px; }
+.lp-cta-section h2 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+.lp-cta-section p { font-size: 14px; color: #6E6E73; margin-bottom: 24px; }
+</style>
