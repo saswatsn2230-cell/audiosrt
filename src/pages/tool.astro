@@ -4443,6 +4443,19 @@ button:active { transform:scale(0.97); }
     rebuilding = false;
     // eslint-disable-next-line no-console
     console.log('[word-highlight] Built', paraText.querySelectorAll('.word[data-start]').length, 'word spans');
+    // Re-attach skeleton if it was wiped during a rebuild mid-transcription
+    const tailRow = document.getElementById('chunk-tail-row');
+    if (tailRow && !document.getElementById('chunk-tail-para')) {
+      const wrap = document.createElement('div');
+      wrap.id = 'chunk-tail-para';
+      wrap.className = 'chunk-tail-wrap';
+      for (let i = 0; i < 4; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'skeleton-bar';
+        wrap.appendChild(bar);
+      }
+      paraText.appendChild(wrap);
+    }
   }
 
   if (tlLines) {
