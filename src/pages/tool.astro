@@ -3240,8 +3240,8 @@ button:active { transform:scale(0.97); }
 
           showInlineIndicator(chunksDone, totalChunks);
 
-          // Show animated dots after the last transcribed line while waiting for next chunk
-          if (moreChunks) showChunkTail();
+          // Delay so the skeleton appends AFTER rebuildPara (MutationObserver microtask) clears para-text
+          if (moreChunks) setTimeout(showChunkTail, 0);
 
           autoSave();
 
