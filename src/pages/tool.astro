@@ -1237,6 +1237,10 @@ button:active { transform:scale(0.97); }
 
       <!-- Tab 1: Paragraph / Descript-style view -->
       <div id="para-view" class="tab-panel">
+        <div id="inline-transcribing-indicator-para" style="display:none;align-items:center;gap:8px;padding:8px 14px;background:#EEEFFD;border-bottom:0.5px solid #C7C8F9;font-size:12px;color:#6366F1;flex-shrink:0;">
+          <div style="width:12px;height:12px;border:2px solid #C7C8F9;border-top-color:#6366F1;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;"></div>
+          <span id="inline-progress-text-para">Transcribing…</span>
+        </div>
         <div id="para-text"
           contenteditable="true"
           spellcheck="false"
@@ -3128,17 +3132,20 @@ button:active { transform:scale(0.97); }
         transcribeBtn.disabled = false;
       };
 
-      const inlineIndicator = document.getElementById('inline-transcribing-indicator');
-      const inlineText      = document.getElementById('inline-progress-text');
+      const inlineIndicator     = document.getElementById('inline-transcribing-indicator');
+      const inlineText          = document.getElementById('inline-progress-text');
+      const inlineIndicatorPara = document.getElementById('inline-transcribing-indicator-para');
+      const inlineTextPara      = document.getElementById('inline-progress-text-para');
 
       function showInlineIndicator(done, total) {
-        if (!inlineIndicator) return;
-        if (done < total) {
-          inlineIndicator.style.display = 'flex';
-          if (inlineText) inlineText.textContent = `Transcribing chunk ${done} of ${total}…`;
-        } else {
-          inlineIndicator.style.display = 'none';
-        }
+        const visible = done < total;
+        const label   = `Transcribing chunk ${done} of ${total}…`;
+        // Subtitles tab indicator
+        if (inlineIndicator) inlineIndicator.style.display = visible ? 'flex' : 'none';
+        if (visible && inlineText) inlineText.textContent = label;
+        // Transcript tab indicator
+        if (inlineIndicatorPara) inlineIndicatorPara.style.display = visible ? 'flex' : 'none';
+        if (visible && inlineTextPara) inlineTextPara.textContent = label;
       }
 
       // Reveals the editor screen (progress ring → transcript/subtitle panels).
