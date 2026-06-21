@@ -169,19 +169,29 @@ self.addEventListener('message', async (event) => {
     // --- Step 3: Transcribe ---
     progress(68, 'Transcribing audio…');
 
+    // chunk_callback fires after each ~30s internal window is decoded and stitched.
+    // We post it immediately so the main thread can render it without waiting for
+    // the full pipeline() promise. timestamps are chunk-relative; add timeOffset.
+    let chunksReceived = 0;
+    const audioDuration = audio16k.length / 16000; // seconds
+
     const result = await transcriber(audio16k, {
       return_timestamps: true,
       chunk_length_s: 30,
       stride_length_s: 5,
-      // Post an incremental progress update roughly every chunk
-      callback_function: (beams) => {
-        // beams is internal; we just want a heartbeat so the progress bar moves
-        progress(70, 'Transcribing…');
+      chunk_callback: (chunk) => {
+        chunksReceived++;
+        const approxElapsed = Math.min(chunksReceived * 25, audioDuration);
+        const pct = Math.min(97, Math.round(68 + (approxElapsed / audioDuration) * 29));
+        progress(pct, `Transcribing… (${Math.round(approxElapsed)}s / ${Math.round(audioDuration)}s)`);
       },
     });
 
     progress(98, 'Finalising…');
 
+    // result.chunks is the authoritative stitched output for this outer chunk.
+    // Use it as the 'complete' payload so the main thread can reconcile any
+    // overlap corrections the library made after all windows were processed.
     const chunks = result.chunks || [
       { timestamp: [0, 0], text: result.text || '' },
     ];

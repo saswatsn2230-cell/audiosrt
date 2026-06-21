@@ -1,1 +1,0 @@
-import"./hoisted.DSqz_6iW.js";document.getElementById("contact-form")?.addEventListener("submit",e=>{e.preventDefault();const t=document.getElementById("form-note");t?.classList.remove("hidden"),e.target.reset(),t?.scrollIntoView({behavior:"smooth",block:"nearest"})});

@@ -1,0 +1,186 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="My Account — AudioSRT"
+  description="Manage your AudioSRT account, plan, and billing."
+  noindex={true}
+>
+  <Header />
+
+  <main style="max-width:560px;margin:60px auto 100px;padding:0 20px;font-family:Inter,sans-serif;">
+
+    <!-- Loading skeleton shown until JS resolves auth -->
+    <div id="account-loading" style="text-align:center;padding:80px 0;color:#6E6E73;font-size:14px;">
+      Loading your account…
+    </div>
+
+    <!-- Redirect prompt shown if not logged in -->
+    <div id="account-guest" style="display:none;text-align:center;padding:80px 0;">
+      <div style="font-size:32px;margin-bottom:16px;">🔒</div>
+      <p style="font-size:15px;color:#1D1D1F;font-weight:500;margin-bottom:8px;">You're not signed in</p>
+      <p style="font-size:13px;color:#6E6E73;margin-bottom:24px;">Sign in to view your account details.</p>
+      <a href="/auth" style="background:#6366F1;color:#fff;padding:10px 24px;border-radius:9px;font-size:13px;font-weight:500;text-decoration:none;">Sign in →</a>
+    </div>
+
+    <!-- Main account content -->
+    <div id="account-content" style="display:none;">
+
+      <!-- Header row -->
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:36px;">
+        <div id="acc-avatar" style="width:56px;height:56px;border-radius:50%;background:#6366F1;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;flex-shrink:0;"></div>
+        <div>
+          <div id="acc-name" style="font-size:18px;font-weight:600;color:#1D1D1F;"></div>
+          <div id="acc-email" style="font-size:13px;color:#6E6E73;margin-top:2px;"></div>
+        </div>
+      </div>
+
+      <!-- Plan card -->
+      <div style="border:0.5px solid #E5E5E7;border-radius:14px;padding:24px;margin-bottom:16px;background:#FAFAFA;">
+        <div style="font-size:11px;font-weight:600;color:#6E6E73;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:16px;">Current Plan</div>
+
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+          <div>
+            <div id="acc-plan-label" style="font-size:22px;font-weight:700;color:#1D1D1F;"></div>
+            <div id="acc-plan-desc" style="font-size:13px;color:#6E6E73;margin-top:4px;line-height:1.5;"></div>
+          </div>
+          <div id="acc-plan-badge" style="flex-shrink:0;"></div>
+        </div>
+
+        <!-- Trial progress bar (shown for trial users) -->
+        <div id="acc-trial-bar-wrap" style="display:none;margin-top:20px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:11px;color:#6E6E73;" id="acc-trial-used"></span>
+            <span style="font-size:11px;color:#6E6E73;" id="acc-trial-left"></span>
+          </div>
+          <div style="height:6px;background:#E5E5E7;border-radius:3px;overflow:hidden;">
+            <div id="acc-trial-bar" style="height:100%;background:#6366F1;border-radius:3px;transition:width 0.4s;"></div>
+          </div>
+        </div>
+
+        <!-- Renewal date (shown for paid users) -->
+        <div id="acc-renewal" style="display:none;margin-top:16px;font-size:12px;color:#6E6E73;"></div>
+      </div>
+
+      <!-- Features list -->
+      <div style="border:0.5px solid #E5E5E7;border-radius:14px;padding:24px;margin-bottom:16px;background:#FAFAFA;">
+        <div style="font-size:11px;font-weight:600;color:#6E6E73;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px;">What's included</div>
+        <ul id="acc-features" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;"></ul>
+      </div>
+
+      <!-- Actions -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <a href="/tool" style="display:block;text-align:center;background:#6366F1;color:#fff;padding:12px;border-radius:10px;font-size:13px;font-weight:500;text-decoration:none;">Open App →</a>
+        <button id="acc-signout" style="width:100%;padding:12px;border-radius:10px;border:0.5px solid #E5E5E7;background:#fff;color:#EF4444;font-size:13px;font-weight:500;cursor:pointer;font-family:Inter,sans-serif;">Sign out</button>
+      </div>
+
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+
+  const supabase = createClient(
+    'https://mjqtgkytimwjzchtfnix.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1qcXRna3l0aW13anpjaHRmbml4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3OTcyNzEsImV4cCI6MjA5NzM3MzI3MX0.8Ed1p_XfbYP7nscVoiXfdm2LsMDb5pvTj4NZqARinEc'
+  )
+
+  const PLAN_FEATURES = {
+    free:    ['Audio transcription (MP3, WAV, M4A)', 'SRT + plain text export', 'Basic subtitle editor', 'No account required'],
+    starter: ['Everything in Free', 'Video uploads (MP4, MOV)', 'Custom font uploads', 'Typography controls', 'Premiere Pro JSON export', 'VTT subtitle export', 'Cloud project sync'],
+    pro:     ['Everything in Starter', 'Priority processing', 'API access (coming soon)', 'Dedicated support'],
+  }
+
+  function daysLeft(dateStr) {
+    return Math.max(0, Math.ceil((new Date(dateStr) - Date.now()) / 86_400_000))
+  }
+
+  function fmt(dateStr) {
+    return new Date(dateStr).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' })
+  }
+
+  async function renderAccount() {
+    const { data: { session } } = await supabase.auth.getSession()
+
+    document.getElementById('account-loading').style.display = 'none'
+
+    if (!session?.user) {
+      document.getElementById('account-guest').style.display = 'block'
+      return
+    }
+
+    const user = session.user
+    const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+
+    // Resolve plan
+    let plan = 'free'
+    let trialActive = false
+    if (profile) {
+      trialActive = new Date() < new Date(profile.trial_end) && !profile.trial_expired
+      if (profile.plan === 'pro') plan = 'pro'
+      else if (profile.plan === 'starter' && trialActive) plan = 'starter'
+    }
+
+    // Fill header
+    const displayName = user.user_metadata?.full_name || user.user_metadata?.name || user.email.split('@')[0]
+    const initial = (displayName[0] || '?').toUpperCase()
+    document.getElementById('acc-avatar').textContent = initial
+    document.getElementById('acc-name').textContent = displayName
+    document.getElementById('acc-email').textContent = user.email
+
+    // Plan label + badge
+    const planLabels = { free: 'Free', starter: 'Starter Trial', pro: 'Pro' }
+    const badgeColors = { free: '#E5E5E7:#6E6E73', starter: '#C7C8F9:#6366F1', pro: '#FDE68A:#92400E' }
+    const [bgC, txC] = (badgeColors[plan] || badgeColors.free).split(':')
+    document.getElementById('acc-plan-label').textContent = planLabels[plan]
+    document.getElementById('acc-plan-badge').innerHTML =
+      `<span style="background:${bgC};color:${txC};font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;">${planLabels[plan]}</span>`
+
+    if (plan === 'free') {
+      document.getElementById('acc-plan-desc').textContent = 'Full transcription features, no account required. Upgrade to unlock video, custom fonts, and more.'
+    } else if (plan === 'starter' && trialActive && profile) {
+      const left  = daysLeft(profile.trial_end)
+      const start = new Date(profile.trial_start || profile.created_at || Date.now())
+      const total = Math.round((new Date(profile.trial_end) - start) / 86_400_000)
+      const used  = Math.max(0, total - left)
+      const pct   = Math.min(100, Math.round((used / total) * 100))
+      document.getElementById('acc-plan-desc').textContent =
+        `Your 14-day free trial${left > 0 ? ` ends in ${left} day${left !== 1 ? 's' : ''}` : ' ends today'} on ${fmt(profile.trial_end)}.`
+      document.getElementById('acc-trial-bar-wrap').style.display = 'block'
+      document.getElementById('acc-trial-used').textContent = `Day ${used} of ${total}`
+      document.getElementById('acc-trial-left').textContent = `${left} day${left !== 1 ? 's' : ''} left`
+      document.getElementById('acc-trial-bar').style.width = pct + '%'
+    } else if (plan === 'pro' && profile?.renewal_date) {
+      document.getElementById('acc-plan-desc').textContent = 'Full access to all AudioSRT features.'
+      document.getElementById('acc-renewal').style.display = 'block'
+      document.getElementById('acc-renewal').textContent = `Renews on ${fmt(profile.renewal_date)}`
+    } else {
+      document.getElementById('acc-plan-desc').textContent = 'Full access to all AudioSRT features.'
+    }
+
+    // Features
+    const features = PLAN_FEATURES[plan] || PLAN_FEATURES.free
+    document.getElementById('acc-features').innerHTML = features
+      .map(f => `<li style="display:flex;align-items:center;gap:8px;font-size:13px;color:#1D1D1F;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366F1" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        ${f}
+      </li>`)
+      .join('')
+
+    document.getElementById('account-content').style.display = 'block'
+
+    // Sign out
+    document.getElementById('acc-signout').addEventListener('click', async () => {
+      await supabase.auth.signOut()
+      window.location.href = '/'
+    })
+  }
+
+  renderAccount()
+</script>

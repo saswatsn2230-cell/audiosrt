@@ -1,0 +1,146 @@
+---
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Signing you in…</title>
+  <style>
+    body { font-family: Inter, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #F5F5F7; }
+    .card { text-align: center; }
+    .spinner { width: 32px; height: 32px; border: 3px solid #E5E5E7; border-top-color: #6366F1; border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    p { font-size: 14px; color: #6E6E73; margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="spinner"></div>
+    <p id="callback-status">Completing sign in...</p>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+
+    const supabase = createClient(
+      'https://mjqtgkytimwjzchtfnix.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1qcXRna3l0aW13anpjaHRmbml4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3OTcyNzEsImV4cCI6MjA5NzM3MzI3MX0.8Ed1p_XfbYP7nscVoiXfdm2LsMDb5pvTj4NZqARinEc',
+      {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true,
+          flowType: 'pkce',
+        },
+      }
+    )
+
+    const statusEl = document.getElementById('callback-status')
+    if (statusEl) statusEl.textContent = 'Completing sign in...'
+
+    async function ensureProfile(user) {
+      console.log('[ensureProfile] Checking profile for:', user.id)
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .single()
+
+      console.log('[ensureProfile] Existing profile check:', data, error?.message)
+
+      if (!data) {
+        console.log('[ensureProfile] No profile found, creating one...')
+        const trialEnd = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            email: user.email,
+            plan: 'starter',
+            trial_start: new Date().toISOString(),
+            trial_end: trialEnd,
+            trial_expired: false,
+          })
+        console.log('[ensureProfile] Insert result error:', insertError?.message || 'none')
+      }
+    }
+
+    async function handleCallback() {
+      console.log('[Callback] Starting OAuth callback handler')
+      console.log('[Callback] Has auth params in URL:',
+        window.location.hash.includes('access_token') || window.location.search.includes('code='))
+
+      let resolved = false
+
+      // 1. Listen for auth state — catches the PKCE code exchange completing
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+        console.log('[Callback] Auth event:', event, 'Session:', !!session)
+        if (session && !resolved) {
+          resolved = true
+          subscription.unsubscribe()
+          if (statusEl) statusEl.textContent = 'Setting up your account...'
+
+          try {
+            console.log('[Callback] Calling ensureProfile...')
+            await Promise.race([
+              ensureProfile(session.user),
+              new Promise((_, reject) => setTimeout(() => reject(new Error('ensureProfile timeout')), 3000))
+            ])
+            console.log('[Callback] ensureProfile completed')
+          } catch (err) {
+            console.error('[Callback] ensureProfile failed or timed out:', err.message)
+          }
+
+          console.log('[Callback] Redirecting to /tool now')
+          const pendingRedirect = sessionStorage.getItem('audiosrt_returning_from_auth')
+          window.location.href = pendingRedirect ? '/tool?restored=true' : '/tool'
+        }
+      })
+
+      // 2. Direct check — covers the case where the event already fired before we subscribed
+      const { data: { session }, error } = await supabase.auth.getSession()
+      console.log('[Callback] Direct getSession check:', !!session, error?.message)
+
+      if (session && !resolved) {
+        resolved = true
+        subscription.unsubscribe()
+        if (statusEl) statusEl.textContent = 'Setting up your account...'
+
+        try {
+          console.log('[Callback] Calling ensureProfile (direct)...')
+          await Promise.race([
+            ensureProfile(session.user),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('ensureProfile timeout')), 3000))
+          ])
+          console.log('[Callback] ensureProfile completed (direct)')
+        } catch (err) {
+          console.error('[Callback] ensureProfile failed or timed out (direct):', err.message)
+        }
+
+        console.log('[Callback] Redirecting to /tool now (direct)')
+        window.location.href = '/tool'
+        return
+      }
+
+      if (error) {
+        console.error('[Callback] getSession error:', error.message)
+        window.location.href = '/auth?error=' + encodeURIComponent(error.message)
+        return
+      }
+
+      // 3. Fallback — if nothing resolves in 5s, go to /tool and let the global
+      //    onAuthStateChange handler there pick up the session once it arrives
+      setTimeout(() => {
+        if (!resolved) {
+          resolved = true
+          subscription.unsubscribe()
+          console.log('[Callback] Timeout reached, redirecting anyway')
+          window.location.href = '/tool'
+        }
+      }, 5000)
+    }
+
+    handleCallback()
+  </script>
+</body>
+</html>

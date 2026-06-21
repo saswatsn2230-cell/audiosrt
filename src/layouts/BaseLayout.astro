@@ -1,7 +1,7 @@
 ---
 export interface Props {
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   ogTitle?: string;
   ogDescription?: string;
   ogImage?: string;
@@ -11,8 +11,8 @@ export interface Props {
 }
 
 const {
-  title,
-  description,
+  title = 'AudioSRT | Free Client-Side Subtitle Editor & Frame-Accurate SRT Generator',
+  description = 'Transcribe audio and video completely client-side. Unlock local GPU/CPU hardware acceleration, custom brand font uploads, timeline sliders, and Premiere Pro JSON exports. No upload. No account required.',
   ogTitle,
   ogDescription,
   ogImage = 'https://audiosrt.com/og-image.png',
@@ -35,9 +35,6 @@ const canonicalURL = canonical || new URL(Astro.url.pathname, Astro.site).toStri
     <meta name="description" content={description} />
     <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
     <link rel="canonical" href={canonicalURL} />
-
-    <!-- Google AdSense -->
-    <meta name="google-adsense-account" content="ca-pub-YOUR-ADSENSE-ID" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
@@ -62,6 +59,7 @@ const canonicalURL = canonical || new URL(Astro.url.pathname, Astro.site).toStri
     />
 
     <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <!-- JSON-LD Structured Data -->
@@ -71,5 +69,185 @@ const canonicalURL = canonical || new URL(Astro.url.pathname, Astro.site).toStri
   </head>
   <body class="bg-apple-bg text-apple-dark font-sans antialiased">
     <slot />
+
+    <script type="module">
+      import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+
+      const supabase = createClient(
+        'https://mjqtgkytimwjzchtfnix.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1qcXRna3l0aW13anpjaHRmbml4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3OTcyNzEsImV4cCI6MjA5NzM3MzI3MX0.8Ed1p_XfbYP7nscVoiXfdm2LsMDb5pvTj4NZqARinEc'
+      )
+
+      async function getUserPlan(userId) {
+        console.log('[GlobalAuth] getUserPlan called for:', userId)
+
+        try {
+          const queryPromise = supabase
+            .from('profiles')
+            .select('plan, trial_end, trial_expired')
+            .eq('id', userId)
+            .single()
+
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Profile query timed out after 5s')), 5000)
+          )
+
+          const { data, error } = await Promise.race([queryPromise, timeoutPromise])
+
+          console.log('[GlobalAuth] Query completed. Data:', JSON.stringify(data), 'Error:', error?.message || 'none', 'Error code:', error?.code || 'none')
+
+          if (error || !data) {
+            console.warn('[GlobalAuth] No profile found or error occurred — defaulting to starter trial')
+            return 'starter'
+          }
+
+          const trialActive = new Date() < new Date(data.trial_end) && !data.trial_expired
+          console.log('[GlobalAuth] Trial active:', trialActive, 'plan:', data.plan)
+
+          if (data.plan === 'pro') return 'pro'
+          if (data.plan === 'starter' && trialActive) return 'starter'
+          return 'free'
+
+        } catch (err) {
+          console.error('[GlobalAuth] getUserPlan exception/timeout:', err.message)
+          return 'starter'
+        }
+      }
+
+      function avatarMenuHTML(user, plan, dropdownTop) {
+        const initial   = (user.email?.[0] || '?').toUpperCase()
+        const planLabel = plan === 'starter' ? '⭐ Starter Trial' : plan === 'pro' ? '🚀 Pro' : 'Free'
+        return `
+          <div style="position:relative;" class="global-user-menu">
+            <button class="global-user-btn" style="display:flex;align-items:center;gap:6px;background:#EEEFFD;border:1.5px solid #C7C8F9;border-radius:20px;padding:5px 12px 5px 5px;cursor:pointer;font-family:Inter,sans-serif;">
+              <div style="width:28px;height:28px;border-radius:50%;background:#6366F1;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">${initial}</div>
+              <span style="font-size:12px;font-weight:600;color:#6366F1;">${planLabel}</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6366F1" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="global-user-dropdown" style="display:none;position:absolute;top:${dropdownTop}px;right:0;background:#fff;border:0.5px solid #E5E5E7;border-radius:12px;padding:10px;min-width:220px;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:9999;">
+              <div style="padding:8px 10px 12px;border-bottom:0.5px solid #E5E5E7;margin-bottom:8px;">
+                <div style="font-size:11px;color:#6E6E73;">Signed in as</div>
+                <div style="font-size:13px;font-weight:500;color:#1D1D1F;word-break:break-all;margin-top:2px;">${user.email}</div>
+                <div style="margin-top:6px;display:inline-block;background:#EEEFFD;color:#6366F1;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;">${planLabel}</div>
+              </div>
+              <a href="/account" style="display:block;padding:8px 10px;font-size:12px;color:#1D1D1F;text-decoration:none;border-radius:6px;" onmouseover="this.style.background='#F5F5F7'" onmouseout="this.style.background=''">My Account</a>
+              <a href="/tool" style="display:block;padding:8px 10px;font-size:12px;color:#1D1D1F;text-decoration:none;border-radius:6px;" onmouseover="this.style.background='#F5F5F7'" onmouseout="this.style.background=''">Open App →</a>
+              <button class="global-signout" style="width:100%;text-align:left;padding:8px 10px;font-size:12px;color:#EF4444;background:none;border:none;cursor:pointer;border-radius:6px;font-family:Inter,sans-serif;margin-top:4px;">Sign out</button>
+            </div>
+          </div>
+        `
+      }
+
+      function guestNavHTML() {
+        return `
+          <a href="/auth" style="font-size:12px;color:#6E6E73;text-decoration:none;padding:5px 10px;">Sign in</a>
+          <a href="/auth" style="font-size:12px;background:#6366F1;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:500;">Try Free →</a>
+        `
+      }
+
+      function updateGlobalNav(user, plan) {
+        console.log('[GlobalAuth] updateGlobalNav START — user:', user?.email, 'plan:', plan)
+
+        const navCtaElements = document.querySelectorAll('.nav-cta[data-nav-cta]')
+        console.log('[GlobalAuth] Found .nav-cta[data-nav-cta] elements:', navCtaElements.length)
+        const slotElements = document.querySelectorAll('#global-nav-cta-slot')
+        console.log('[GlobalAuth] Found #global-nav-cta-slot elements:', slotElements.length)
+        console.log('[GlobalAuth] nav-auth-area found:', !!document.getElementById('nav-auth-area'))
+        console.log('[GlobalAuth] lock-overlay found:', !!document.querySelector('.lock-overlay'))
+        console.log('[GlobalAuth] real-subtitle-settings found:', !!document.querySelector('.real-subtitle-settings'))
+
+        // ── Header .nav-cta elements ───────────────────────────────────────
+        // Use a stable wrapper so re-renders are idempotent
+        document.querySelectorAll('.nav-cta[data-nav-cta]').forEach(el => {
+          // First call: wrap the anchor in a sentinel div so future calls find it
+          const sentinel = document.createElement('div')
+          sentinel.id = 'global-nav-cta-slot'
+          sentinel.style.display = 'inline-block'
+          el.replaceWith(sentinel)
+        })
+        document.querySelectorAll('#global-nav-cta-slot').forEach(slot => {
+          slot.innerHTML = user ? avatarMenuHTML(user, plan, 40) : `
+            <a href="/auth" class="nav-cta" style="margin-left:16px;">Try Free →</a>
+          `
+        })
+
+        // ── Tool page nav-auth-area ────────────────────────────────────────
+        const navAuthArea = document.getElementById('nav-auth-area')
+        if (navAuthArea) {
+          navAuthArea.innerHTML = user ? avatarMenuHTML(user, plan, 38) : guestNavHTML()
+        }
+
+        // Mark trial buttons as active for logged-in users
+        document.querySelectorAll('[data-trial-btn]').forEach(btn => {
+          if (user) {
+            btn.textContent = '✓ Plan Active'
+            btn.style.cssText = 'background:#F5F5F7;color:#6E6E73;border:0.5px solid #E5E5E7;cursor:default;pointer-events:none;'
+            if (btn.tagName === 'A') btn.removeAttribute('href')
+          }
+        })
+
+        // Apply plan UI on tool page (lock overlay / settings)
+        const lockOverlay = document.querySelector('.lock-overlay')
+        const realSettings = document.querySelector('.real-subtitle-settings')
+        if (lockOverlay && realSettings) {
+          if (plan === 'starter' || plan === 'pro') {
+            lockOverlay.style.display = 'none'
+            realSettings.style.display = 'flex'
+          } else {
+            lockOverlay.style.display = 'flex'
+            realSettings.style.display = 'none'
+          }
+        }
+
+        // Call tool-page subtitle row lock if available
+        window._audiosrt = window._audiosrt || {}
+        window._audiosrt.currentPlan = plan
+        window._audiosrt.applySubtitleRowLock?.(plan)
+      }
+
+      // Event delegation for dropdown toggle + sign out
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('.global-user-btn')) {
+          e.stopPropagation()
+          const dropdown = e.target.closest('.global-user-menu')?.querySelector('.global-user-dropdown')
+          document.querySelectorAll('.global-user-dropdown').forEach(d => {
+            d.style.display = (d === dropdown) ? (d.style.display === 'none' ? 'block' : 'none') : 'none'
+          })
+          return
+        }
+        if (!e.target.closest('.global-user-menu')) {
+          document.querySelectorAll('.global-user-dropdown').forEach(d => d.style.display = 'none')
+        }
+        if (e.target.closest('.global-signout')) {
+          supabase.auth.signOut().then(() => { window.location.href = '/' })
+        }
+      })
+
+      // Single source of truth
+      supabase.auth.onAuthStateChange(async (event, session) => {
+        console.log('[GlobalAuth] Event:', event, 'User:', session?.user?.email || 'none')
+        if (session?.user) {
+          console.log('[GlobalAuth] Calling getUserPlan...')
+          const plan = await getUserPlan(session.user.id)
+          console.log('[GlobalAuth] Plan resolved:', plan, '— calling updateGlobalNav')
+
+          // Expose user/token/plan globally for tool page autoSave + cloud sync
+          window.currentUserPlan = plan
+          window._audiosrt = window._audiosrt || {}
+          window._audiosrt.userId      = session.user.id
+          window._audiosrt.accessToken = session.access_token
+
+          updateGlobalNav(session.user, plan)
+          console.log('[GlobalAuth] updateGlobalNav call completed')
+        } else {
+          console.log('[GlobalAuth] No user — applying free state')
+          window.currentUserPlan = 'free'
+          window._audiosrt = window._audiosrt || {}
+          window._audiosrt.userId      = null
+          window._audiosrt.accessToken = null
+          updateGlobalNav(null, 'free')
+        }
+      })
+    </script>
   </body>
 </html>

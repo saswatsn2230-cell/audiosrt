@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.astro/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Desktop app source — kept in a separate repo
+src-tauri/
+
+# Supabase migration files — run manually, not deployed
+supabase-projects-table.sql
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/

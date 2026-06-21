@@ -6,8 +6,8 @@ export default {
       colors: {
         'apple-bg': '#F5F5F7',
         'apple-dark': '#1D1D1F',
-        'apple-blue': '#0071E3',
-        'apple-blue-hover': '#0077ED',
+        'apple-blue': '#6366F1',
+        'apple-blue-hover': '#4F46E5',
         'apple-gray': '#6E6E73',
         'apple-light-gray': '#E8E8ED',
         'apple-white': '#FFFFFF',

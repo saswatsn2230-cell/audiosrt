@@ -2,8 +2,6 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
-import AdSlot from '../../components/AdSlot.astro';
-
 export async function getStaticPaths() {
   const posts = await import.meta.glob('../../content/blog/*.md', { eager: true });
   return Object.entries(posts).map(([path, post]: [string, any]) => {
@@ -45,22 +43,16 @@ const { Content, frontmatter } = post as any;
       <span>AudioSRT Team</span>
     </div>
 
-    <!-- AdSense above article -->
-    <AdSlot slot="article-top" />
-
     <!-- Article Content -->
     <article class="prose prose-lg prose-apple max-w-none mt-8">
       <Content />
     </article>
 
-    <!-- AdSense mid-article -->
-    <AdSlot slot="article-mid" class="my-8" />
-
     <!-- CTA -->
     <div class="mt-12 bg-apple-blue rounded-2xl px-8 py-10 text-center">
-      <h2 class="text-2xl font-semibold text-white mb-3">Try AudioSRT Free</h2>
-      <p class="text-blue-100 mb-6">Transcribe audio and generate SRT files in your browser. No account, no upload, no limits.</p>
-      <a href="/tool" class="inline-flex items-center gap-2 px-7 py-3 bg-white text-apple-blue font-semibold rounded-full hover:bg-blue-50 transition-colors">
+      <h2 class="text-2xl font-semibold text-white mb-3">Ready to transcribe your audio for free?</h2>
+      <p class="mb-6" style="color:#C7C8F9;">Try AudioSRT — no signup required. Your audio stays on your device, processed by Whisper AI right in your browser.</p>
+      <a href="/tool" class="inline-flex items-center gap-2 px-7 py-3 bg-white text-apple-blue font-semibold rounded-full hover:bg-[#EEEFFD] transition-colors">
         Start Transcribing Free →
       </a>
     </div>

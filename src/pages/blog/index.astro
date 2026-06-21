@@ -2,8 +2,6 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
-import AdSlot from '../../components/AdSlot.astro';
-
 const posts = [
   {
     slug: 'how-to-create-srt-subtitles-free-2026',
@@ -62,11 +60,9 @@ const posts = [
       <p class="text-lg text-apple-gray max-w-2xl">Guides and tutorials on audio transcription, SRT subtitles, and video captioning for creators and professionals.</p>
     </div>
 
-    <AdSlot slot="blog-top" />
-
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
       {posts.map(post => (
-        <article class="bg-white rounded-2xl border border-apple-light-gray overflow-hidden hover:border-blue-200 hover:shadow-sm transition-all group">
+        <article class="bg-white rounded-2xl border border-apple-light-gray overflow-hidden hover:border-[#C7C8F9] hover:shadow-sm transition-all group">
           <a href={`/blog/${post.slug}`} class="block p-6">
             <div class="flex items-center gap-3 mb-4 text-xs text-apple-gray">
               <span>{post.pubDate}</span>
@@ -88,7 +84,6 @@ const posts = [
       ))}
     </div>
 
-    <AdSlot slot="blog-bottom" class="mt-8" />
   </main>
 
   <Footer />
