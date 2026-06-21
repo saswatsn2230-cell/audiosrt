@@ -38,14 +38,21 @@ const jsonLd = {
 @keyframes fade-slide  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 @keyframes modal-in    { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
 @keyframes spin        { to{transform:rotate(360deg)} }
-@keyframes dot-pulse   { 0%,80%,100%{opacity:0.2;transform:scale(0.8)} 40%{opacity:1;transform:scale(1)} }
-.chunk-tail { display:inline-flex; align-items:center; gap:3px; padding:2px 4px; vertical-align:middle; }
-.chunk-tail span { width:5px; height:5px; border-radius:50%; background:#6366F1; display:inline-block; animation:dot-pulse 1.2s ease-in-out infinite; }
-.chunk-tail span:nth-child(2) { animation-delay:0.2s; }
-.chunk-tail span:nth-child(3) { animation-delay:0.4s; }
-/* Subtitles-tab tail row */
-.chunk-tail-row { padding:10px 8px 6px; }
-.chunk-tail-row .chunk-tail span { background:#C7C8F9; }
+@keyframes shimmer { 0%{background-position:-600px 0} 100%{background-position:600px 0} }
+.skeleton-bar {
+  height:14px; border-radius:6px;
+  background: linear-gradient(90deg,#EEEEEE 25%,#E0E0E0 50%,#EEEEEE 75%);
+  background-size:600px 100%;
+  animation:shimmer 1.4s infinite linear;
+}
+.chunk-tail-wrap {
+  padding:18px 24px 8px;
+  display:flex; flex-direction:column; gap:10px;
+}
+.chunk-tail-wrap .skeleton-bar:nth-child(1) { width:100%; }
+.chunk-tail-wrap .skeleton-bar:nth-child(2) { width:92%; animation-delay:0.1s; }
+.chunk-tail-wrap .skeleton-bar:nth-child(3) { width:78%; animation-delay:0.2s; }
+.chunk-tail-wrap .skeleton-bar:nth-child(4) { width:60%; animation-delay:0.3s; }
 
 /* Base */
 *, *::before, *::after { box-sizing:border-box; }
@@ -3154,36 +3161,33 @@ button:active { transform:scale(0.97); }
         if (visible && inlineTextPara) inlineTextPara.textContent = label;
       }
 
-      function makeDots() {
-        const wrap = document.createElement('span');
-        wrap.className = 'chunk-tail';
-        wrap.id = 'chunk-tail-para';
-        for (let i = 0; i < 3; i++) wrap.appendChild(document.createElement('span'));
+      function makeSkeletonWrap(id) {
+        const wrap = document.createElement('div');
+        wrap.id = id;
+        wrap.className = 'chunk-tail-wrap';
+        for (let i = 0; i < 4; i++) {
+          const bar = document.createElement('div');
+          bar.className = 'skeleton-bar';
+          wrap.appendChild(bar);
+        }
         return wrap;
       }
 
       function showChunkTail() {
-        // Transcript (para) tab — append animated dots after last word
+        // Transcript tab — skeleton block below last paragraph
         const paraText = document.getElementById('para-text');
         if (paraText && !document.getElementById('chunk-tail-para')) {
-          paraText.appendChild(document.createTextNode(' '));
-          paraText.appendChild(makeDots());
+          const wrap = makeSkeletonWrap('chunk-tail-para');
+          // Insert after para-text's parent so it sits below the text block
+          paraText.parentElement.appendChild(wrap);
         }
-        // Subtitles tab — append a placeholder row at the bottom of transcript-lines
+        // Subtitles tab — skeleton block below last row
         if (transcriptLines && !document.getElementById('chunk-tail-row')) {
-          const row = document.createElement('div');
-          row.id = 'chunk-tail-row';
-          row.className = 'chunk-tail-row';
-          const dots = document.createElement('span');
-          dots.className = 'chunk-tail';
-          for (let i = 0; i < 3; i++) dots.appendChild(document.createElement('span'));
-          row.appendChild(dots);
-          transcriptLines.appendChild(row);
+          transcriptLines.appendChild(makeSkeletonWrap('chunk-tail-row'));
         }
       }
 
       function hideChunkTail() {
-        document.getElementById('chunk-tail-para')?.previousSibling?.remove(); // the space text node
         document.getElementById('chunk-tail-para')?.remove();
         document.getElementById('chunk-tail-row')?.remove();
       }
