@@ -196,28 +196,50 @@ self.addEventListener('message', async (event) => {
 
     progress(98, 'Finalising…');
 
-    // With return_timestamps:'word', result.chunks contains segment-level entries.
-    // result.words (if present) contains per-word {text, timestamp:[start,end]}.
-    // We build the subtitle segments from chunks (for the subtitle editor rows)
-    // and attach word-level data separately for the highlight engine.
-    const chunks = result.chunks || [
-      { timestamp: [0, 0], text: result.text || '' },
-    ];
+    // With return_timestamps:'word', result.chunks = one entry per word.
+    // Extract flat word list first, then group into subtitle segments.
+    const rawChunks = result.chunks || [];
 
-    const transcript = chunks
+    // Word-level data for the highlight engine (left panel Transcript tab only)
+    const words = rawChunks
       .map((c) => ({
+        text:  (c.text || '').trim(),
         start: (c.timestamp?.[0] ?? 0) + timeOffset,
         end:   (c.timestamp?.[1] ?? 0) + timeOffset,
-        text:  (c.text || '').trim(),
       }))
-      .filter((d) => d.text.length > 0);
+      .filter((w) => w.text.length > 0);
 
-    // Word-level timestamps — each entry: { text, start, end }
-    const words = (result.words || []).map((w) => ({
-      text:  (w.word || w.text || '').trim(),
-      start: (w.timestamp?.[0] ?? w.start ?? 0) + timeOffset,
-      end:   (w.timestamp?.[1] ?? w.end   ?? 0) + timeOffset,
-    })).filter((w) => w.text.length > 0);
+    // Group words into subtitle segments (used by subtitle rows + preview + exports).
+    // A new segment starts when: sentence punctuation hit, OR ≥12 words, OR ≥5s elapsed.
+    const transcript = [];
+    if (words.length) {
+      let segWords = [];
+      let segStart = words[0].start;
+      const flush = (end) => {
+        if (!segWords.length) return;
+        transcript.push({
+          start: segStart,
+          end,
+          text: segWords.join(' '),
+        });
+        segWords = [];
+      };
+      for (const w of words) {
+        segWords.push(w.text);
+        const elapsed = w.end - segStart;
+        const endsPhrase = /[.!?,;:]$/.test(w.text);
+        if (endsPhrase || segWords.length >= 12 || elapsed >= 5) {
+          flush(w.end);
+          segStart = w.end;
+        }
+      }
+      flush(words[words.length - 1].end); // flush remaining
+    }
+
+    // Fallback: if word timestamps were empty, use text only
+    if (!transcript.length && result.text) {
+      transcript.push({ start: timeOffset, end: timeOffset, text: result.text.trim() });
+    }
 
     progress(100, 'Done!');
     post({ type: 'complete', transcript, words, chunkIndex, totalChunks });

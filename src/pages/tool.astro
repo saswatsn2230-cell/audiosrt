@@ -573,8 +573,10 @@ select option { font-family:'Inter',system-ui,sans-serif; font-size:12px; color:
 /* FIX 3 — clickable subtitle rows */
 #transcript-lines .flex { cursor:pointer; }
 #transcript-lines .flex:hover { background:#F5F5F7; border-radius:5px; }
-/* FIX 1 — active word highlight */
-.word-active { background:#6366F1 !important; color:#fff !important; border-radius:3px; padding:0 3px; transition:background 0.1s; }
+/* Active line highlight — TurboScribe style */
+.seg-line { display:inline; border-radius:4px; transition:background 0.15s ease, color 0.15s ease; cursor:pointer; padding:1px 2px; }
+.seg-line:hover { background:rgba(99,102,241,0.08) !important; }
+.seg-active { background-color:rgba(99,102,241,0.25) !important; color:#312e81 !important; font-weight:500; }
 
 /* Timeline */
 #step-timeline { display:none; flex:1; flex-direction:column; }
@@ -1898,6 +1900,16 @@ button:active { transform:scale(0.97); }
   };
 
   let autoSaveTimer = null;
+  async function saveNow() {
+    if (!selectedFile || !logicalSegments.length) return;
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = null;
+    await AudioSRTDB.saveProject(selectedFile, logicalSegments).catch(() => {});
+  }
+  // Expose so the IIFE (para-text blur) and visibilitychange can force an immediate save
+  window._audiosrt = window._audiosrt || {};
+  window._audiosrt.saveNow = saveNow;
+
   function autoSave() {
     if (!selectedFile || !logicalSegments.length) return;
     clearTimeout(autoSaveTimer);
@@ -1922,6 +1934,11 @@ button:active { transform:scale(0.97); }
       }
     }, 3000);
   }
+
+  // Save immediately when user switches tabs or closes the browser
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') saveNow();
+  });
 
   function getCurrentSubtitleSettings() {
     return {
@@ -3271,6 +3288,9 @@ button:active { transform:scale(0.97); }
         refreshPreviewText(0);
         renderTemplates();
         initTimeline();
+        // Explicitly rebuild para-text word spans now that subtitle rows exist.
+        // window.__rawWords is set just before revealEditorScreen is called.
+        setTimeout(() => { if (window.__rebuildPara) window.__rebuildPara(); }, 0);
       }
 
       worker.onmessage = (e) => {
@@ -3321,8 +3341,15 @@ button:active { transform:scale(0.97); }
           // Delay so the skeleton appends AFTER rebuildPara (MutationObserver microtask) clears para-text
           if (moreChunks) setTimeout(showChunkTail, 0);
 
-          // Re-run highlight after DOM settles so the new chunk's words get marked immediately
-          setTimeout(() => { if (window.__highlightWord) window.__highlightWord(); }, 100);
+          // Explicitly rebuild word spans AFTER this chunk's DOM update settles.
+          // window.__rawWords is already populated above, so Whisper word timestamps are used.
+          // This is a belt-and-suspenders call — the MutationObserver also calls rebuildPara,
+          // but the explicit call guarantees correct timing regardless of observer batching.
+          setTimeout(() => {
+            if (window.__rebuildPara) window.__rebuildPara();
+            // Then immediately highlight the current word with the fresh spans
+            requestAnimationFrame(() => { if (window.__highlightWord) window.__highlightWord(); });
+          }, 50);
 
           autoSave();
 
@@ -4485,204 +4512,109 @@ button:active { transform:scale(0.97); }
     return parseFloat(s) || 0;
   }
 
+  // ── Para-text: editable paragraph view ───────────────────────────────────
+  // Renders subtitle rows as a flowing paragraph. Syncs edits back to
+  // tlLines on blur (not on every keystroke) to avoid cursor-jump bugs.
+
   let rebuilding = false;
-  let paraEditing = false;
-  let isEditingTranscript = false;
+
+  // Segment map: [{start, charStart, charEnd}] rebuilt each time rebuildPara runs
+  let paraSegMap = [];
+
   function rebuildPara() {
     if (!tlLines || !paraText) return;
     rebuilding = true;
-    const rows = tlLines.children;
+    const saved = document.activeElement === paraText;
     paraText.innerHTML = '';
-    if (!rows.length) { rebuilding = false; return; }
-    const segs = [];
-    for (const row of rows) {
+    paraSegMap = [];
+    let charPos = 0;
+    for (const row of tlLines.children) {
       const tsIn = row.querySelector('input[type="text"]');
       const txEl = row.querySelector('[contenteditable]');
-      if (!tsIn || !txEl) continue;
-      segs.push({ start: parseTs(tsIn.value), text: txEl.textContent || '' });
-    }
-    // Use actual Whisper word timestamps when available; fall back to estimated
-    const whisperWords = window.__rawWords || [];
-    if (whisperWords.length) {
-      // Build a lookup: normalised word text → array of {start, end} entries
-      // We consume entries in order so repeated words map correctly
-      let wIdx = 0;
-      segs.forEach((seg, si) => {
-        const words = seg.text.trim().split(/\s+/).filter(Boolean);
-        if (!words.length) return;
-        words.forEach((w, wi) => {
-          // Advance through whisperWords to find a match near this segment
-          let entry = null;
-          for (let look = wIdx; look < Math.min(wIdx + 6, whisperWords.length); look++) {
-            const cand = whisperWords[look];
-            if (cand.text.replace(/[^a-z0-9]/gi, '').toLowerCase() ===
-                w.replace(/[^a-z0-9]/gi, '').toLowerCase()) {
-              entry = cand;
-              wIdx = look + 1;
-              break;
-            }
-          }
-          const span = document.createElement('span');
-          span.className = 'word';
-          span.textContent = w;
-          if (entry) {
-            span.dataset.start = String(entry.start);
-            span.dataset.end   = String(entry.end);
-          } else {
-            // Fallback: estimate from segment timing
-            const end  = si < segs.length - 1 ? segs[si + 1].start : seg.start + 10;
-            const wDur = Math.max(0.01, (end - seg.start) / words.length);
-            span.dataset.start = String(seg.start + wi * wDur);
-            span.dataset.end   = String(seg.start + (wi + 1) * wDur);
-          }
-          span.dataset.row          = String(si);
-          span.dataset.segmentIndex = String(si);
-          span.dataset.wordIndex    = String(wi);
-          span.addEventListener('click', () => {
-            const t = parseFloat(span.dataset.start);
-            if (isFinite(t)) audioEl.currentTime = t;
-          });
-          paraText.appendChild(span);
-          paraText.appendChild(document.createTextNode(' '));
-        });
-      });
-    } else {
-      // No Whisper word timestamps yet — use linear estimation
-      segs.forEach((seg, si) => {
-        const end   = si < segs.length - 1 ? segs[si + 1].start : seg.start + 10;
-        const words = seg.text.trim().split(/\s+/).filter(Boolean);
-        if (!words.length) return;
-        const wDur  = Math.max(0.01, (end - seg.start) / words.length);
-        words.forEach((w, wi) => {
-          const span = document.createElement('span');
-          span.className        = 'word';
-          span.textContent      = w;
-          span.dataset.start    = String(seg.start + wi * wDur);
-          span.dataset.end      = String(seg.start + (wi + 1) * wDur);
-          span.dataset.row          = String(si);
-          span.dataset.segmentIndex = String(si);
-          span.dataset.wordIndex    = String(wi);
-          span.addEventListener('click', () => {
-            const t = parseFloat(span.dataset.start);
-            if (isFinite(t)) audioEl.currentTime = t;
-          });
-          paraText.appendChild(span);
-          paraText.appendChild(document.createTextNode(' '));
-        });
-      });
+      if (!txEl) continue;
+      const text = txEl.textContent.trim();
+      if (!text) continue;
+      const start = tsIn ? parseTs(tsIn.value) : 0;
+      paraSegMap.push({ start, charStart: charPos, charEnd: charPos + text.length });
+      charPos += text.length + 1; // +1 for the space
+      paraText.appendChild(document.createTextNode(text + ' '));
     }
     rebuilding = false;
-    // eslint-disable-next-line no-console
-    console.log('[word-highlight] Built', paraText.querySelectorAll('.word[data-start]').length, 'word spans');
-    // Re-attach skeleton if it was wiped during a rebuild mid-transcription
-    const tailRow = document.getElementById('chunk-tail-row');
-    if (tailRow && !document.getElementById('chunk-tail-para')) {
-      const wrap = document.createElement('div');
-      wrap.id = 'chunk-tail-para';
-      wrap.className = 'chunk-tail-wrap';
-      for (let i = 0; i < 4; i++) {
-        const bar = document.createElement('div');
-        bar.className = 'skeleton-bar';
-        wrap.appendChild(bar);
+    if (saved) paraText.focus();
+  }
+
+  // Click anywhere in para-text → seek audio to that segment's timestamp
+  if (paraText) {
+    paraText.addEventListener('click', (e) => {
+      if (!paraSegMap.length) return;
+      // Get character offset of the click using caretRangeFromPoint
+      let clickChar = 0;
+      const range = document.caretRangeFromPoint
+        ? document.caretRangeFromPoint(e.clientX, e.clientY)
+        : null;
+      if (range) {
+        const walker = document.createTreeWalker(paraText, NodeFilter.SHOW_TEXT);
+        let node;
+        while ((node = walker.nextNode())) {
+          if (node === range.startContainer) { clickChar += range.startOffset; break; }
+          clickChar += node.textContent.length;
+        }
       }
-      paraText.appendChild(wrap);
-    }
+      // Find which segment this character belongs to
+      let seg = paraSegMap[0];
+      for (const s of paraSegMap) {
+        if (clickChar >= s.charStart) seg = s;
+        else break;
+      }
+      if (isFinite(seg.start)) audioEl.currentTime = seg.start;
+    });
+  }
+
+  window.__rebuildPara = rebuildPara;
+
+  // Sync para-text edits back to subtitle rows on blur.
+  // Dispatches 'input' on each row so displaySegments + preview update automatically.
+  // Then immediately saves so closing the tab doesn't lose edits.
+  if (paraText && tlLines) {
+    paraText.addEventListener('blur', () => {
+      const fullText = paraText.textContent || '';
+      const rows     = Array.from(tlLines.children);
+      const chunks   = splitIntoChunks(fullText, rows.length);
+      let changed = false;
+      rows.forEach((row, i) => {
+        const txEl = row.querySelector('[contenteditable]');
+        if (!txEl || chunks[i] === undefined) return;
+        if (txEl.textContent !== chunks[i]) {
+          txEl.textContent = chunks[i];
+          txEl.dispatchEvent(new Event('input', { bubbles: true }));
+          changed = true;
+        }
+      });
+      if (changed) window._audiosrt?.saveNow?.();
+    });
+  }
+
+  function splitIntoChunks(text, n) {
+    const words  = text.trim().split(/\s+/).filter(Boolean);
+    const perRow = Math.ceil(words.length / Math.max(n, 1));
+    const out    = [];
+    for (let i = 0; i < n; i++) out.push(words.slice(i * perRow, (i + 1) * perRow).join(' '));
+    return out;
   }
 
   if (tlLines) {
     new MutationObserver((mutations) => {
-      // Ignore mutations that only affect the chunk-tail-row placeholder
       const onlyTail = mutations.every(m =>
-        [...m.addedNodes, ...m.removedNodes].every(n => n.id === 'chunk-tail-row' || n.parentElement?.id === 'chunk-tail-row')
+        [...m.addedNodes, ...m.removedNodes].every(n =>
+          n.id === 'chunk-tail-row' || n.parentElement?.id === 'chunk-tail-row'
+        )
       );
-      // isEditingTranscript only blocks highlightWord (cursor protection), NOT rebuildPara
-      if (!onlyTail && !rebuilding && !paraEditing) rebuildPara();
+      if (!onlyTail && !rebuilding && document.activeElement !== paraText) rebuildPara();
     }).observe(tlLines, { childList: true, subtree: true, characterData: true });
   }
 
-  // ── FIX 2 — Sync para-text edits back to transcript-lines ────────────────
-  if (paraText && tlLines) {
-    paraText.addEventListener('input', () => {
-      if (rebuilding) return;
-      paraEditing = true;
-      // Group word spans by data-row (segment index)
-      const byRow = {};
-      paraText.querySelectorAll('.word[data-row]').forEach(span => {
-        const row = span.dataset.row;
-        if (!byRow[row]) byRow[row] = [];
-        byRow[row].push(span.textContent.trim());
-      });
-      // Update each transcript-lines row's contenteditable
-      Object.entries(byRow).forEach(([rowIdx, words]) => {
-        const tlRow = tlLines.children[parseInt(rowIdx)];
-        if (!tlRow) return;
-        const txEl = tlRow.querySelector('[contenteditable]');
-        if (!txEl) return;
-        const newText = words.join(' ');
-        if (txEl.textContent !== newText) {
-          txEl.textContent = newText;
-          txEl.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-      });
-      paraEditing = false;
-    });
-  }
-
-  // ── Word highlighting ─────────────────────────────────────────────────────
-  let lastActiveWord = null;
-
-  if (paraText) {
-    // Only block highlighting during actual text input, not on click/focus
-    paraText.addEventListener('input',     () => { isEditingTranscript = true; });
-    paraText.addEventListener('blur',      () => { isEditingTranscript = false; highlightWord(); });
-  }
-
-  function highlightWord() {
-    if (isEditingTranscript) return;
-    if (!paraText) return;
-    // Use computed style so CSS-hidden panels are caught, not just inline style
-    if (paraView && getComputedStyle(paraView).display === 'none') return;
-
-    const t = audioEl.currentTime;
-    const allWords = paraText.querySelectorAll('.word[data-start]');
-    if (!allWords.length) return;
-
-    let found = null;
-    for (const w of allWords) {
-      w.classList.remove('word-active');
-      const s = parseFloat(w.dataset.start);
-      const e = parseFloat(w.dataset.end);
-      if (t >= s && t < e) found = w;
-    }
-    // Gap between segments: highlight the next upcoming word within 1.5s
-    if (!found) {
-      let closest = null, minDiff = Infinity;
-      for (const w of allWords) {
-        const s = parseFloat(w.dataset.start);
-        if (s > t) { const d = s - t; if (d < minDiff) { minDiff = d; closest = w; } }
-      }
-      if (minDiff < 1.5) found = closest;
-    }
-
-    if (found) {
-      found.classList.add('word-active');
-      if (found !== lastActiveWord) {
-        // Scroll so active word sits ~1/3 from top of the para-text container
-        const rect      = found.getBoundingClientRect();
-        const contRect  = paraText.getBoundingClientRect();
-        const relTop    = rect.top - contRect.top + paraText.scrollTop;
-        const target    = relTop - paraText.clientHeight / 3;
-        paraText.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
-      }
-    }
-    lastActiveWord = found;
-  }
-
-  // Expose so the main-block timeupdate handler can call it directly
-  window.__highlightWord = highlightWord;
-
-  audioEl.addEventListener('timeupdate', highlightWord);
-  audioEl.addEventListener('seeked',     highlightWord);
+  // Highlighting removed — will be revisited separately
+  window.__highlightWord = null;
 
   // ── Waveform state ────────────────────────────────────────────────────────
   let wfPeaks = null, wfCtx = null, wfDur = 0;
