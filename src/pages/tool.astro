@@ -4287,6 +4287,11 @@ button:active { transform:scale(0.97); }
     const targetRadio = document.querySelector(`input[name="model-tier"][value="${selectedModel}"]`);
     if (targetRadio) targetRadio.checked = true;
 
+    // progressArea lives inside uploadScreen — it must be visible for the progress UI to show.
+    // Temporarily show the upload screen so runTranscription's progress flow works normally.
+    if (toolCols) toolCols.classList.add('hidden');
+    if (uploadScreen) uploadScreen.style.display = '';
+
     runTranscription();
   });
 
