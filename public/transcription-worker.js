@@ -200,14 +200,20 @@ self.addEventListener('message', async (event) => {
     // Extract flat word list first, then group into subtitle segments.
     const rawChunks = result.chunks || [];
 
-    // Word-level data for the highlight engine (left panel Transcript tab only)
-    const words = rawChunks
-      .map((c) => ({
-        text:  (c.text || '').trim(),
-        start: (c.timestamp?.[0] ?? 0) + timeOffset,
-        end:   (c.timestamp?.[1] ?? 0) + timeOffset,
-      }))
-      .filter((w) => w.text.length > 0);
+    // Word-level data for the highlight engine (left panel Transcript tab only).
+    // Deduplicate words from Whisper's internal stride overlap: skip any word
+    // whose start time is before the end time of the previous accepted word.
+    const words = [];
+    let lastWordEnd = -1;
+    for (const c of rawChunks) {
+      const text  = (c.text || '').trim();
+      if (!text) continue;
+      const start = (c.timestamp?.[0] ?? 0) + timeOffset;
+      const end   = (c.timestamp?.[1] ?? 0) + timeOffset;
+      if (start < lastWordEnd - 0.05) continue; // duplicate from stride overlap
+      words.push({ text, start, end });
+      lastWordEnd = end;
+    }
 
     // Group words into subtitle segments (used by subtitle rows + preview + exports).
     // A new segment starts when: sentence punctuation hit, OR ≥12 words, OR ≥5s elapsed.
