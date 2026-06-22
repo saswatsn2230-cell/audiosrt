@@ -1685,6 +1685,13 @@ button:active { transform:scale(0.97); }
     const tc = document.getElementById('tool-cols');
     if (tc) tc.classList.remove('hidden');
   };
+  window._audiosrt.updateLogicalSegment = (idx, text) => {
+    if (!logicalSegments[idx]) return;
+    logicalSegments[idx].text = text;
+    rebuildDisplaySegments();
+    renderTranscript();
+    refreshPreviewText(audioPlayer.currentTime);
+  };
   window._audiosrt.renderTranscript = () => {
     if (typeof renderTranscript === 'function') renderTranscript();
   };
@@ -4425,26 +4432,24 @@ button:active { transform:scale(0.97); }
   let rebuilding = false;
 
   function rebuildPara() {
-    if (!tlLines || !paraText) return;
-    if (document.activeElement === paraText) return; // never wipe while user is editing
+    if (!paraText) return;
+    if (document.activeElement === paraText) return;
     rebuilding = true;
     paraText.innerHTML = '';
-    let si = 0;
+
+    // Read from logicalSegments (raw transcription), NOT displaySegments.
+    // This means the Transcript tab is never affected by subtitle settings
+    // like chars-per-line or single/double line — it always shows the full
+    // unformatted transcription.
+    const logSegs  = window._audiosrt?.getSegments?.() || [];
     const allWords = window.__rawWords || [];
-    const segs     = window._audiosrt?.getDisplaySegments?.() || [];
 
-    for (const row of tlLines.children) {
-      const tsIn = row.querySelector('input[type="text"]');
-      const txEl = row.querySelector('[contenteditable]');
-      if (!txEl) continue;
-      const text  = txEl.textContent.trim();
-      const start = tsIn ? parseTs(tsIn.value) : 0;
-      const div   = document.createElement('div');
+    logSegs.forEach((seg, si) => {
+      const div = document.createElement('div');
       div.dataset.segIdx   = String(si);
-      div.dataset.segStart = String(start);
+      div.dataset.segStart = String(seg.start);
 
-      const seg = segs[si];
-      const segWords = seg && allWords.length
+      const segWords = allWords.length
         ? allWords.filter(w => w.start >= seg.start - 0.05 && w.start < seg.end + 0.05)
         : [];
 
@@ -4457,32 +4462,29 @@ button:active { transform:scale(0.97); }
           div.appendChild(span);
         });
       } else {
-        div.textContent = text;
+        div.textContent = seg.text;
       }
 
       paraText.appendChild(div);
-      si++;
-    }
+    });
     rebuilding = false;
   }
 
   window.__rebuildPara = rebuildPara;
 
-  // On blur: read each div back → update only the segments that changed
-  if (paraText && tlLines) {
+  // On blur: read each div back → update the logical segment that changed.
+  // Writing to logicalSegments keeps the Transcript tab decoupled from subtitle
+  // display settings — the subtitle rows are rebuilt from logicalSegments.
+  if (paraText) {
     paraText.addEventListener('blur', () => {
       let changed = false;
+      const logSegs = window._audiosrt?.getSegments?.() || [];
       paraText.querySelectorAll('div[data-seg-idx]').forEach(div => {
-        const idx  = parseInt(div.dataset.segIdx);
-        const row  = tlLines.children[idx];
-        if (!row) return;
-        const txEl = row.querySelector('[contenteditable]');
-        if (!txEl) return;
+        const idx     = parseInt(div.dataset.segIdx);
         const newText = div.textContent.replace(/\s+/g, ' ').trim();
-        if (txEl.textContent.replace(/\s+/g, ' ').trim() !== newText) {
-          txEl.textContent = newText;
-          // Fires the subtitle row's input handler → updates displaySegments + preview
-          txEl.dispatchEvent(new Event('input', { bubbles: true }));
+        if (!logSegs[idx]) return;
+        if (logSegs[idx].text.replace(/\s+/g, ' ').trim() !== newText) {
+          window._audiosrt?.updateLogicalSegment?.(idx, newText);
           changed = true;
         }
       });
@@ -4498,15 +4500,19 @@ button:active { transform:scale(0.97); }
     });
   }
 
+  // Observe tlLines for new rows being added (e.g. transcription completing).
+  // We only rebuild paraText when NEW rows are added — NOT on characterData changes
+  // (which fire on every chars-slider re-render and would cause unnecessary rebuilds).
   if (tlLines) {
     new MutationObserver((mutations) => {
-      const onlyTail = mutations.every(m =>
-        [...m.addedNodes, ...m.removedNodes].every(n =>
-          n.id === 'chunk-tail-row' || n.parentElement?.id === 'chunk-tail-row'
+      const hasNewRows = mutations.some(m =>
+        m.type === 'childList' &&
+        [...m.addedNodes, ...m.removedNodes].some(n =>
+          n.id !== 'chunk-tail-row' && n.parentElement?.id !== 'chunk-tail-row'
         )
       );
-      if (!onlyTail && !rebuilding) rebuildPara();
-    }).observe(tlLines, { childList: true, subtree: true, characterData: true });
+      if (hasNewRows && !rebuilding) rebuildPara();
+    }).observe(tlLines, { childList: true });
   }
 
   // ── Segment-level highlight ───────────────────────────────────────────────
