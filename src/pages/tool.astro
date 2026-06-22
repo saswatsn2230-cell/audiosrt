@@ -2652,6 +2652,8 @@ button:active { transform:scale(0.97); }
         .map(d => d.text.trim())
         .join(' ');
       refreshPreviewText(audioPlayer.currentTime);
+      // Keep Transcript tab in sync when subtitle text is edited directly
+      window.__rebuildPara?.();
     });
 
     row.appendChild(tsInput);
