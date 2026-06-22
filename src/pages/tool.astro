@@ -85,9 +85,13 @@ body { font-family:'Inter',system-ui,sans-serif; background:#fff; color:#1D1D1F;
 }
 .tb-step {
   font-size:10px; color:#6E6E73; padding:3px 9px; border-radius:99px;
+  border:none; background:none; font-family:inherit; cursor:pointer;
   transition:background 0.2s,color 0.2s;
 }
+.tb-step:not(:disabled):hover { background:#F0F0F2; color:#1D1D1F; }
+.tb-step:disabled { cursor:default; opacity:0.5; }
 .tb-step.active { background:#6366F1; color:#fff; }
+.tb-step.active:hover { background:#4F46E5; }
 .tb-arrow { font-size:9px; color:#C7C7CC; }
 #tb-export-btn {
   margin-left:auto; font-size:11px; font-weight:500;
@@ -713,35 +717,7 @@ button:active { transform:scale(0.97); }
    Editor layout (post-transcription)
    ═══════════════════════════════════════════════════════════ */
 
-/* ── Collapsible sidebar ──────────────────────────────────── */
-#editor-sidebar {
-  flex-shrink:0; width:40px; background:#FAFAFA;
-  border-right:0.5px solid #E5E5E7;
-  display:flex; flex-direction:column; overflow:hidden;
-  transition:width 0.2s ease;
-}
-#editor-sidebar.expanded { width:180px; }
-.sb-toggle {
-  width:40px; height:40px; flex-shrink:0; border:none; background:none;
-  cursor:pointer; display:flex; align-items:center; justify-content:center;
-  color:#6E6E73; border-bottom:0.5px solid #E5E5E7; transition:background 0.1s;
-}
-.sb-toggle:hover { background:#F0F0F2; }
-.sb-toggle svg   { transition:transform 0.2s ease; }
-.sb-nav { display:flex; flex-direction:column; padding:4px 0; }
-.sb-item {
-  display:flex; align-items:center; height:40px; padding:0 12px;
-  border:none; border-left:2px solid transparent; background:none;
-  cursor:pointer; font-family:inherit; color:#6E6E73;
-  white-space:nowrap; overflow:hidden; transition:background 0.1s,color 0.1s;
-}
-.sb-item:hover  { background:#F0F0F2; color:#1D1D1F; }
-.sb-item.active { background:#EEEFFD; color:#6366F1; border-left-color:#6366F1; }
-.sb-item svg    { flex-shrink:0; }
-.sb-item-text   { margin-left:10px; display:flex; flex-direction:column; overflow:hidden; }
-.sb-item-label  { font-size:11px; font-weight:500; color:inherit; }
-.sb-item-desc   { font-size:9px; color:#6E6E73; overflow:hidden; text-overflow:ellipsis; }
-.sb-item.active .sb-item-desc { color:#9499F5; }
+/* sidebar removed */
 
 /* ── Left/right columns ───────────────────────────────────── */
 .left-col {
@@ -1025,13 +1001,13 @@ button:active { transform:scale(0.97); }
   <span id="topbar-filename"></span>
 
   <div class="tb-steps" aria-label="Progress steps">
-    <span class="tb-step active" id="tb-step-upload">Upload</span>
+    <button class="tb-step active" id="tb-step-upload" type="button">Upload</button>
     <span class="tb-arrow">›</span>
-    <span class="tb-step" id="tb-step-transcribe">Transcribe</span>
+    <button class="tb-step" id="tb-step-transcribe" type="button" disabled>Transcribe</button>
     <span class="tb-arrow">›</span>
-    <span class="tb-step" id="tb-step-edit">Edit</span>
+    <button class="tb-step" id="tb-step-edit" type="button">Edit</button>
     <span class="tb-arrow">›</span>
-    <span class="tb-step" id="tb-step-export">Export</span>
+    <button class="tb-step" id="tb-step-export" type="button">Export</button>
   </div>
 
   <button id="new-file-btn" class="new-file-btn" title="Start with a new file">+ New file</button>
@@ -1191,51 +1167,6 @@ button:active { transform:scale(0.97); }
   <!-- Editor (post-transcription view) -->
   <div id="tool-cols" class="hidden">
 
-    <!-- Collapsible sidebar -->
-    <div id="editor-sidebar">
-      <button id="sidebar-toggle" class="sb-toggle" title="Expand sidebar" aria-label="Toggle sidebar">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="9 18 15 12 9 6"/>
-        </svg>
-      </button>
-      <nav class="sb-nav">
-        <button class="sb-item active" id="sb-transcript" type="button" title="Transcript">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-            <line x1="16" y1="13" x2="8" y2="13"/>
-            <line x1="16" y1="17" x2="8" y2="17"/>
-          </svg>
-          <div class="sb-item-text">
-            <span class="sb-item-label">Transcript</span>
-            <span class="sb-item-desc">Edit text &amp; subtitles</span>
-          </div>
-        </button>
-        <button class="sb-item" id="sb-style" type="button" title="Style — coming soon">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M2 13.5V20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6.5"/>
-            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-          </svg>
-          <div class="sb-item-text">
-            <span class="sb-item-label">Style</span>
-            <span class="sb-item-desc">Customize appearance</span>
-          </div>
-        </button>
-        <button class="sb-item" id="sb-export-btn" type="button" title="Export"
-          onclick="document.getElementById('export-modal').classList.remove('hidden')">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          <div class="sb-item-text">
-            <span class="sb-item-label">Export</span>
-            <span class="sb-item-desc">Download files</span>
-          </div>
-        </button>
-      </nav>
-    </div>
-
     <!-- LEFT: Tabs + transcript + waveform -->
     <div class="left-col">
 
@@ -1245,6 +1176,7 @@ button:active { transform:scale(0.97); }
         <button id="tab-subtitles"  class="tab"        type="button">Subtitles</button>
         <div class="tab-spacer"></div>
         <span id="segment-count"></span>
+        <button id="retranscribe-btn" type="button" style="font-size:11px;color:#6366F1;background:#EEEFFD;border:0.5px solid #C7C8F9;border-radius:7px;padding:3px 10px;cursor:pointer;font-family:inherit;margin-right:6px;display:none;">↺ Retranscribe</button>
         <button id="clear-transcript" type="button">Clear</button>
       </div>
 
@@ -1451,6 +1383,41 @@ button:active { transform:scale(0.97); }
 
 </div>
 <!-- /main-area -->
+
+<!-- Retranscribe modal -->
+<div id="retranscribe-modal" class="hidden" role="dialog" aria-modal="true" style="position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;display:flex;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:28px 28px 24px;width:360px;max-width:90vw;box-shadow:0 16px 48px rgba(0,0,0,0.18);font-family:Inter,sans-serif;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+      <h2 style="font-size:16px;font-weight:600;color:#1D1D1F;margin:0;">Retranscribe</h2>
+      <button id="retranscribe-modal-close" style="background:none;border:none;cursor:pointer;color:#6E6E73;font-size:18px;line-height:1;padding:2px 6px;">✕</button>
+    </div>
+    <p style="font-size:13px;color:#6E6E73;margin:0 0 20px;line-height:1.5;">Choose a model to retranscribe your file from the beginning. This will replace the current transcript.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:22px;">
+      <label id="rt-opt-tiny" class="rt-model-opt" style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1.5px solid #C7C8F9;border-radius:10px;cursor:pointer;background:#EEEFFD;">
+        <input type="radio" name="rt-model" value="Xenova/whisper-tiny.en" checked style="margin-top:2px;accent-color:#6366F1;">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#1D1D1F;">Fast ⚡</div>
+          <div style="font-size:11px;color:#6E6E73;margin-top:2px;">Whisper Tiny — quickest result, good for clear audio</div>
+        </div>
+      </label>
+      <label id="rt-opt-small" class="rt-model-opt" style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1.5px solid #E5E5E7;border-radius:10px;cursor:pointer;">
+        <input type="radio" name="rt-model" value="Xenova/whisper-small.en" style="margin-top:2px;accent-color:#6366F1;">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#1D1D1F;">Balanced ⚖️</div>
+          <div style="font-size:11px;color:#6E6E73;margin-top:2px;">Whisper Small — better accuracy, moderate speed</div>
+        </div>
+      </label>
+      <label id="rt-opt-medium" class="rt-model-opt" style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1.5px solid #E5E5E7;border-radius:10px;cursor:pointer;">
+        <input type="radio" name="rt-model" value="Xenova/whisper-medium.en" style="margin-top:2px;accent-color:#6366F1;">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#1D1D1F;">Accurate 🎯</div>
+          <div style="font-size:11px;color:#6E6E73;margin-top:2px;">Whisper Medium — highest quality, takes longer</div>
+        </div>
+      </label>
+    </div>
+    <button id="retranscribe-confirm" style="width:100%;background:#6366F1;color:#fff;border:none;border-radius:10px;padding:11px 0;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:background 0.15s;">Start Retranscription</button>
+  </div>
+</div>
 
 <!-- Export modal -->
 <div id="export-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Export transcript">
@@ -2043,6 +2010,8 @@ button:active { transform:scale(0.97); }
           stepSettings.classList.remove('hidden');
           stepExport.classList.remove('hidden');
           stepTimeline.classList.remove('hidden');
+          const rtBtnReload = document.getElementById('retranscribe-btn');
+          if (rtBtnReload) rtBtnReload.style.display = 'inline-block';
 
           requestAnimationFrame(() => {
             document.querySelectorAll('.step-pill').forEach(p => {
@@ -3202,6 +3171,9 @@ button:active { transform:scale(0.97); }
         // Explicitly rebuild para-text word spans now that subtitle rows exist.
         // window.__rawWords is set just before revealEditorScreen is called.
         setTimeout(() => { if (window.__rebuildPara) window.__rebuildPara(); }, 0);
+        // Show retranscribe button now that we have content
+        const rtBtn = document.getElementById('retranscribe-btn');
+        if (rtBtn) rtBtn.style.display = 'inline-block';
       }
 
       worker.onmessage = (e) => {
@@ -4239,11 +4211,91 @@ button:active { transform:scale(0.97); }
     });
   }
 
+  // ── Topbar step buttons ──────────────────────────────────────────────────
+  const stepUploadBtn   = document.getElementById('tb-step-upload');
+  const stepEditBtn     = document.getElementById('tb-step-edit');
+  const stepExportBtn   = document.getElementById('tb-step-export');
+
+  // Upload → go back to upload screen
+  stepUploadBtn?.addEventListener('click', () => {
+    if (toolCols && !toolCols.classList.contains('hidden')) {
+      if (!confirm('Go back to upload? Your current transcription will be kept in history.')) return;
+    }
+    if (toolCols) toolCols.classList.add('hidden');
+    if (uploadScreen) uploadScreen.style.display = '';
+    setActiveStep('upload');
+  });
+
+  // Edit → already on edit view; if on upload screen, just show the tool-cols if populated
+  stepEditBtn?.addEventListener('click', () => {
+    if (logicalSegments.length) {
+      if (toolCols) toolCols.classList.remove('hidden');
+      if (uploadScreen) uploadScreen.style.display = 'none';
+      setActiveStep('edit');
+    }
+  });
+
+  // Export → open export modal
+  stepExportBtn?.addEventListener('click', () => {
+    document.getElementById('export-modal')?.classList.remove('hidden');
+  });
+
+  // ── Retranscribe button + modal ──────────────────────────────────────────
+  const retranscribeBtn     = document.getElementById('retranscribe-btn');
+  const retranscribeModal   = document.getElementById('retranscribe-modal');
+  const retranscribeClose   = document.getElementById('retranscribe-modal-close');
+  const retranscribeConfirm = document.getElementById('retranscribe-confirm');
+
+  // Show retranscribe button only when editor is open with a loaded file
+  function updateRetranscribeVisibility() {
+    if (retranscribeBtn) {
+      retranscribeBtn.style.display = (selectedFile && logicalSegments.length) ? 'inline-block' : 'none';
+    }
+  }
+
+  retranscribeBtn?.addEventListener('click', () => {
+    retranscribeModal?.classList.remove('hidden');
+  });
+  retranscribeClose?.addEventListener('click', () => {
+    retranscribeModal?.classList.add('hidden');
+  });
+  retranscribeModal?.addEventListener('click', (e) => {
+    if (e.target === retranscribeModal) retranscribeModal.classList.add('hidden');
+  });
+
+  // Model option visual highlight
+  retranscribeModal?.querySelectorAll('input[name="rt-model"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      retranscribeModal.querySelectorAll('.rt-model-opt').forEach(opt => {
+        const selected = opt.querySelector('input')?.checked;
+        opt.style.borderColor    = selected ? '#C7C8F9' : '#E5E5E7';
+        opt.style.background     = selected ? '#EEEFFD' : '';
+      });
+    });
+  });
+
+  retranscribeConfirm?.addEventListener('click', async () => {
+    const selectedModel = retranscribeModal?.querySelector('input[name="rt-model"]:checked')?.value;
+    if (!selectedModel || !selectedFile) return;
+    if (!confirm('This will replace the current transcript and re-transcribe from scratch. Continue?')) return;
+
+    retranscribeModal?.classList.add('hidden');
+
+    // Switch model selector to chosen model
+    const modelSelect = document.getElementById('model-select');
+    if (modelSelect) modelSelect.value = selectedModel;
+
+    // Simulate clicking the Transcribe button — it handles all the reset + run logic
+    const transcribeBtnEl = document.getElementById('transcribe-btn');
+    transcribeBtnEl?.click();
+  });
+
   if (toolCols && uploadScreen) {
     new MutationObserver(() => {
       const editorOpen = !toolCols.classList.contains('hidden');
       uploadScreen.style.display = editorOpen ? 'none' : '';
       if (newFileBtn) newFileBtn.style.display = editorOpen ? 'inline-flex' : 'none';
+      updateRetranscribeVisibility();
     }).observe(toolCols, { attributes: true, attributeFilter: ['class'] });
   }
 
@@ -4344,33 +4396,9 @@ button:active { transform:scale(0.97); }
   const wfZoomOutB = document.getElementById('wf-zoom-out');
   const wfZoomLbl  = document.getElementById('wf-zoom-label');
   const wfTimeLbl  = document.getElementById('wf-time-label');
-  const sidebar    = document.getElementById('editor-sidebar');
-  const sbToggle   = document.getElementById('sidebar-toggle');
-  const sbStyle    = document.getElementById('sb-style');
   const previewBox = document.getElementById('preview-box');
 
   if (!audioEl) return;
-
-  // ── Sidebar ───────────────────────────────────────────────────────────────
-  if (sidebar && sbToggle) {
-    sbToggle.addEventListener('click', () => {
-      const exp = sidebar.classList.toggle('expanded');
-      sbToggle.title = exp ? 'Collapse sidebar' : 'Expand sidebar';
-      const chevron = sbToggle.querySelector('svg');
-      if (chevron) chevron.style.transform = exp ? 'rotate(180deg)' : '';
-    });
-  }
-  if (sbStyle) {
-    sbStyle.addEventListener('click', () => {
-      const rect = sbStyle.getBoundingClientRect();
-      const tip  = document.createElement('div');
-      tip.textContent = 'Style panel — coming soon';
-      tip.style.cssText = 'position:fixed;left:' + (rect.right + 8) + 'px;top:' + (rect.top + rect.height / 2 - 14) + 'px;'
-        + 'background:#1D1D1F;color:#fff;font-size:11px;padding:5px 10px;border-radius:6px;z-index:9999;pointer-events:none;white-space:nowrap;';
-      document.body.appendChild(tip);
-      setTimeout(() => tip.remove(), 1800);
-    });
-  }
 
   // ── Tabs ──────────────────────────────────────────────────────────────────
   let activeTab = 'transcript'; // track for word highlighting
