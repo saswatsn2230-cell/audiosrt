@@ -3048,7 +3048,8 @@ button:active { transform:scale(0.97); }
   }
 
   async function runTranscription() {
-    if (!selectedFile) return;
+    console.log('[runTranscription] start | selectedFile:', selectedFile?.name);
+    if (!selectedFile) { console.warn('[runTranscription] EARLY RETURN — no file'); return; }
     transcribeBtn.disabled = true;
     stopRafSync();
 
@@ -4278,20 +4279,22 @@ button:active { transform:scale(0.97); }
   });
 
   retranscribeConfirm?.addEventListener('click', async () => {
+    console.log('[Retranscribe] button clicked');
     const selectedModel = retranscribeModal?.querySelector('input[name="rt-model"]:checked')?.value;
-    if (!selectedModel || !selectedFile) return;
+    console.log('[Retranscribe] selectedModel:', selectedModel, '| selectedFile:', selectedFile?.name);
+    if (!selectedModel || !selectedFile) {
+      console.warn('[Retranscribe] EARLY RETURN — missing model or file');
+      return;
+    }
 
     retranscribeModal?.classList.add('hidden');
 
     // Override the upload-screen model-tier radio so getSelectedModel() returns the right value
     const targetRadio = document.querySelector(`input[name="model-tier"][value="${selectedModel}"]`);
+    console.log('[Retranscribe] targetRadio found:', !!targetRadio);
     if (targetRadio) targetRadio.checked = true;
 
-    // progressArea lives inside uploadScreen — it must be visible for the progress UI to show.
-    // Temporarily show the upload screen so runTranscription's progress flow works normally.
-    if (toolCols) toolCols.classList.add('hidden');
-    if (uploadScreen) uploadScreen.style.display = '';
-
+    console.log('[Retranscribe] calling runTranscription()');
     runTranscription();
   });
 
