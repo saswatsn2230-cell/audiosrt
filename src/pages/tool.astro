@@ -4497,7 +4497,11 @@ button:active { transform:scale(0.97); }
         ? allWords.filter(w => w.start >= seg.start - 0.05 && w.start < seg.end)
         : [];
 
-      if (segWords.length) {
+      // Only use word-level spans if the segment text hasn't been manually edited.
+      // If the user edited the text, word timestamps no longer match — fall back to plain text.
+      const wordsText = segWords.map(w => w.text).join(' ').replace(/\s+/g, ' ').trim();
+      const segText   = (seg.text || '').replace(/\s+/g, ' ').trim();
+      if (segWords.length && wordsText === segText) {
         segWords.forEach((w, wi) => {
           const span = document.createElement('span');
           span.dataset.ws = String(w.start);
