@@ -4538,7 +4538,8 @@ button:active { transform:scale(0.97); }
       const onlyTail = mutations.every(m =>
         [...m.addedNodes, ...m.removedNodes].every(n => n.id === 'chunk-tail-row' || n.parentElement?.id === 'chunk-tail-row')
       );
-      if (!onlyTail && !rebuilding && !paraEditing && !isEditingTranscript) rebuildPara();
+      // isEditingTranscript only blocks highlightWord (cursor protection), NOT rebuildPara
+      if (!onlyTail && !rebuilding && !paraEditing) rebuildPara();
     }).observe(tlLines, { childList: true, subtree: true, characterData: true });
   }
 
@@ -4574,8 +4575,8 @@ button:active { transform:scale(0.97); }
   let lastActiveWord = null;
 
   if (paraText) {
-    paraText.addEventListener('focus',     () => { isEditingTranscript = true; });
-    paraText.addEventListener('mousedown', () => { isEditingTranscript = true; });
+    // Only block highlighting during actual text input, not on click/focus
+    paraText.addEventListener('input',     () => { isEditingTranscript = true; });
     paraText.addEventListener('blur',      () => { isEditingTranscript = false; highlightWord(); });
   }
 
