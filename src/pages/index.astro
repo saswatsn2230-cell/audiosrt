@@ -247,6 +247,90 @@ const jsonLd = {
     </div>
   </section>
 
+  <!-- 3-Way Comparison Table -->
+  <section class="compare3-section" id="compare">
+    <div class="compare3-header">
+      <h2 class="compare3-h2">Built for Editors Who Hate Cloud Queues<br>and $20 Subscriptions</h2>
+      <p class="compare3-sub">How AudioSRT obliterates traditional cloud tools on actual editing workflows.</p>
+    </div>
+
+    <div class="compare3-wrap">
+      <table class="compare3-table">
+        <thead>
+          <tr>
+            <th class="c3-th-feature">Feature / Workflow</th>
+            <th class="c3-th-rival">🌀 TurboScribe</th>
+            <th class="c3-th-rival">🎙️ Descript</th>
+            <th class="c3-th-us">⚡ AudioSRT <span class="c3-us-badge">Us</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="c3-feat">Time to Start Editing</td>
+            <td class="c3-rival">⏳ Wait 3–4 min for cloud processing</td>
+            <td class="c3-rival">⏳ Wait for full upload &amp; cloud queue</td>
+            <td class="c3-us">🚀 <strong>15 Seconds (Instant Stream)</strong></td>
+          </tr>
+          <tr class="c3-alt">
+            <td class="c3-feat">Data Privacy</td>
+            <td class="c3-rival">☁️ Uploads files to external servers</td>
+            <td class="c3-rival">☁️ Uploads files to external cloud</td>
+            <td class="c3-us">🔒 <strong>100% Local — files never leave device</strong></td>
+          </tr>
+          <tr>
+            <td class="c3-feat">Monthly Cost</td>
+            <td class="c3-rival">$20 / month</td>
+            <td class="c3-rival">$15+ / month</td>
+            <td class="c3-us">💚 <strong>$3 / month (₹99 for India)</strong></td>
+          </tr>
+          <tr class="c3-alt">
+            <td class="c3-feat">Free Plan Limits</td>
+            <td class="c3-rival">Strict cap — 3 files / day</td>
+            <td class="c3-rival">1 hour / month</td>
+            <td class="c3-us">✅ <strong>Infinite Files — no daily caps</strong></td>
+          </tr>
+          <tr>
+            <td class="c3-feat">NLE Companion Features</td>
+            <td class="c3-rival">Basic text export only</td>
+            <td class="c3-rival">Requires complex software round-trip</td>
+            <td class="c3-us">🎬 <strong>Native Premiere Pro JSON Export</strong></td>
+          </tr>
+          <tr class="c3-alt">
+            <td class="c3-feat">Typography Controls</td>
+            <td class="c3-rival">None — plain document text</td>
+            <td class="c3-rival">Limited layout styling presets</td>
+            <td class="c3-us">🅰️ <strong>Full Brand Font (.TTF/.OTF) Injection</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ul class="compare3-bullets">
+      <li>
+        <span class="c3-bullet-icon">⚡</span>
+        <div>
+          <strong>Total Time vs. Active Time:</strong> Don't be fooled by cloud processing speeds. TurboScribe takes 3 minutes and 51 seconds of dead waiting time before you can edit. AudioSRT uses a 30-second rolling VAD chunking pipeline — giving you your first lines to review and style within 15 seconds while the rest finishes in the background.
+        </div>
+      </li>
+      <li>
+        <span class="c3-bullet-icon">🔒</span>
+        <div>
+          <strong>Complete Privacy Moat:</strong> Both Descript and TurboScribe force you to upload your clients' private, unreleased footage to their cloud servers, wasting massive upload bandwidth. AudioSRT processes everything locally via Web Workers right inside your browser. Zero data risks, zero upload lag.
+        </div>
+      </li>
+      <li>
+        <span class="c3-bullet-icon">💰</span>
+        <div>
+          <strong>The Impulse-Buy Edge:</strong> Why drop $180–$240 a year just to get unlimited transcripts? AudioSRT gives you unlimited local audio processing for free, and advanced font injection and NLE integration tools for just $3/month (₹99/mo in India).
+        </div>
+      </li>
+    </ul>
+
+    <div style="text-align:center;margin-top:36px;">
+      <a href="/tool" class="hero-cta">Try AudioSRT Free — No Upload Required →</a>
+    </div>
+  </section>
+
   <!-- FAQ -->
   <section class="faq-section" id="faq">
     <h2>Frequently Asked Questions</h2>
@@ -395,6 +479,32 @@ const jsonLd = {
 /* Positioning note */
 .positioning-note { max-width: 760px; margin: 40px auto 0; padding: 0 20px; }
 .positioning-note p { font-size: 12px; color: #A0A0A5; line-height: 1.8; text-align: center; }
+
+/* 3-Way Comparison Table */
+.compare3-section { max-width: 1000px; margin: 80px auto; padding: 0 20px; }
+.compare3-header { text-align: center; margin-bottom: 40px; }
+.compare3-h2 { font-size: clamp(22px, 3.5vw, 34px); font-weight: 700; letter-spacing: -0.6px; color: #1D1D1F; line-height: 1.2; margin-bottom: 12px; }
+.compare3-sub { font-size: 15px; color: #6E6E73; }
+.compare3-wrap { overflow-x: auto; border-radius: 14px; border: 0.5px solid #E5E5E7; }
+.compare3-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 620px; }
+.compare3-table thead tr { border-bottom: 1px solid #E5E5E7; }
+.c3-th-feature { padding: 16px 18px; text-align: left; color: #6E6E73; font-weight: 600; font-size: 12px; width: 24%; background: #FAFAFA; }
+.c3-th-rival { padding: 16px 18px; text-align: center; color: #6E6E73; font-weight: 600; font-size: 13px; width: 22%; background: #FAFAFA; }
+.c3-th-us { padding: 16px 18px; text-align: center; font-weight: 700; font-size: 13px; width: 32%; background: #EEEFFD; color: #4F46E5; }
+.c3-us-badge { display: inline-block; background: #6366F1; color: #fff; font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 20px; margin-left: 6px; vertical-align: middle; }
+.compare3-table td { padding: 14px 18px; border-bottom: 0.5px solid #F0F0F2; vertical-align: top; line-height: 1.5; }
+.compare3-table tr:last-child td { border-bottom: none; }
+.c3-feat { color: #3D3D3F; font-weight: 500; }
+.c3-rival { color: #6E6E73; text-align: center; }
+.c3-us { background: #FAFAFF; text-align: center; color: #1D1D1F; }
+.c3-alt td { background: #FAFAFA; }
+.c3-alt .c3-us { background: #F4F4FD; }
+.compare3-bullets { list-style: none; margin: 40px 0 0; padding: 0; display: flex; flex-direction: column; gap: 18px; }
+.compare3-bullets li { display: flex; gap: 14px; background: #F5F5F7; border-radius: 12px; padding: 18px 20px; align-items: flex-start; }
+.c3-bullet-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+.compare3-bullets li div { font-size: 14px; color: #3D3D3F; line-height: 1.7; }
+.compare3-bullets li strong { color: #1D1D1F; }
+@media (max-width: 600px) { .compare3-h2 br { display: none; } }
 
 /* Popular searches */
 .popular-searches { max-width: 760px; margin: 48px auto 0; padding: 0 20px; text-align: center; }
