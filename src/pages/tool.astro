@@ -1402,14 +1402,14 @@ button:active { transform:scale(0.97); }
         </div>
       </label>
       <label id="rt-opt-small" class="rt-model-opt" style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1.5px solid #E5E5E7;border-radius:10px;cursor:pointer;">
-        <input type="radio" name="rt-model" value="Xenova/whisper-small.en" style="margin-top:2px;accent-color:#6366F1;">
+        <input type="radio" name="rt-model" value="Xenova/whisper-small" style="margin-top:2px;accent-color:#6366F1;">
         <div>
           <div style="font-size:13px;font-weight:600;color:#1D1D1F;">Balanced ⚖️</div>
           <div style="font-size:11px;color:#6E6E73;margin-top:2px;">Whisper Small — better accuracy, moderate speed</div>
         </div>
       </label>
       <label id="rt-opt-medium" class="rt-model-opt" style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1.5px solid #E5E5E7;border-radius:10px;cursor:pointer;">
-        <input type="radio" name="rt-model" value="Xenova/whisper-medium.en" style="margin-top:2px;accent-color:#6366F1;">
+        <input type="radio" name="rt-model" value="Xenova/whisper-medium" style="margin-top:2px;accent-color:#6366F1;">
         <div>
           <div style="font-size:13px;font-weight:600;color:#1D1D1F;">Accurate 🎯</div>
           <div style="font-size:11px;color:#6E6E73;margin-top:2px;">Whisper Medium — highest quality, takes longer</div>
@@ -4283,11 +4283,10 @@ button:active { transform:scale(0.97); }
 
     retranscribeModal?.classList.add('hidden');
 
-    // Switch model selector to the chosen model before running
-    const modelSelect = document.getElementById('model-select');
-    if (modelSelect) modelSelect.value = selectedModel;
+    // Override the upload-screen model-tier radio so getSelectedModel() returns the right value
+    const targetRadio = document.querySelector(`input[name="model-tier"][value="${selectedModel}"]`);
+    if (targetRadio) targetRadio.checked = true;
 
-    // Call the shared transcription function directly (button may be hidden)
     runTranscription();
   });
 
