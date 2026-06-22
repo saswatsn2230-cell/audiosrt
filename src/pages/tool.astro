@@ -718,6 +718,7 @@ button:active { transform:scale(0.97); }
    ═══════════════════════════════════════════════════════════ */
 
 /* sidebar removed */
+#retranscribe-modal:not(.hidden) { display:flex; }
 
 /* ── Left/right columns ───────────────────────────────────── */
 .left-col {
@@ -1385,7 +1386,7 @@ button:active { transform:scale(0.97); }
 <!-- /main-area -->
 
 <!-- Retranscribe modal -->
-<div id="retranscribe-modal" class="hidden" role="dialog" aria-modal="true" style="position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;display:flex;align-items:center;justify-content:center;">
+<div id="retranscribe-modal" class="hidden" role="dialog" aria-modal="true" style="position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;align-items:center;justify-content:center;">
   <div style="background:#fff;border-radius:16px;padding:28px 28px 24px;width:360px;max-width:90vw;box-shadow:0 16px 48px rgba(0,0,0,0.18);font-family:Inter,sans-serif;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
       <h2 style="font-size:16px;font-weight:600;color:#1D1D1F;margin:0;">Retranscribe</h2>
