@@ -163,14 +163,12 @@ const canonicalURL = canonical || new URL(Astro.url.pathname, Astro.site).toStri
           el.replaceWith(sentinel)
         })
         document.querySelectorAll('#global-nav-cta-slot').forEach(slot => {
-          slot.innerHTML = user ? avatarMenuHTML(user, plan, 40) : ''
+          slot.innerHTML = ''
         })
 
-        // ── Tool page nav-auth-area ────────────────────────────────────────
+        // Tool page nav-auth-area — always empty, no auth UI shown
         const navAuthArea = document.getElementById('nav-auth-area')
-        if (navAuthArea) {
-          navAuthArea.innerHTML = user ? avatarMenuHTML(user, plan, 38) : guestNavHTML()
-        }
+        if (navAuthArea) navAuthArea.innerHTML = ''
 
         // Mark trial buttons as active for logged-in users
         document.querySelectorAll('[data-trial-btn]').forEach(btn => {
