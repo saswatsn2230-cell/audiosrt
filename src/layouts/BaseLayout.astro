@@ -118,20 +118,17 @@ const canonicalURL = canonical || new URL(Astro.url.pathname, Astro.site).toStri
       }
 
       function avatarMenuHTML(user, plan, dropdownTop) {
-        const initial   = (user.email?.[0] || '?').toUpperCase()
-        const planLabel = plan === 'starter' ? '⭐ Starter Trial' : plan === 'pro' ? '🚀 Pro' : 'Free'
+        const initial = (user.email?.[0] || '?').toUpperCase()
         return `
           <div style="position:relative;" class="global-user-menu">
-            <button class="global-user-btn" style="display:flex;align-items:center;gap:6px;background:#EEEFFD;border:1.5px solid #C7C8F9;border-radius:20px;padding:5px 12px 5px 5px;cursor:pointer;font-family:Inter,sans-serif;">
+            <button class="global-user-btn" style="display:flex;align-items:center;gap:6px;background:#EEEFFD;border:1.5px solid #C7C8F9;border-radius:20px;padding:5px 10px 5px 5px;cursor:pointer;font-family:Inter,sans-serif;">
               <div style="width:28px;height:28px;border-radius:50%;background:#6366F1;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">${initial}</div>
-              <span style="font-size:12px;font-weight:600;color:#6366F1;">${planLabel}</span>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6366F1" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="global-user-dropdown" style="display:none;position:absolute;top:${dropdownTop}px;right:0;background:#fff;border:0.5px solid #E5E5E7;border-radius:12px;padding:10px;min-width:220px;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:9999;">
               <div style="padding:8px 10px 12px;border-bottom:0.5px solid #E5E5E7;margin-bottom:8px;">
                 <div style="font-size:11px;color:#6E6E73;">Signed in as</div>
                 <div style="font-size:13px;font-weight:500;color:#1D1D1F;word-break:break-all;margin-top:2px;">${user.email}</div>
-                <div style="margin-top:6px;display:inline-block;background:#EEEFFD;color:#6366F1;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;">${planLabel}</div>
               </div>
               <a href="/account" style="display:block;padding:8px 10px;font-size:12px;color:#1D1D1F;text-decoration:none;border-radius:6px;" onmouseover="this.style.background='#F5F5F7'" onmouseout="this.style.background=''">My Account</a>
               <a href="/tool" style="display:block;padding:8px 10px;font-size:12px;color:#1D1D1F;text-decoration:none;border-radius:6px;" onmouseover="this.style.background='#F5F5F7'" onmouseout="this.style.background=''">Open App →</a>
