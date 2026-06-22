@@ -776,6 +776,9 @@ button:active { transform:scale(0.97); }
   font-size:14px; line-height:1.9; color:#1D1D1F;
   outline:none; word-break:break-word; caret-color:#6366F1;
 }
+/* Segments flow as inline text so the transcript reads as prose, not subtitle lines */
+#para-text div[data-seg-idx] { display:inline; }
+#para-text div[data-seg-idx]::after { content:' '; }
 #para-text:empty::before { content:attr(data-placeholder); color:#C7C7CC; pointer-events:none; }
 #para-text::-webkit-scrollbar { width:4px; }
 #para-text::-webkit-scrollbar-thumb { background:#E5E5E7; border-radius:2px; }
