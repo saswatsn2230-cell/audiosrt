@@ -1033,9 +1033,7 @@ button:active { transform:scale(0.97); }
 
   <button id="new-file-btn" class="new-file-btn" title="Start with a new file">+ New file</button>
 
-  <div id="nav-auth-area" style="display:flex;align-items:center;gap:8px;">
-    <a href="/auth" class="nav-try-btn" onclick="sessionStorage.setItem('audiosrt_returning_from_auth','true')">Try Free →</a>
-  </div>
+  <div id="nav-auth-area" style="display:flex;align-items:center;gap:8px;"></div>
 
   <button id="tb-export-btn" onclick="document.getElementById('export-modal').classList.remove('hidden')">
     Export ↗
@@ -1136,58 +1134,8 @@ button:active { transform:scale(0.97); }
       </div>
 
       <!-- Plan cards -->
-      <div class="plan-cards">
-
-        <!-- Card 1: Free Plan -->
-        <div class="plan-card free-card">
-          <div class="plan-card-icon">🎵</div>
-          <div class="plan-card-title">Free Plan</div>
-          <div class="plan-card-subtitle">No signup required</div>
-          <ul class="plan-card-features">
-            <li>Audio file transcription</li>
-            <li>Full transcript text editor</li>
-            <li>Video playback preview</li>
-            <li>SRT + TXT export</li>
-            <li>Waveform timeline editor</li>
-          </ul>
-          <div class="plan-card-cta free-cta">Start for free →</div>
-        </div>
-
-        <!-- Card 2: Starter Pack -->
-        <div class="plan-card starter-card">
-          <div class="plan-card-badge">⭐ Most Popular</div>
-          <div class="plan-card-icon">🚀</div>
-          <div class="plan-card-title">Starter Pack</div>
-          <div class="plan-card-subtitle">14-day free trial · No credit card</div>
-          <ul class="plan-card-features">
-            <li>Everything in Free</li>
-            <li>Video file uploads (MP4, MOV)</li>
-            <li>Custom font uploads</li>
-            <li>Typography controls (stroke, shadow, offsets)</li>
-            <li>Premiere Pro JSON export</li>
-            <li>VTT subtitle export</li>
-            <li>Full subtitle styling panel</li>
-          </ul>
-          <a href="/auth" class="plan-card-cta starter-cta" id="starterTrialBtn" data-trial-btn style="display:block;text-align:center;text-decoration:none;">Start 14-day free trial →</a>
-          <div class="plan-card-note">Sign in with Google · Cancel anytime</div>
-        </div>
-
-        <!-- Card 3: Desktop App -->
-        <div class="plan-card desktop-card">
-          <div class="plan-card-icon">💻</div>
-          <div class="plan-card-title">Desktop App</div>
-          <div class="plan-card-subtitle">Free download · Always free</div>
-          <ul class="plan-card-features">
-            <li>15–20× faster transcription</li>
-            <li>Native GPU acceleration</li>
-            <li>No browser memory limits</li>
-            <li>Works 100% offline</li>
-            <li>Same features as web version</li>
-          </ul>
-          <div class="plan-card-cta desktop-cta">Download free app →</div>
-          <div class="plan-card-note">Windows &amp; Mac · Coming soon</div>
-        </div>
-
+      <div style="text-align:center;padding:16px 0 8px;">
+        <div style="font-size:13px;color:#6E6E73;">Everything is free — no account required. Upload audio or video, transcribe, edit, and export.</div>
       </div>
 
       <!-- Technical AI-targeted copy -->
@@ -1438,10 +1386,7 @@ button:active { transform:scale(0.97); }
         <span id="mini-time">0:00 / 0:00</span>
       </div>
 
-      <!-- Subtitle settings panel (real controls — lock overlay temporarily commented out) -->
       <div class="locked-panel">
-
-        <!-- Real subtitle controls — hidden by default, shown for starter/pro -->
         <div id="step-settings" class="settings-panel-visible real-subtitle-settings">
           <div class="settings-bar">
             <div class="cg"><span class="cg-lbl">Lines</span><div class="cg-row">
@@ -1493,29 +1438,6 @@ button:active { transform:scale(0.97); }
           </div>
         </div>
 
-        <div class="lock-overlay">
-          <div class="lock-card">
-            <div class="lock-icon">🎨</div>
-            <div class="lock-title">Customize Subtitles</div>
-            <div class="lock-desc">Upload custom fonts, control stroke, shadow, and position. Export SRT, VTT, and Premiere Pro JSON.</div>
-            <div class="lock-plans">
-              <div class="lock-plan starter">
-                <div style="font-size:9px;font-weight:600;color:#6366F1;margin-bottom:4px;">⭐ Most Popular</div>
-                <div class="plan-name">Starter</div>
-                <div class="plan-price">$3<span>/mo</span></div>
-                <div class="plan-features">Subtitle editor · Video support · All exports</div>
-                <a href="/auth" class="plan-btn starter-btn" id="lock-starter-btn" data-trial-btn style="display:block;text-align:center;text-decoration:none;">Start 14-day free trial →</a>
-              </div>
-              <div class="lock-plan pro">
-                <div class="plan-name">Pro</div>
-                <div class="plan-price">$16<span>/mo</span></div>
-                <div class="plan-features">Everything + Cloud transcription · Viral finder</div>
-                <button class="plan-btn pro-btn" type="button">Coming soon</button>
-              </div>
-            </div>
-            <div id="lock-trial-note" style="font-size:10px;color:#A0A0A5;margin-top:4px;">No credit card required · Cancel anytime</div>
-          </div>
-        </div>
 
       </div>
 
@@ -1752,7 +1674,8 @@ button:active { transform:scale(0.97); }
 
   // Expose globals for auth module cross-script access
   window._audiosrt = window._audiosrt || {};
-  window._audiosrt.getSegments = () => logicalSegments;
+  window._audiosrt.getSegments        = () => logicalSegments;
+  window._audiosrt.getDisplaySegments = () => displaySegments;
   window._audiosrt.setSegments = (segs) => {
     logicalSegments = segs.map(s => ({ ...s }));
     displaySegments = logicalSegments.map(s => ({ ...s }));
@@ -1793,7 +1716,7 @@ button:active { transform:scale(0.97); }
       return `proj_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     },
 
-    async saveProject(file, segments) {
+    async saveProject(file, segments, words) {
       const db = await this.open();
       const existing = await this.getProjectByName(file.name);
       const id = existing ? existing.id : this.generateId();
@@ -1806,6 +1729,7 @@ button:active { transform:scale(0.97); }
           fileSize: file.size,
           fileData: file,
           segments,
+          words: words || existing?.words || [],
           subtitleCount: segments.length,
           createdAt: existing ? existing.createdAt : new Date().toISOString(),
           updatedAt: new Date().toISOString(),
@@ -1904,7 +1828,7 @@ button:active { transform:scale(0.97); }
     if (!selectedFile || !logicalSegments.length) return;
     clearTimeout(autoSaveTimer);
     autoSaveTimer = null;
-    await AudioSRTDB.saveProject(selectedFile, logicalSegments).catch(() => {});
+    await AudioSRTDB.saveProject(selectedFile, logicalSegments, rawWords).catch(() => {});
   }
   // Expose so the IIFE (para-text blur) and visibilitychange can force an immediate save
   window._audiosrt = window._audiosrt || {};
@@ -1915,7 +1839,7 @@ button:active { transform:scale(0.97); }
     clearTimeout(autoSaveTimer);
     autoSaveTimer = setTimeout(async () => {
       // Always save locally
-      await AudioSRTDB.saveProject(selectedFile, logicalSegments).catch(() => {});
+      await AudioSRTDB.saveProject(selectedFile, logicalSegments, rawWords).catch(() => {});
 
       // Cloud sync for Starter/Pro users
       const plan = window.currentUserPlan;
@@ -2098,6 +2022,9 @@ button:active { transform:scale(0.97); }
           const segs = project.segments;
           window._audiosrt.setSegments(segs);
           selectedFile = project.fileData; // restore file reference for autoSave
+          // Restore word timestamps so word-level highlighting works after reload
+          rawWords = project.words || [];
+          window.__rawWords = rawWords;
 
           // Show editor panels
           const tc = document.getElementById('tool-cols');
@@ -2139,6 +2066,7 @@ button:active { transform:scale(0.97); }
           applyPreviewStyles();
           refreshPreviewText(0);
           showExpiryCountdown(project);
+          setTimeout(() => { if (window.__rebuildPara) window.__rebuildPara(); }, 50);
 
           const banner = document.createElement('div');
           banner.style.cssText = 'position:fixed;top:52px;left:50%;transform:translateX(-50%);background:#EEEFFD;color:#6366F1;border:0.5px solid #C7C8F9;padding:8px 20px;border-radius:8px;font-size:12px;font-family:Inter,sans-serif;font-weight:500;z-index:9999;display:flex;align-items:center;gap:10px;';
@@ -2761,44 +2689,17 @@ button:active { transform:scale(0.97); }
     if (bgCtrl) bgCtrl.style.display = vid ? 'none' : 'flex';
   }
 
-  const FREE_ROW_LIMIT = 20;
-
-  function applySubtitleRowLock(plan) {
-    const rows = Array.from(transcriptLines.querySelectorAll(':scope > .flex'));
-    const existingLock = document.getElementById('subtitle-row-lock');
-    if (existingLock) existingLock.remove();
-
-    if (plan === 'starter' || plan === 'pro') {
-      rows.forEach(r => { r.style.opacity = ''; r.style.pointerEvents = ''; r.style.userSelect = ''; });
-      return;
-    }
-
-    if (rows.length <= FREE_ROW_LIMIT) return;
-
-    rows.forEach((r, i) => {
-      if (i >= FREE_ROW_LIMIT) {
-        r.style.opacity = '0.3';
-        r.style.pointerEvents = 'none';
-        r.style.userSelect = 'none';
-      } else {
-        r.style.opacity = '';
-        r.style.pointerEvents = '';
-        r.style.userSelect = '';
-      }
+  function applySubtitleRowLock() {
+    // Everything is free — remove any existing lock, ensure all rows are accessible
+    document.getElementById('subtitle-row-lock')?.remove();
+    transcriptLines.querySelectorAll(':scope > .flex').forEach(r => {
+      r.style.opacity = '';
+      r.style.pointerEvents = '';
+      r.style.userSelect = '';
     });
-
-    const lockDiv = document.createElement('div');
-    lockDiv.id = 'subtitle-row-lock';
-    lockDiv.style.cssText = 'position:sticky;bottom:0;left:0;right:0;height:180px;background:rgba(255,255,255,0.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px;border-top:0.5px solid rgba(99,102,241,0.15);z-index:10;margin-top:-60px;';
-    lockDiv.innerHTML = '<div style="font-size:20px;">🔒</div>'
-      + '<div style="font-size:13px;font-weight:600;color:#1D1D1F;text-align:center;">You\'ve previewed 20 subtitle lines</div>'
-      + '<div style="font-size:11px;color:#6E6E73;text-align:center;max-width:260px;line-height:1.5;">Unlock all ' + rows.length + ' lines with full timestamp editing, split controls, and more.</div>'
-      + '<a href="/auth" class="subtitle-lock-trial-btn" style="background:#6366F1;color:#fff;font-size:12px;font-weight:500;padding:8px 20px;border-radius:8px;font-family:Inter,sans-serif;margin-top:4px;border:none;cursor:pointer;text-decoration:none;display:inline-block;">Start 14-day free trial →</a>'
-      + '<div style="font-size:10px;color:#A0A0A5;">No credit card required · Cancel anytime</div>';
-    transcriptLines.appendChild(lockDiv);
   }
 
-  window._audiosrt.applySubtitleRowLock = (plan) => applySubtitleRowLock(plan);
+  window._audiosrt.applySubtitleRowLock = () => applySubtitleRowLock();
 
   function onSettingsChange() {
     if (!logicalSegments.length) {
@@ -2905,15 +2806,6 @@ button:active { transform:scale(0.97); }
     if (!isVideo && !isAudio) {
       alert('Please select an audio or video file (MP3, WAV, M4A, OGG, OPUS, MP4, MOV, WebM).');
       return;
-    }
-    // Video upload requires Starter or Pro plan
-    if (isVideo) {
-      const plan = window._audiosrt?.currentPlan || window.currentUserPlan || 'free';
-      if (plan !== 'starter' && plan !== 'pro') {
-        alert('Video uploads are available on the Starter Trial and Pro plans.\n\nSign up for a free 14-day trial to unlock video transcription — no credit card required.');
-        fileInput.value = '';
-        return;
-      }
     }
     selectedFile = file;
     updatePreviewControlsVisibility(file);
@@ -4124,7 +4016,7 @@ button:active { transform:scale(0.97); }
 
         window._audiosrt.setSegments(segments);
         selectedFile = file;
-        await AudioSRTDB.saveProject(file, segments).catch(() => {});
+        await AudioSRTDB.saveProject(file, segments, rawWords).catch(() => {});
         updatePreviewControlsVisibility(file);
         updateExportOptions();
         updateNoiseReductionVisibility();
@@ -4512,94 +4404,85 @@ button:active { transform:scale(0.97); }
     return parseFloat(s) || 0;
   }
 
-  // ── Para-text: editable paragraph view ───────────────────────────────────
-  // Renders subtitle rows as a flowing paragraph. Syncs edits back to
-  // tlLines on blur (not on every keystroke) to avoid cursor-jump bugs.
+  // ── Para-text: one <div> per segment ─────────────────────────────────────
+  // Each subtitle segment gets its own div with data-seg-idx.
+  // On blur, we read each div individually → update exactly that segment.
+  // This prevents any word-scrambling across segment boundaries.
 
   let rebuilding = false;
 
-  // Segment map: [{start, charStart, charEnd}] rebuilt each time rebuildPara runs
-  let paraSegMap = [];
-
   function rebuildPara() {
     if (!tlLines || !paraText) return;
+    if (document.activeElement === paraText) return; // never wipe while user is editing
     rebuilding = true;
-    const saved = document.activeElement === paraText;
     paraText.innerHTML = '';
-    paraSegMap = [];
-    let charPos = 0;
+    let si = 0;
+    const allWords = window.__rawWords || [];
+    const segs     = window._audiosrt?.getDisplaySegments?.() || [];
+
     for (const row of tlLines.children) {
       const tsIn = row.querySelector('input[type="text"]');
       const txEl = row.querySelector('[contenteditable]');
       if (!txEl) continue;
-      const text = txEl.textContent.trim();
-      if (!text) continue;
+      const text  = txEl.textContent.trim();
       const start = tsIn ? parseTs(tsIn.value) : 0;
-      paraSegMap.push({ start, charStart: charPos, charEnd: charPos + text.length });
-      charPos += text.length + 1; // +1 for the space
-      paraText.appendChild(document.createTextNode(text + ' '));
+      const div   = document.createElement('div');
+      div.dataset.segIdx   = String(si);
+      div.dataset.segStart = String(start);
+
+      const seg = segs[si];
+      const segWords = seg && allWords.length
+        ? allWords.filter(w => w.start >= seg.start - 0.05 && w.start < seg.end + 0.05)
+        : [];
+
+      if (segWords.length) {
+        segWords.forEach((w, wi) => {
+          const span = document.createElement('span');
+          span.dataset.ws = String(w.start);
+          span.dataset.we = String(w.end);
+          span.textContent = w.text + (wi < segWords.length - 1 ? ' ' : '');
+          div.appendChild(span);
+        });
+      } else {
+        div.textContent = text;
+      }
+
+      paraText.appendChild(div);
+      si++;
     }
     rebuilding = false;
-    if (saved) paraText.focus();
-  }
-
-  // Click anywhere in para-text → seek audio to that segment's timestamp
-  if (paraText) {
-    paraText.addEventListener('click', (e) => {
-      if (!paraSegMap.length) return;
-      // Get character offset of the click using caretRangeFromPoint
-      let clickChar = 0;
-      const range = document.caretRangeFromPoint
-        ? document.caretRangeFromPoint(e.clientX, e.clientY)
-        : null;
-      if (range) {
-        const walker = document.createTreeWalker(paraText, NodeFilter.SHOW_TEXT);
-        let node;
-        while ((node = walker.nextNode())) {
-          if (node === range.startContainer) { clickChar += range.startOffset; break; }
-          clickChar += node.textContent.length;
-        }
-      }
-      // Find which segment this character belongs to
-      let seg = paraSegMap[0];
-      for (const s of paraSegMap) {
-        if (clickChar >= s.charStart) seg = s;
-        else break;
-      }
-      if (isFinite(seg.start)) audioEl.currentTime = seg.start;
-    });
   }
 
   window.__rebuildPara = rebuildPara;
 
-  // Sync para-text edits back to subtitle rows on blur.
-  // Dispatches 'input' on each row so displaySegments + preview update automatically.
-  // Then immediately saves so closing the tab doesn't lose edits.
+  // On blur: read each div back → update only the segments that changed
   if (paraText && tlLines) {
     paraText.addEventListener('blur', () => {
-      const fullText = paraText.textContent || '';
-      const rows     = Array.from(tlLines.children);
-      const chunks   = splitIntoChunks(fullText, rows.length);
       let changed = false;
-      rows.forEach((row, i) => {
+      paraText.querySelectorAll('div[data-seg-idx]').forEach(div => {
+        const idx  = parseInt(div.dataset.segIdx);
+        const row  = tlLines.children[idx];
+        if (!row) return;
         const txEl = row.querySelector('[contenteditable]');
-        if (!txEl || chunks[i] === undefined) return;
-        if (txEl.textContent !== chunks[i]) {
-          txEl.textContent = chunks[i];
+        if (!txEl) return;
+        const newText = div.textContent.replace(/\s+/g, ' ').trim();
+        if (txEl.textContent.replace(/\s+/g, ' ').trim() !== newText) {
+          txEl.textContent = newText;
+          // Fires the subtitle row's input handler → updates displaySegments + preview
           txEl.dispatchEvent(new Event('input', { bubbles: true }));
           changed = true;
         }
       });
       if (changed) window._audiosrt?.saveNow?.();
     });
-  }
 
-  function splitIntoChunks(text, n) {
-    const words  = text.trim().split(/\s+/).filter(Boolean);
-    const perRow = Math.ceil(words.length / Math.max(n, 1));
-    const out    = [];
-    for (let i = 0; i < n; i++) out.push(words.slice(i * perRow, (i + 1) * perRow).join(' '));
-    return out;
+    // Click on a segment div → seek audio to its timestamp
+    paraText.addEventListener('click', (e) => {
+      const div = e.target.closest('div[data-seg-start]');
+      if (!div) return;
+      const t = parseFloat(div.dataset.segStart);
+      if (isFinite(t)) audioEl.currentTime = t;
+    });
   }
 
   if (tlLines) {
@@ -4609,12 +4492,85 @@ button:active { transform:scale(0.97); }
           n.id === 'chunk-tail-row' || n.parentElement?.id === 'chunk-tail-row'
         )
       );
-      if (!onlyTail && !rebuilding && document.activeElement !== paraText) rebuildPara();
+      if (!onlyTail && !rebuilding) rebuildPara();
     }).observe(tlLines, { childList: true, subtree: true, characterData: true });
   }
 
-  // Highlighting removed — will be revisited separately
-  window.__highlightWord = null;
+  // ── Segment-level highlight ───────────────────────────────────────────────
+  // At timeupdate, find which segment div the playhead is inside and add
+  // .seg-active to it. Only updates DOM when the active segment changes,
+  // and scrolls it into view so the user can always see where playback is.
+  let lastActiveWord = null;
+  let lastActiveSeg  = null;
+
+  function applyWordStyle(el, on) {
+    if (!el) return;
+    if (on) {
+      el.style.background   = 'rgba(99,102,241,0.35)';
+      el.style.color        = '#312e81';
+      el.style.fontWeight   = '600';
+      el.style.borderRadius = '3px';
+      el.style.padding      = '1px 3px';
+    } else {
+      el.style.background   = '';
+      el.style.color        = '';
+      el.style.fontWeight   = '';
+      el.style.borderRadius = '';
+      el.style.padding      = '';
+    }
+  }
+
+  function highlightWord() {
+    if (!paraText || document.activeElement === paraText) return;
+    const t = audioEl.currentTime;
+
+    let divs = Array.from(paraText.querySelectorAll('div[data-seg-start]'));
+    if (!divs.length) {
+      rebuildPara();
+      divs = Array.from(paraText.querySelectorAll('div[data-seg-start]'));
+      if (!divs.length) return;
+    }
+
+    // ── Word-level path (when word spans exist) ───────────────────────────
+    const spans = paraText.querySelectorAll('span[data-ws]');
+    if (spans.length) {
+      let activeWord = null;
+      for (const span of spans) {
+        const ws = parseFloat(span.dataset.ws);
+        const we = parseFloat(span.dataset.we);
+        if (t >= ws && t < we) { activeWord = span; break; }
+      }
+
+      if (activeWord !== lastActiveWord) {
+        applyWordStyle(lastActiveWord, false);
+        applyWordStyle(activeWord, true);
+
+        // Scroll only when segment changes (not every word — avoids jitter)
+        const activeSeg = activeWord?.closest('div[data-seg-start]') || null;
+        if (activeSeg !== lastActiveSeg) {
+          activeSeg?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          lastActiveSeg = activeSeg;
+        }
+        lastActiveWord = activeWord;
+      }
+      return;
+    }
+
+    // ── Segment-level fallback (no word timestamps available) ─────────────
+    const segs = window._audiosrt?.getDisplaySegments?.() || [];
+    let activeDiv = null;
+    for (const div of divs) {
+      const seg = segs[parseInt(div.dataset.segIdx)];
+      if (seg && t >= seg.start && t < seg.end) { activeDiv = div; break; }
+    }
+    if (activeDiv !== lastActiveSeg) {
+      applyWordStyle(lastActiveSeg, false);
+      applyWordStyle(activeDiv, true);
+      activeDiv?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      lastActiveSeg = activeDiv;
+    }
+  }
+  window.__highlightWord = highlightWord;
 
   // ── Waveform state ────────────────────────────────────────────────────────
   let wfPeaks = null, wfCtx = null, wfDur = 0;

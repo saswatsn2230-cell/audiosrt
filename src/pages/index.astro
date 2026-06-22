@@ -11,7 +11,7 @@ const faqJsonLd = {
     { "@type": "Question", "name": "How do I import subtitles into Adobe Premiere Pro?", "acceptedAnswer": { "@type": "Answer", "text": "Export the Premiere Pro JSON file from AudioSRT. In Premiere Pro, open the Text panel, click the (...) menu, choose Import, then Import Static Transcript. Your subtitles will load frame-accurately onto your timeline." } },
     { "@type": "Question", "name": "How accurate is the transcription?", "acceptedAnswer": { "@type": "Answer", "text": "AudioSRT uses OpenAI's Whisper model, one of the most accurate open-source speech recognition systems available. It handles multiple languages, accents, background noise, and technical vocabulary well." } },
     { "@type": "Question", "name": "Will my browser freeze on large video files?", "acceptedAnswer": { "@type": "Answer", "text": "No. AudioSRT uses asynchronous Web Workers and WebGPU memory-chunking that completely separates AI processing from the browser UI thread. Long files process in chunks so you can edit earlier sections while later sections are still transcribing." } },
-    { "@type": "Question", "name": "What is the difference between Free and Starter plans?", "acceptedAnswer": { "@type": "Answer", "text": "Free supports audio-only transcription with SRT and TXT export, no signup needed. Starter, at $3 per month or 99 rupees per month in India, adds video uploads, custom font injection, advanced typography controls, VTT export, and Premiere Pro JSON. It includes a 14-day free trial with no credit card required." } },
+    { "@type": "Question", "name": "Is AudioSRT really free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, everything in AudioSRT is free with no account required. Transcribe unlimited audio and video, edit subtitles, upload custom fonts, and export SRT, VTT, TXT, and Premiere Pro JSON — all at no cost." } },
     { "@type": "Question", "name": "Is there a desktop app for AudioSRT?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, coming soon. The free Tauri-based desktop app bypasses browser memory limits and uses the system's native GPU for 15 to 20 times faster transcription. It will be available for Windows and Mac." } }
   ]
 };
@@ -35,9 +35,7 @@ const softwareJsonLd = {
   "applicationCategory": "MultimediaApplication",
   "operatingSystem": "Web Browser",
   "offers": [
-    { "@type": "Offer", "name": "Free Plan", "price": "0", "priceCurrency": "USD", "description": "Audio-only transcription with full transcript editing, SRT and plain text export. No signup required." },
-    { "@type": "Offer", "name": "Starter Plan", "price": "3", "priceCurrency": "USD", "description": "Adds video uploads, custom fonts, typography controls, VTT export, and Premiere Pro JSON export. 14-day free trial, no credit card required." },
-    { "@type": "Offer", "name": "Pro Plan", "price": "16", "priceCurrency": "USD", "description": "Adds cloud transcription, AI viral segment finder, animated caption templates, and automatic video clipping." }
+    { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Full-featured transcription, subtitle editing, custom fonts, all exports (SRT, VTT, TXT, Premiere Pro JSON). No signup required, no limits." }
   ]
 };
 
@@ -66,23 +64,22 @@ const jsonLd = {
 
   <!-- Hero -->
   <section class="hero">
-    <div class="hero-badge">⭐ 14-Day Free Trial — No Credit Card Required</div>
     <h1 class="hero-title">
       Free Audio to SRT Converter<br>
       <span class="hero-accent">& Online Subtitle Editor</span>
     </h1>
     <p class="hero-sub">
-      Free audio to SRT and video to SRT conversion with no upload limits, no file length caps, and no signup required. Edit subtitles with professional typography controls and export native Premiere Pro JSON, properly timed SRT, plain text TXT, and MP4 video with burned-in subtitles.
+      Completely free, forever. No signup. No duration limit — transcribe a 10-hour file if you want. Upload audio or video, get accurate AI subtitles, edit and style them, then export SRT, TXT, Premiere Pro JSON, or MP4 with burned-in captions.
     </p>
     <div class="hero-btns">
       <a href="/tool" class="btn-primary">Start Transcribing Free →</a>
-      <a href="/auth" class="btn-secondary" id="hero-trial-btn">Start 14-Day Free Trial</a>
     </div>
     <div class="hero-trust">
-      <span>🔒 Audio never uploaded</span>
+      <span>🔒 Files never leave your device</span>
       <span>⚡ Powered by Whisper AI</span>
-      <span>🎬 Works with Premiere Pro</span>
-      <span>∞ No file size limits</span>
+      <span>∞ No duration limit</span>
+      <span>∞ No file limit</span>
+      <span>🎬 Premiere Pro export</span>
     </div>
   </section>
 
@@ -91,9 +88,9 @@ const jsonLd = {
     <h2>Everything a video editor needs</h2>
     <div class="features-grid">
       <div class="feature-card">
-        <div class="feature-icon">🎬</div>
-        <h3>Export Video with Subtitles</h3>
-        <p>Burn your edited subtitles directly into the video and export a finished MP4 — no need to round-trip through another editor.</p>
+        <div class="feature-icon">🎵</div>
+        <h3>Upload Any Audio or Video Format</h3>
+        <p>MP3, WAV, M4A, OGG, OPUS, FLAC — any audio format works. For video: MP4, MOV, WebM. No duration limit, no file size limit, no conversion needed.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">📂</div>
@@ -118,7 +115,7 @@ const jsonLd = {
       <div class="feature-card">
         <div class="feature-icon">📦</div>
         <h3>Every Export Format You Need</h3>
-        <p>SRT, plain text, VTT, and native Adobe Premiere Pro JSON — import straight into Premiere's Text-Based Editing panel.</p>
+        <p>SRT (properly timed), plain TXT, VTT, native Adobe Premiere Pro JSON, and MP4 with subtitles burned directly into the video — no round-trip through another editor required.</p>
       </div>
     </div>
   </section>
@@ -165,61 +162,48 @@ const jsonLd = {
 
   <!-- Pricing -->
   <section class="pricing" id="pricing">
-    <h2>Simple, transparent pricing</h2>
-    <p class="pricing-sub">Start with the free plan. Upgrade when you need more power.</p>
+    <h2>100% Free — No account required</h2>
+    <p class="pricing-sub">Every feature, zero cost. No file limits, no duration limits, no signup.</p>
 
-    <div class="pricing-grid">
-
-      <div class="pricing-card">
-        <div class="plan-name">Free</div>
-        <div class="plan-price">$0<span>/forever</span></div>
-        <div class="plan-desc">No signup required. Start immediately.</div>
-        <ul class="plan-features">
-          <li>Audio file transcription (MP3, WAV, M4A)</li>
-          <li>Full transcript text editor</li>
-          <li>Subtitle timestamp editor</li>
-          <li>Waveform timeline</li>
-          <li>Live video preview window</li>
-          <li>SRT subtitle export</li>
-          <li>Plain text (.txt) export</li>
-        </ul>
-        <a href="/tool" class="plan-btn plan-btn-free">Start for free →</a>
-      </div>
+    <div class="pricing-grid pricing-grid-2">
 
       <div class="pricing-card pricing-card-featured">
-        <div class="plan-badge">⭐ Most Popular</div>
-        <div class="plan-name">Starter</div>
-        <div class="plan-price">$3<span>/month</span></div>
-        <div class="plan-price-inr">or ₹99/month for India</div>
-        <div class="plan-desc">14-day free trial. No credit card required.</div>
+        <div class="plan-name">Free — Forever</div>
+        <div class="plan-price">$0<span>/forever</span></div>
+        <div class="plan-desc">No signup required. Start immediately. No limits of any kind.</div>
         <ul class="plan-features">
-          <li>Everything in Free</li>
-          <li>Video file uploads (MP4, MOV, WebM)</li>
-          <li>Custom font uploads (.ttf, .otf, .woff)</li>
-          <li>Typography controls — stroke, shadow, offsets</li>
-          <li>VTT subtitle export</li>
-          <li>Premiere Pro JSON export</li>
-          <li>Full subtitle styling panel</li>
-          <li>Priority processing</li>
+          <li><strong>No duration limit</strong> — transcribe a 10-hour audio or video</li>
+          <li><strong>No file limit</strong> — transcribe as many files as you want</li>
+          <li>Audio + video uploads (MP3, WAV, M4A, MP4, MOV, WebM)</li>
+          <li>3 AI models — Fast (90%), Balanced (95%), Most Accurate (98%)</li>
+          <li>Full transcript text editor — fix words, clean up errors</li>
+          <li>Advanced subtitle editor — split lines, move words up/down</li>
+          <li>Single-line or double-line subtitle toggle</li>
+          <li>Upload your own custom font (.TTF, .OTF, .WOFF)</li>
+          <li>Shadow, stroke, color and position controls</li>
+          <li>Live video preview window</li>
+          <li>Waveform timeline editor</li>
+          <li>Export SRT (properly timed subtitles)</li>
+          <li>Export plain TXT (full transcription)</li>
+          <li>Export Premiere Pro JSON (drop into timeline)</li>
+          <li>Export MP4 with burned-in captions</li>
         </ul>
-        <a href="/auth" class="plan-btn plan-btn-starter" id="pricing-trial-btn">Start 14-day free trial →</a>
-        <div class="plan-note">Sign in with Google · No credit card · Cancel anytime</div>
+        <a href="/tool" class="plan-btn plan-btn-indigo">Start transcribing free →</a>
       </div>
 
       <div class="pricing-card">
-        <div class="plan-name">Pro</div>
-        <div class="plan-price">$16<span>/month</span></div>
-        <div class="plan-desc">For power users and agencies.</div>
+        <div class="plan-name">Desktop App</div>
+        <div class="plan-price" style="font-size:28px;">15–20×<span style="font-size:14px;"> faster</span></div>
+        <div class="plan-desc">Native GPU acceleration. No browser limits. 100% offline.</div>
         <ul class="plan-features">
-          <li>Everything in Starter</li>
-          <li>Cloud transcription via Groq (instant)</li>
-          <li>45-min audio transcribed in under 60 seconds</li>
-          <li>AI Viral Segment Finder</li>
-          <li>Animated caption templates</li>
-          <li>Auto video clipping by AI timestamps</li>
-          <li>Priority support</li>
+          <li>Everything in the free web app</li>
+          <li>Native GPU / CPU acceleration (15–20× faster transcription)</li>
+          <li>No browser memory limits — handle any file size</li>
+          <li>Works 100% offline — no internet required</li>
+          <li>Faster model loading (cached locally)</li>
+          <li>Windows &amp; Mac support</li>
         </ul>
-        <a href="/tool" class="plan-btn plan-btn-pro">Coming soon →</a>
+        <div class="plan-btn plan-btn-coming">Coming soon →</div>
       </div>
 
     </div>
@@ -281,7 +265,7 @@ const jsonLd = {
             <td class="c3-feat">Monthly Cost</td>
             <td class="c3-rival">$20 / month</td>
             <td class="c3-rival">$15+ / month</td>
-            <td class="c3-us">💚 <strong>$3 / month (₹99 for India)</strong></td>
+            <td class="c3-us">💚 <strong>Free — always</strong></td>
           </tr>
           <tr class="c3-alt">
             <td class="c3-feat">Free Plan Limits</td>
@@ -321,7 +305,7 @@ const jsonLd = {
       <li>
         <span class="c3-bullet-icon">💰</span>
         <div>
-          <strong>The Impulse-Buy Edge:</strong> Why drop $180–$240 a year just to get unlimited transcripts? AudioSRT gives you unlimited local audio processing for free, and advanced font injection and NLE integration tools for just $3/month (₹99/mo in India).
+          <strong>Zero Cost, Full Power:</strong> Why drop $180–$240 a year just to get unlimited transcripts? AudioSRT gives you everything — unlimited audio and video transcription, custom fonts, all export formats — completely free with no account required.
         </div>
       </li>
     </ul>
@@ -352,8 +336,8 @@ const jsonLd = {
         <p>No. We use asynchronous Web Workers and WebGPU memory-chunking that completely separates AI processing from the browser UI thread. Long files process in chunks so you can edit earlier sections while later sections are still transcribing.</p>
       </div>
       <div class="faq-item">
-        <h3>What is the difference between Free and Starter?</h3>
-        <p>Free supports audio-only transcription with SRT and TXT export — no signup needed. Starter ($3/month or ₹99/month) adds video uploads, custom font injection, advanced typography controls, VTT export, and Premiere Pro JSON. Start with a 14-day free trial — no credit card required.</p>
+        <h3>Is AudioSRT really free?</h3>
+        <p>Yes — everything is free with no account required. Transcribe unlimited audio and video files, edit subtitles, upload custom fonts, and export to SRT, VTT, TXT, and Premiere Pro JSON. No signup, no limits, no credit card.</p>
       </div>
       <div class="faq-item">
         <h3>Is there a desktop app?</h3>
@@ -434,7 +418,8 @@ const jsonLd = {
 .pricing h2 { font-size: 32px; font-weight: 700; color: #1D1D1F; margin-bottom: 12px; letter-spacing: -0.5px; }
 .pricing-sub { font-size: 15px; color: #6E6E73; margin-bottom: 48px; }
 .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; text-align: left; }
-@media (max-width: 768px) { .pricing-grid { grid-template-columns: 1fr; } }
+.pricing-grid-2 { grid-template-columns: repeat(2, 1fr); max-width: 860px; margin-left: auto; margin-right: auto; }
+@media (max-width: 768px) { .pricing-grid { grid-template-columns: 1fr; } .pricing-grid-2 { grid-template-columns: 1fr; } }
 .pricing-card { border: 0.5px solid #E5E5E7; border-radius: 16px; padding: 28px 24px; background: #FFFFFF; position: relative; display: flex; flex-direction: column; gap: 8px; }
 .pricing-card-featured { border: 1.5px solid #6366F1; background: #FAFAFE; box-shadow: 0 4px 32px rgba(99,102,241,0.12); }
 .plan-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #6366F1; color: #fff; font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 20px; white-space: nowrap; }
@@ -452,6 +437,9 @@ const jsonLd = {
 .plan-btn-starter { background: #6366F1; color: #fff; }
 .plan-btn-starter:hover { background: #4F46E5; }
 .plan-btn-pro { background: #F5F5F7; color: #6E6E73; border: 0.5px solid #E5E5E7; }
+.plan-btn-indigo { background: #6366F1; color: #fff; border: none; }
+.plan-btn-indigo:hover { background: #4F46E5; }
+.plan-btn-coming { background: #F5F5F7; color: #6E6E73; border: 0.5px solid #E5E5E7; cursor: default; }
 .plan-note { font-size: 10px; color: #A0A0A5; text-align: center; }
 
 /* How it works */
