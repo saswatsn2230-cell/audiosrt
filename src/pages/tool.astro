@@ -3047,7 +3047,7 @@ button:active { transform:scale(0.97); }
     return rendered;
   }
 
-  transcribeBtn.addEventListener('click', async () => {
+  async function runTranscription() {
     if (!selectedFile) return;
     transcribeBtn.disabled = true;
     stopRafSync();
@@ -3267,7 +3267,9 @@ button:active { transform:scale(0.97); }
       showError(err.message || 'Could not decode audio. Try a different file.');
       transcribeBtn.disabled = false;
     }
-  });
+  }
+
+  transcribeBtn.addEventListener('click', () => runTranscription());
 
   clearTranscript.addEventListener('click', () => {
     if (!confirm('Clear all transcript lines?')) return;
@@ -4278,17 +4280,15 @@ button:active { transform:scale(0.97); }
   retranscribeConfirm?.addEventListener('click', async () => {
     const selectedModel = retranscribeModal?.querySelector('input[name="rt-model"]:checked')?.value;
     if (!selectedModel || !selectedFile) return;
-    if (!confirm('This will replace the current transcript and re-transcribe from scratch. Continue?')) return;
 
     retranscribeModal?.classList.add('hidden');
 
-    // Switch model selector to chosen model
+    // Switch model selector to the chosen model before running
     const modelSelect = document.getElementById('model-select');
     if (modelSelect) modelSelect.value = selectedModel;
 
-    // Simulate clicking the Transcribe button — it handles all the reset + run logic
-    const transcribeBtnEl = document.getElementById('transcribe-btn');
-    transcribeBtnEl?.click();
+    // Call the shared transcription function directly (button may be hidden)
+    runTranscription();
   });
 
   if (toolCols && uploadScreen) {
