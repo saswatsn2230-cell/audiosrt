@@ -573,8 +573,8 @@ select option { font-family:'Inter',system-ui,sans-serif; font-size:12px; color:
 /* FIX 3 — clickable subtitle rows */
 #transcript-lines .flex { cursor:pointer; }
 #transcript-lines .flex:hover { background:#F5F5F7; border-radius:5px; }
-/* FIX 1 */
-.word-active { background:#EEEFFD !important; color:#6366F1 !important; border-radius:3px; padding:0 2px; }
+/* FIX 1 — active word highlight */
+.word-active { background:#6366F1 !important; color:#fff !important; border-radius:3px; padding:0 3px; transition:background 0.1s; }
 
 /* Timeline */
 #step-timeline { display:none; flex:1; flex-direction:column; }
@@ -1096,18 +1096,16 @@ button:active { transform:scale(0.97); }
         <p class="ms-label">Select transcription quality</p>
         <div class="ms-cards">
           <label class="ms-card" data-model="Xenova/whisper-tiny.en" data-time="~15 seconds">
-            <input type="radio" name="model-tier" value="Xenova/whisper-tiny.en" checked />
+            <input type="radio" name="model-tier" value="Xenova/whisper-tiny.en" />
             <div class="ms-icon">⚡</div>
             <div class="ms-name">Fastest</div>
-            <div class="ms-model">Tiny Model</div>
             <div class="ms-desc">Ideal for quick drafts &amp; clean audio.</div>
             <div class="ms-time">~15 seconds</div>
           </label>
           <label class="ms-card ms-default" data-model="Xenova/whisper-small" data-time="~1–2 minutes">
-            <input type="radio" name="model-tier" value="Xenova/whisper-small" />
+            <input type="radio" name="model-tier" value="Xenova/whisper-small" checked />
             <div class="ms-icon">⚖️</div>
             <div class="ms-name">Balanced</div>
-            <div class="ms-model">Small Model</div>
             <div class="ms-desc">The perfect default — speed &amp; accuracy.</div>
             <div class="ms-time">~1–2 minutes</div>
           </label>
@@ -1115,7 +1113,6 @@ button:active { transform:scale(0.97); }
             <input type="radio" name="model-tier" value="Xenova/whisper-medium" />
             <div class="ms-icon">🎯</div>
             <div class="ms-name">Studio Quality</div>
-            <div class="ms-model">Medium Model</div>
             <div class="ms-desc">Highest accuracy — handles noise &amp; accents.</div>
             <div class="ms-time">~3–5 minutes</div>
           </label>
@@ -4564,13 +4561,12 @@ button:active { transform:scale(0.97); }
   }
 
   function highlightWord() {
-    // Skip entirely while user is editing — never touch DOM during text input
     if (isEditingTranscript) return;
-    // Only run when transcript tab is visible
     if (!paraText || !paraView || paraView.style.display === 'none') return;
     const t = audioEl.currentTime;
     const allWords = paraText.querySelectorAll('.word[data-start]');
     if (!allWords.length) return;
+
     let found = null;
     for (const w of allWords) {
       w.classList.remove('word-active');
@@ -4578,19 +4574,31 @@ button:active { transform:scale(0.97); }
       const e = parseFloat(w.getAttribute('data-end'));
       if (t >= s && t < e) found = w;
     }
+    // If no exact match (gap between segments) use the closest upcoming word
+    if (!found) {
+      let closest = null, minDiff = Infinity;
+      for (const w of allWords) {
+        const s = parseFloat(w.getAttribute('data-start'));
+        if (s >= t) { const d = s - t; if (d < minDiff) { minDiff = d; closest = w; } }
+      }
+      if (minDiff < 1.5) found = closest; // only highlight if within 1.5s ahead
+    }
+
     if (found) {
       found.classList.add('word-active');
+      // Scroll the para-text container so the active word stays in the middle third
       if (found !== lastActiveWord) {
-        found.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'nearest' });
+        const container = paraText;
+        const wordTop   = found.offsetTop;
+        const wordH     = found.offsetHeight;
+        const viewH     = container.clientHeight;
+        const target    = wordTop - viewH / 3 + wordH / 2;
+        container.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
       }
     }
     lastActiveWord = found;
   }
-  audioEl.addEventListener('timeupdate', () => {
-    // eslint-disable-next-line no-console
-    console.log('[word-highlight] timeupdate:', audioEl.currentTime.toFixed(2));
-    highlightWord();
-  });
+  audioEl.addEventListener('timeupdate', highlightWord);
   audioEl.addEventListener('seeked', highlightWord);
 
   // ── Waveform state ────────────────────────────────────────────────────────
