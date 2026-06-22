@@ -3222,7 +3222,10 @@ button:active { transform:scale(0.97); }
             // Deduplicate words from the stride overlap window
             const wordCursor = rawWords.length ? rawWords[rawWords.length - 1].end : 0;
             for (const w of msg.words) {
-              if (w.start >= wordCursor - 0.05) rawWords.push(w);
+              // Strict: word must START at or after the end of the last accepted word.
+              // The -0.05 slack was letting the same word slip in twice when stride
+              // overlap produced it with a slightly different timestamp.
+              if (w.start >= wordCursor) rawWords.push(w);
             }
           }
           window.__rawWords = rawWords;  // expose for rebuildPara in IIFE
@@ -4456,8 +4459,9 @@ button:active { transform:scale(0.97); }
       seg_el.dataset.segIdx   = String(si);
       seg_el.dataset.segStart = String(seg.start);
 
+      // Strict end boundary (no +0.05) so words at seg boundaries go to exactly one segment
       const segWords = allWords.length
-        ? allWords.filter(w => w.start >= seg.start - 0.05 && w.start < seg.end + 0.05)
+        ? allWords.filter(w => w.start >= seg.start - 0.05 && w.start < seg.end)
         : [];
 
       if (segWords.length) {
@@ -4473,6 +4477,8 @@ button:active { transform:scale(0.97); }
       }
 
       paraText.appendChild(seg_el);
+      // CSS ::after doesn't add real whitespace in contenteditable — use a text node
+      paraText.appendChild(document.createTextNode(' '));
     });
     rebuilding = false;
   }
