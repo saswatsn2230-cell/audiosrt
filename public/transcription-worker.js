@@ -183,7 +183,7 @@ self.addEventListener('message', async (event) => {
     const windowSec     = 30; // matches chunk_length_s
 
     const result = await transcriber(audio16k, {
-      return_timestamps: true,
+      return_timestamps: 'word',   // word-level timestamps for precise highlighting
       chunk_length_s:    30,
       stride_length_s:   5,
       chunk_callback: () => {
@@ -196,9 +196,10 @@ self.addEventListener('message', async (event) => {
 
     progress(98, 'Finalising…');
 
-    // result.chunks is the authoritative stitched output for this outer chunk.
-    // Use it as the 'complete' payload so the main thread can reconcile any
-    // overlap corrections the library made after all windows were processed.
+    // With return_timestamps:'word', result.chunks contains segment-level entries.
+    // result.words (if present) contains per-word {text, timestamp:[start,end]}.
+    // We build the subtitle segments from chunks (for the subtitle editor rows)
+    // and attach word-level data separately for the highlight engine.
     const chunks = result.chunks || [
       { timestamp: [0, 0], text: result.text || '' },
     ];
@@ -211,8 +212,15 @@ self.addEventListener('message', async (event) => {
       }))
       .filter((d) => d.text.length > 0);
 
+    // Word-level timestamps — each entry: { text, start, end }
+    const words = (result.words || []).map((w) => ({
+      text:  (w.word || w.text || '').trim(),
+      start: (w.timestamp?.[0] ?? w.start ?? 0) + timeOffset,
+      end:   (w.timestamp?.[1] ?? w.end   ?? 0) + timeOffset,
+    })).filter((w) => w.text.length > 0);
+
     progress(100, 'Done!');
-    post({ type: 'complete', transcript, chunkIndex, totalChunks });
+    post({ type: 'complete', transcript, words, chunkIndex, totalChunks });
 
   } catch (err) {
     // Reset transcriber so next attempt re-initialises cleanly

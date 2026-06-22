@@ -1743,6 +1743,7 @@ button:active { transform:scale(0.97); }
   // ── State ────────────────────────────────────────────────────────────────
   let selectedFile = null;
   let rawSegments = [];
+  let rawWords    = [];  // actual word-level timestamps from Whisper
   let logicalSegments = [];
   let displaySegments = [];
   let displayToLogical = [];
@@ -2945,6 +2946,8 @@ button:active { transform:scale(0.97); }
     fileInfo.classList.add('hidden');
     transcribeBtn.disabled = true;
     rawSegments      = [];
+    rawWords         = [];
+    window.__rawWords = [];
     logicalSegments  = [];
     displaySegments  = [];
     displayToLogical = [];
@@ -3158,6 +3161,8 @@ button:active { transform:scale(0.97); }
     transcriptArea.classList.add('hidden');
     transcriptLines.innerHTML = '';
     rawSegments      = [];
+    rawWords         = [];
+    window.__rawWords = [];
     logicalSegments  = [];
     displaySegments  = [];
     displayToLogical = [];
@@ -3282,6 +3287,8 @@ button:active { transform:scale(0.97); }
 
         } else if (msg.type === 'complete') {
           rawSegments.push(...msg.transcript);
+          if (msg.words?.length) rawWords.push(...msg.words);
+          window.__rawWords = rawWords;  // expose for rebuildPara in IIFE
           const prevDisplayCount = displaySegments.length;
           appendChunkToLogical(msg.transcript);
           rebuildDisplaySegments();
@@ -3345,6 +3352,8 @@ button:active { transform:scale(0.97); }
   clearTranscript.addEventListener('click', () => {
     if (!confirm('Clear all transcript lines?')) return;
     rawSegments      = [];
+    rawWords         = [];
+    window.__rawWords = [];
     logicalSegments  = [];
     displaySegments  = [];
     displayToLogical = [];
@@ -4492,28 +4501,76 @@ button:active { transform:scale(0.97); }
       if (!tsIn || !txEl) continue;
       segs.push({ start: parseTs(tsIn.value), text: txEl.textContent || '' });
     }
-    segs.forEach((seg, si) => {
-      const end   = si < segs.length - 1 ? segs[si + 1].start : seg.start + 10;
-      const words = seg.text.trim().split(/\s+/).filter(Boolean);
-      if (!words.length) return;
-      const wDur  = Math.max(0.01, (end - seg.start) / words.length);
-      words.forEach((w, wi) => {
-        const span = document.createElement('span');
-        span.className        = 'word';
-        span.textContent      = w;
-        span.dataset.start    = String(seg.start + wi * wDur);
-        span.dataset.end      = String(seg.start + (wi + 1) * wDur);
-        span.dataset.row          = String(si);
-        span.dataset.segmentIndex = String(si);
-        span.dataset.wordIndex    = String(wi);
-        span.addEventListener('click', () => {
-          const t = parseFloat(span.dataset.start);
-          if (isFinite(t)) audioEl.currentTime = t;
+    // Use actual Whisper word timestamps when available; fall back to estimated
+    const whisperWords = window.__rawWords || [];
+    if (whisperWords.length) {
+      // Build a lookup: normalised word text → array of {start, end} entries
+      // We consume entries in order so repeated words map correctly
+      let wIdx = 0;
+      segs.forEach((seg, si) => {
+        const words = seg.text.trim().split(/\s+/).filter(Boolean);
+        if (!words.length) return;
+        words.forEach((w, wi) => {
+          // Advance through whisperWords to find a match near this segment
+          let entry = null;
+          for (let look = wIdx; look < Math.min(wIdx + 6, whisperWords.length); look++) {
+            const cand = whisperWords[look];
+            if (cand.text.replace(/[^a-z0-9]/gi, '').toLowerCase() ===
+                w.replace(/[^a-z0-9]/gi, '').toLowerCase()) {
+              entry = cand;
+              wIdx = look + 1;
+              break;
+            }
+          }
+          const span = document.createElement('span');
+          span.className = 'word';
+          span.textContent = w;
+          if (entry) {
+            span.dataset.start = String(entry.start);
+            span.dataset.end   = String(entry.end);
+          } else {
+            // Fallback: estimate from segment timing
+            const end  = si < segs.length - 1 ? segs[si + 1].start : seg.start + 10;
+            const wDur = Math.max(0.01, (end - seg.start) / words.length);
+            span.dataset.start = String(seg.start + wi * wDur);
+            span.dataset.end   = String(seg.start + (wi + 1) * wDur);
+          }
+          span.dataset.row          = String(si);
+          span.dataset.segmentIndex = String(si);
+          span.dataset.wordIndex    = String(wi);
+          span.addEventListener('click', () => {
+            const t = parseFloat(span.dataset.start);
+            if (isFinite(t)) audioEl.currentTime = t;
+          });
+          paraText.appendChild(span);
+          paraText.appendChild(document.createTextNode(' '));
         });
-        paraText.appendChild(span);
-        paraText.appendChild(document.createTextNode(' '));
       });
-    });
+    } else {
+      // No Whisper word timestamps yet — use linear estimation
+      segs.forEach((seg, si) => {
+        const end   = si < segs.length - 1 ? segs[si + 1].start : seg.start + 10;
+        const words = seg.text.trim().split(/\s+/).filter(Boolean);
+        if (!words.length) return;
+        const wDur  = Math.max(0.01, (end - seg.start) / words.length);
+        words.forEach((w, wi) => {
+          const span = document.createElement('span');
+          span.className        = 'word';
+          span.textContent      = w;
+          span.dataset.start    = String(seg.start + wi * wDur);
+          span.dataset.end      = String(seg.start + (wi + 1) * wDur);
+          span.dataset.row          = String(si);
+          span.dataset.segmentIndex = String(si);
+          span.dataset.wordIndex    = String(wi);
+          span.addEventListener('click', () => {
+            const t = parseFloat(span.dataset.start);
+            if (isFinite(t)) audioEl.currentTime = t;
+          });
+          paraText.appendChild(span);
+          paraText.appendChild(document.createTextNode(' '));
+        });
+      });
+    }
     rebuilding = false;
     // eslint-disable-next-line no-console
     console.log('[word-highlight] Built', paraText.querySelectorAll('.word[data-start]').length, 'word spans');
