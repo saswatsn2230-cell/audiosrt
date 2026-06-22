@@ -12,6 +12,7 @@ env.allowLocalModels = false;
 
 // Reuse the pipeline across calls so the model is only downloaded once.
 let transcriber = null;
+let loadedModel = null; // track which model is currently loaded
 
 function post(msg) {
   self.postMessage(msg);
@@ -100,27 +101,32 @@ self.addEventListener('message', async (event) => {
     type,
     audioBuffer,
     sampleRate: inputSampleRate,
-    timeOffset  = 0, // seconds to add to all returned timestamps (for chunked mode)
+    timeOffset  = 0,
     chunkIndex  = 0,
     totalChunks = 1,
+    model       = 'Xenova/whisper-tiny.en',
   } = event.data;
   if (type !== 'transcribe') return;
 
   try {
     // --- Step 1: Load or reuse the pipeline ---
-    if (!transcriber) {
+    // If the user switched model tiers, discard the old pipeline and reload.
+    if (!transcriber || loadedModel !== model) {
+      transcriber = null;
+      loadedModel = model;
       progress(5, 'Loading AI model…');
 
+      const modelLabel = model.includes('medium') ? 'Medium' : model.includes('small') ? 'Small' : 'Tiny';
       transcriber = await pipeline(
         'automatic-speech-recognition',
-        'Xenova/whisper-tiny.en',
+        model,
         {
           progress_callback: (info) => {
             if (info.status === 'downloading' && info.total > 0) {
               const dlPct = Math.round((info.loaded / info.total) * 45);
-              progress(10 + dlPct, `Downloading model: ${Math.round((info.loaded / info.total) * 100)}%`);
+              progress(10 + dlPct, `Downloading ${modelLabel} model: ${Math.round((info.loaded / info.total) * 100)}%`);
             } else if (info.status === 'initiate') {
-              progress(10, 'Initialising model…');
+              progress(10, `Initialising ${modelLabel} model…`);
             } else if (info.status === 'loading') {
               progress(55, 'Loading model weights…');
             } else if (info.status === 'ready') {

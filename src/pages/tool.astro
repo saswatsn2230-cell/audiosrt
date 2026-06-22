@@ -162,6 +162,22 @@ body { font-family:'Inter',system-ui,sans-serif; background:#fff; color:#1D1D1F;
 #transcribe-btn:active:not(:disabled){ transform:scale(0.97); }
 #transcribe-btn:disabled { opacity:0.4; cursor:not-allowed; }
 #est-time { font-size:11px; color:#6E6E73; text-align:center; }
+/* Model selector */
+#model-selector { width:500px; margin-bottom:14px; }
+.ms-label { font-size:11px; font-weight:600; color:#6E6E73; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; text-align:left; }
+.ms-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.ms-card { display:flex; flex-direction:column; align-items:center; text-align:center; padding:12px 10px; border-radius:10px; border:1.5px solid #E5E5E7; cursor:pointer; transition:border-color 0.15s, background 0.15s; background:#fff; position:relative; }
+.ms-card input[type="radio"] { position:absolute; opacity:0; width:0; height:0; }
+.ms-card:hover { border-color:#C7C8F9; background:#FAFAFF; }
+.ms-card:has(input:checked) { border-color:#6366F1; background:#EEEFFD; }
+.ms-icon { font-size:20px; margin-bottom:4px; }
+.ms-name { font-size:13px; font-weight:700; color:#1D1D1F; margin-bottom:2px; }
+.ms-model { font-size:10px; font-weight:500; color:#6366F1; background:#fff; border:0.5px solid #C7C8F9; border-radius:20px; padding:1px 8px; margin-bottom:6px; }
+.ms-desc { font-size:11px; color:#6E6E73; line-height:1.4; margin-bottom:6px; }
+.ms-time { font-size:10px; font-weight:600; color:#8E8E93; background:#F5F5F7; border-radius:6px; padding:2px 8px; }
+.ms-card:has(input:checked) .ms-model { background:#6366F1; color:#fff; border-color:#6366F1; }
+.ms-card:has(input:checked) .ms-time { background:#D8D9FB; color:#4F46E5; }
+.ms-default::after { content:'Default'; position:absolute; top:-8px; left:50%; transform:translateX(-50%); font-size:9px; font-weight:700; color:#fff; background:#6366F1; border-radius:20px; padding:1px 8px; white-space:nowrap; }
 /* ── Upload info pills ─────────────────────────────────────── */
 .upload-info-pills {
   display:flex; gap:8px; justify-content:center;
@@ -1075,6 +1091,37 @@ button:active { transform:scale(0.97); }
         </label>
         <span style="font-size:11px;color:#B0B0B8;">(removes background hiss before transcribing)</span>
       </div>
+      <!-- Model quality selector -->
+      <div id="model-selector">
+        <p class="ms-label">Select transcription quality</p>
+        <div class="ms-cards">
+          <label class="ms-card" data-model="Xenova/whisper-tiny.en" data-time="~15 seconds">
+            <input type="radio" name="model-tier" value="Xenova/whisper-tiny.en" checked />
+            <div class="ms-icon">⚡</div>
+            <div class="ms-name">Fastest</div>
+            <div class="ms-model">Tiny Model</div>
+            <div class="ms-desc">Ideal for quick drafts &amp; clean audio.</div>
+            <div class="ms-time">~15 seconds</div>
+          </label>
+          <label class="ms-card ms-default" data-model="Xenova/whisper-small" data-time="~1–2 minutes">
+            <input type="radio" name="model-tier" value="Xenova/whisper-small" />
+            <div class="ms-icon">⚖️</div>
+            <div class="ms-name">Balanced</div>
+            <div class="ms-model">Small Model</div>
+            <div class="ms-desc">The perfect default — speed &amp; accuracy.</div>
+            <div class="ms-time">~1–2 minutes</div>
+          </label>
+          <label class="ms-card" data-model="Xenova/whisper-medium" data-time="~3–5 minutes">
+            <input type="radio" name="model-tier" value="Xenova/whisper-medium" />
+            <div class="ms-icon">🎯</div>
+            <div class="ms-name">Studio Quality</div>
+            <div class="ms-model">Medium Model</div>
+            <div class="ms-desc">Highest accuracy — handles noise &amp; accents.</div>
+            <div class="ms-time">~3–5 minutes</div>
+          </label>
+        </div>
+      </div>
+
       <button id="transcribe-btn" disabled>Transcribe →</button>
       <div id="est-time"></div>
 
@@ -3002,14 +3049,19 @@ button:active { transform:scale(0.97); }
     }));
   }
 
+  function getSelectedModel() {
+    const checked = document.querySelector('input[name="model-tier"]:checked');
+    return checked ? checked.value : 'Xenova/whisper-tiny.en';
+  }
+
   function dispatchNextChunk() {
     if (chunksDone >= chunkQueue.length) return;
     const { audioSlice, timeOffset } = chunkQueue[chunksDone];
-    // Transfer the buffer — zero-copy, worker owns it after this call
     const transfer = audioSlice.slice();
     worker.postMessage(
       { type: 'transcribe', audioBuffer: transfer, sampleRate: 16000,
-        timeOffset, chunkIndex: chunksDone, totalChunks },
+        timeOffset, chunkIndex: chunksDone, totalChunks,
+        model: getSelectedModel() },
       [transfer.buffer]
     );
   }
