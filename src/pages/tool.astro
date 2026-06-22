@@ -2868,6 +2868,8 @@ button:active { transform:scale(0.97); }
     if (isTranscribing && chunksDone < totalChunks && audioPlayer.currentTime >= lastTranscribedEnd - 0.15) {
       audioPlayer.pause();
     }
+    // Drive word highlight from main handler (works during chunked transcription too)
+    if (window.__highlightWord) window.__highlightWord();
   });
   audioPlayer.addEventListener('play',           () => { updateMiniUI(); startRafSync(); });
   audioPlayer.addEventListener('pause',          () => { updateMiniUI(); stopRafSync(); });
@@ -3311,6 +3313,9 @@ button:active { transform:scale(0.97); }
 
           // Delay so the skeleton appends AFTER rebuildPara (MutationObserver microtask) clears para-text
           if (moreChunks) setTimeout(showChunkTail, 0);
+
+          // Re-run highlight after DOM settles so the new chunk's words get marked immediately
+          setTimeout(() => { if (window.__highlightWord) window.__highlightWord(); }, 100);
 
           autoSave();
 
@@ -4565,24 +4570,21 @@ button:active { transform:scale(0.97); }
     });
   }
 
-  // ── Word highlighting — FIX 3 + cursor-jump fix ──────────────────────────
+  // ── Word highlighting ─────────────────────────────────────────────────────
   let lastActiveWord = null;
 
-  // Track editing state so timeupdate never touches DOM while user types
   if (paraText) {
-    paraText.addEventListener('focus', () => { isEditingTranscript = true; });
-    paraText.addEventListener('blur',  () => {
-      isEditingTranscript = false;
-      // Trigger one highlight pass after editing ends
-      highlightWord();
-    });
-    // Also treat any click inside para-text as editing
+    paraText.addEventListener('focus',     () => { isEditingTranscript = true; });
     paraText.addEventListener('mousedown', () => { isEditingTranscript = true; });
+    paraText.addEventListener('blur',      () => { isEditingTranscript = false; highlightWord(); });
   }
 
   function highlightWord() {
     if (isEditingTranscript) return;
-    if (!paraText || !paraView || paraView.style.display === 'none') return;
+    if (!paraText) return;
+    // Use computed style so CSS-hidden panels are caught, not just inline style
+    if (paraView && getComputedStyle(paraView).display === 'none') return;
+
     const t = audioEl.currentTime;
     const allWords = paraText.querySelectorAll('.word[data-start]');
     if (!allWords.length) return;
@@ -4590,36 +4592,39 @@ button:active { transform:scale(0.97); }
     let found = null;
     for (const w of allWords) {
       w.classList.remove('word-active');
-      const s = parseFloat(w.getAttribute('data-start'));
-      const e = parseFloat(w.getAttribute('data-end'));
+      const s = parseFloat(w.dataset.start);
+      const e = parseFloat(w.dataset.end);
       if (t >= s && t < e) found = w;
     }
-    // If no exact match (gap between segments) use the closest upcoming word
+    // Gap between segments: highlight the next upcoming word within 1.5s
     if (!found) {
       let closest = null, minDiff = Infinity;
       for (const w of allWords) {
-        const s = parseFloat(w.getAttribute('data-start'));
-        if (s >= t) { const d = s - t; if (d < minDiff) { minDiff = d; closest = w; } }
+        const s = parseFloat(w.dataset.start);
+        if (s > t) { const d = s - t; if (d < minDiff) { minDiff = d; closest = w; } }
       }
-      if (minDiff < 1.5) found = closest; // only highlight if within 1.5s ahead
+      if (minDiff < 1.5) found = closest;
     }
 
     if (found) {
       found.classList.add('word-active');
-      // Scroll the para-text container so the active word stays in the middle third
       if (found !== lastActiveWord) {
-        const container = paraText;
-        const wordTop   = found.offsetTop;
-        const wordH     = found.offsetHeight;
-        const viewH     = container.clientHeight;
-        const target    = wordTop - viewH / 3 + wordH / 2;
-        container.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
+        // Scroll so active word sits ~1/3 from top of the para-text container
+        const rect      = found.getBoundingClientRect();
+        const contRect  = paraText.getBoundingClientRect();
+        const relTop    = rect.top - contRect.top + paraText.scrollTop;
+        const target    = relTop - paraText.clientHeight / 3;
+        paraText.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
       }
     }
     lastActiveWord = found;
   }
+
+  // Expose so the main-block timeupdate handler can call it directly
+  window.__highlightWord = highlightWord;
+
   audioEl.addEventListener('timeupdate', highlightWord);
-  audioEl.addEventListener('seeked', highlightWord);
+  audioEl.addEventListener('seeked',     highlightWord);
 
   // ── Waveform state ────────────────────────────────────────────────────────
   let wfPeaks = null, wfCtx = null, wfDur = 0;
