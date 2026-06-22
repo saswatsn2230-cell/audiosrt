@@ -3048,8 +3048,7 @@ button:active { transform:scale(0.97); }
   }
 
   async function runTranscription() {
-    console.log('[runTranscription] start | selectedFile:', selectedFile?.name);
-    if (!selectedFile) { console.warn('[runTranscription] EARLY RETURN — no file'); return; }
+    if (!selectedFile) return;
     transcribeBtn.disabled = true;
     stopRafSync();
 
@@ -4101,6 +4100,10 @@ button:active { transform:scale(0.97); }
   checkRestoredState();
 
   applyPreviewStyles();
+
+  // Expose to second IIFE (retranscribe handler lives in a separate <script> block)
+  window._audiosrt.runTranscription  = runTranscription;
+  window._audiosrt.getSelectedFile   = () => selectedFile;
 })();
 </script>
 
@@ -4279,23 +4282,17 @@ button:active { transform:scale(0.97); }
   });
 
   retranscribeConfirm?.addEventListener('click', async () => {
-    console.log('[Retranscribe] button clicked');
     const selectedModel = retranscribeModal?.querySelector('input[name="rt-model"]:checked')?.value;
-    console.log('[Retranscribe] selectedModel:', selectedModel, '| selectedFile:', selectedFile?.name);
-    if (!selectedModel || !selectedFile) {
-      console.warn('[Retranscribe] EARLY RETURN — missing model or file');
-      return;
-    }
+    const selectedFile  = window._audiosrt?.getSelectedFile?.();
+    if (!selectedModel || !selectedFile) return;
 
     retranscribeModal?.classList.add('hidden');
 
     // Override the upload-screen model-tier radio so getSelectedModel() returns the right value
     const targetRadio = document.querySelector(`input[name="model-tier"][value="${selectedModel}"]`);
-    console.log('[Retranscribe] targetRadio found:', !!targetRadio);
     if (targetRadio) targetRadio.checked = true;
 
-    console.log('[Retranscribe] calling runTranscription()');
-    runTranscription();
+    window._audiosrt.runTranscription?.();
   });
 
   if (toolCols && uploadScreen) {
