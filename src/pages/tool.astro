@@ -776,9 +776,9 @@ button:active { transform:scale(0.97); }
   font-size:14px; line-height:1.9; color:#1D1D1F;
   outline:none; word-break:break-word; caret-color:#6366F1;
 }
-/* Segments flow as inline text so the transcript reads as prose, not subtitle lines */
-#para-text div[data-seg-idx] { display:inline; }
-#para-text div[data-seg-idx]::after { content:' '; }
+/* Segment spans flow as inline prose; add a space between adjacent segments */
+#para-text span[data-seg-idx] { display:inline; }
+#para-text span[data-seg-idx]::after { content:' '; }
 #para-text:empty::before { content:attr(data-placeholder); color:#C7C7CC; pointer-events:none; }
 #para-text::-webkit-scrollbar { width:4px; }
 #para-text::-webkit-scrollbar-thumb { background:#E5E5E7; border-radius:2px; }
@@ -4450,9 +4450,11 @@ button:active { transform:scale(0.97); }
     const allWords = window.__rawWords || [];
 
     logSegs.forEach((seg, si) => {
-      const div = document.createElement('div');
-      div.dataset.segIdx   = String(si);
-      div.dataset.segStart = String(seg.start);
+      // Use <span> (not <div>) so segments flow inline inside the contenteditable.
+      // Browsers force block display on <div> children of contenteditable, ignoring CSS.
+      const seg_el = document.createElement('span');
+      seg_el.dataset.segIdx   = String(si);
+      seg_el.dataset.segStart = String(seg.start);
 
       const segWords = allWords.length
         ? allWords.filter(w => w.start >= seg.start - 0.05 && w.start < seg.end + 0.05)
@@ -4464,13 +4466,13 @@ button:active { transform:scale(0.97); }
           span.dataset.ws = String(w.start);
           span.dataset.we = String(w.end);
           span.textContent = w.text + (wi < segWords.length - 1 ? ' ' : '');
-          div.appendChild(span);
+          seg_el.appendChild(span);
         });
       } else {
-        div.textContent = seg.text;
+        seg_el.textContent = seg.text;
       }
 
-      paraText.appendChild(div);
+      paraText.appendChild(seg_el);
     });
     rebuilding = false;
   }
@@ -4484,7 +4486,7 @@ button:active { transform:scale(0.97); }
     paraText.addEventListener('blur', () => {
       let changed = false;
       const logSegs = window._audiosrt?.getSegments?.() || [];
-      paraText.querySelectorAll('div[data-seg-idx]').forEach(div => {
+      paraText.querySelectorAll('[data-seg-idx]').forEach(div => {
         const idx     = parseInt(div.dataset.segIdx);
         const newText = div.textContent.replace(/\s+/g, ' ').trim();
         if (!logSegs[idx]) return;
@@ -4498,7 +4500,7 @@ button:active { transform:scale(0.97); }
 
     // Click on a segment div → seek audio to its timestamp
     paraText.addEventListener('click', (e) => {
-      const div = e.target.closest('div[data-seg-start]');
+      const div = e.target.closest('[data-seg-start]');
       if (!div) return;
       const t = parseFloat(div.dataset.segStart);
       if (isFinite(t)) audioEl.currentTime = t;
@@ -4548,10 +4550,10 @@ button:active { transform:scale(0.97); }
     if (!paraText || document.activeElement === paraText) return;
     const t = audioEl.currentTime;
 
-    let divs = Array.from(paraText.querySelectorAll('div[data-seg-start]'));
+    let divs = Array.from(paraText.querySelectorAll('[data-seg-start]'));
     if (!divs.length) {
       rebuildPara();
-      divs = Array.from(paraText.querySelectorAll('div[data-seg-start]'));
+      divs = Array.from(paraText.querySelectorAll('[data-seg-start]'));
       if (!divs.length) return;
     }
 
@@ -4570,7 +4572,7 @@ button:active { transform:scale(0.97); }
         applyWordStyle(activeWord, true);
 
         // Scroll only when segment changes (not every word — avoids jitter)
-        const activeSeg = activeWord?.closest('div[data-seg-start]') || null;
+        const activeSeg = activeWord?.closest('[data-seg-start]') || null;
         if (activeSeg !== lastActiveSeg) {
           activeSeg?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
           lastActiveSeg = activeSeg;
