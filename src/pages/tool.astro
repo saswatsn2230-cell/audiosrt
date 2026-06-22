@@ -2278,8 +2278,15 @@ button:active { transform:scale(0.97); }
   }
 
   function appendChunkToLogical(newRawSegs) {
+    // Find the end time of the last segment already committed so we can skip
+    // any overlapping segments from the stride window of the new chunk.
+    const cursor = logicalSegments.length
+      ? logicalSegments[logicalSegments.length - 1].end
+      : 0;
     for (const seg of newRawSegs) {
       if (!seg.text.trim()) continue;
+      // Skip segments that start before (or at) the already-covered boundary
+      if (seg.start < cursor - 0.05) continue;
       logicalSegments.push({ ...seg });
     }
   }
@@ -3199,7 +3206,13 @@ button:active { transform:scale(0.97); }
 
         } else if (msg.type === 'complete') {
           rawSegments.push(...msg.transcript);
-          if (msg.words?.length) rawWords.push(...msg.words);
+          if (msg.words?.length) {
+            // Deduplicate words from the stride overlap window
+            const wordCursor = rawWords.length ? rawWords[rawWords.length - 1].end : 0;
+            for (const w of msg.words) {
+              if (w.start >= wordCursor - 0.05) rawWords.push(w);
+            }
+          }
           window.__rawWords = rawWords;  // expose for rebuildPara in IIFE
           const prevDisplayCount = displaySegments.length;
           appendChunkToLogical(msg.transcript);
