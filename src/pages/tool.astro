@@ -2235,10 +2235,12 @@ button:active { transform:scale(0.97); }
 
   let worker      = null;
   let rafId       = null;
-  let monoRef     = null;
-  let totalChunks = 1;
-  let chunksDone  = 0;
-  let chunkQueue  = []; // [{ audioSlice: Float32Array, timeOffset: number }]
+  let monoRef             = null;
+  let totalChunks         = 1;
+  let chunksDone          = 0;
+  let chunkQueue          = []; // [{ audioSlice: Float32Array, timeOffset: number }]
+  let lastTranscribedEnd  = Infinity; // seconds — auto-pause guard during chunked transcription
+  let isTranscribing      = false;
 
   let isVideo        = false;
   let mediaObjectUrl = null;
@@ -2860,7 +2862,13 @@ button:active { transform:scale(0.97); }
   });
   miniSeek.addEventListener('change', () => { seekDragging = false; });
 
-  audioPlayer.addEventListener('timeupdate',     () => { if (!seekDragging) updateMiniUI(); });
+  audioPlayer.addEventListener('timeupdate', () => {
+    if (!seekDragging) updateMiniUI();
+    // Auto-pause at the edge of transcribed content while more chunks are pending
+    if (isTranscribing && chunksDone < totalChunks && audioPlayer.currentTime >= lastTranscribedEnd - 0.15) {
+      audioPlayer.pause();
+    }
+  });
   audioPlayer.addEventListener('play',           () => { updateMiniUI(); startRafSync(); });
   audioPlayer.addEventListener('pause',          () => { updateMiniUI(); stopRafSync(); });
   audioPlayer.addEventListener('ended',          () => { updateMiniUI(); stopRafSync(); });
@@ -2939,6 +2947,7 @@ button:active { transform:scale(0.97); }
     displaySegments  = [];
     displayToLogical = [];
     monoRef = null; totalChunks = 1; chunksDone = 0; chunkQueue = [];
+    lastTranscribedEnd = Infinity; isTranscribing = false;
     isVideo = false;
     if (mediaObjectUrl) { URL.revokeObjectURL(mediaObjectUrl); mediaObjectUrl = null; }
     videoPreviewEl.src = '';
@@ -3188,7 +3197,8 @@ button:active { transform:scale(0.97); }
         setProgress(4, `Splitting ${Math.round(totalSec / 60)}m audio into ${totalChunks} natural segments…`);
       }
       setProgress(5, 'Starting transcription worker…');
-      if (!worker) worker = new Worker('/transcription-worker.js', { type: 'module' });
+      isTranscribing = true; lastTranscribedEnd = Infinity;
+      if (!worker) worker = new Worker('/transcription-worker.js?v=2', { type: 'module' });
 
       worker.onerror = (e) => {
         console.error('[worker]', e);
@@ -3277,6 +3287,16 @@ button:active { transform:scale(0.97); }
 
           const isFirstChunk = chunksDone === 1;
           const moreChunks   = chunksDone < totalChunks;
+
+          // Update the auto-pause boundary to end of last transcribed segment
+          const lastSeg = displaySegments[displaySegments.length - 1];
+          const prevEnd = lastTranscribedEnd;
+          lastTranscribedEnd = lastSeg ? (lastSeg.end ?? Infinity) : Infinity;
+          if (!moreChunks) { lastTranscribedEnd = Infinity; isTranscribing = false; }
+          // If audio was auto-paused at the old boundary, resume now that more text is ready
+          if (audioPlayer.paused && isTranscribing && audioPlayer.currentTime >= prevEnd - 0.5) {
+            audioPlayer.play().catch(() => {});
+          }
 
           // Remove waiting dots before adding new content
           hideChunkTail();
